@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  customerId          Int                  @id @default(autoincrement()) @map("customer_id")
+  firstName           String               @map("first_name") @db.VarChar(100)
+  lastName            String               @map("last_name") @db.VarChar(100)
+  email               String               @unique @db.VarChar(255)
+  phone               String?              @db.VarChar(30)
+  address             String?
+  passwordHash        String               @map("password_hash")
+  loyaltyProgram      Boolean              @default(false) @map("loyalty_program")
+  joinDate            DateTime             @default(now()) @map("join_date") @db.Date
+  loyaltyPoints       Int                  @default(0) @map("loyalty_points")
+  isAdmin             Boolean              @default(false) @map("is_admin")
+  cartItems           CartItem[]
+  comments            Comment[]
+  orders              Order[]
+  paymentTransactions PaymentTransaction[]
+  reservations        BookReservation[]
+
+  @@map("customer")
+}
+
+model Publisher {
+  publisherId  Int    @id @default(autoincrement()) @map("publisher_id")
+  name         String @unique @db.VarChar(255)
+  contactInfo  String? @map("contact_info")
+  publishedBooks Book[]
+
+  @@map("publisher")
+}
+
+model Author {
+  authorId     Int         @id @default(autoincrement()) @map("author_id")
+  firstName    String      @map("first_name") @db.VarChar(100)
+  lastName     String      @map("last_name") @db.VarChar(100)
+  birthDate    DateTime?   @map("birth_date") @db.Date
+  nationality  String?     @db.VarChar(100)
+  imagePath    String?     @map("image_path") @db.VarChar(512)
+  biography    String?
+  authoredBooks BookAuthor[]
+
+  @@map("author")
+}
+
+model Book {
+  bookId            Int                   @id @default(autoincrement()) @map("book_id")
+  title             String                @db.VarChar(255)
+  isbn              String?               @unique @db.VarChar(20)
+  publicationDate   DateTime?             @map("publication_date") @db.Date
+  publisherId       Int?                  @map("publisher_id")
+  price             Decimal?              @db.Decimal(10, 2)
+  stockQuantity     Int                   @default(0) @map("stock_quantity")
+  description       String?
+  language          String?               @db.VarChar(50)
+  pageCount         Int?                  @map("page_count")
+  coverImagePath    String?               @map("cover_image_path") @db.VarChar(512)
+  genre             String?               @db.VarChar(100)
+  publisher         Publisher?            @relation(fields: [publisherId], references: [publisherId], onDelete: SetNull)
+  cartItems         CartItem[]
+  comments          Comment[]
+  authors           BookAuthor[]
+  orderItems        OrderItem[]
+  reservationItems  BookReservationItem[]
+
+  @@index([genre, language], map: "idx_book_genre_language")
+  @@map("book")
+}
+
+model Order {
+  orderId             Int                  @id @default(autoincrement()) @map("order_id")
+  customerId          Int?                 @map("customer_id")
+  orderDate           DateTime             @default(now()) @map("order_date") @db.Timestamptz(6)
+  totalAmount         Decimal?             @map("total_amount") @db.Decimal(12, 2)
+  shippingAddress     String               @map("shipping_address")
+  paymentMethod       String?              @map("payment_method") @db.VarChar(50)
+  customer            Customer?            @relation(fields: [customerId], references: [customerId], onDelete: SetNull)
+  items               OrderItem[]
+  statuses            OrderStatus[]
+  payments            PaymentTransaction[]
+  reservations        BookReservation[]
+
+  @@index([customerId, orderDate], map: "idx_order_customer_date")
+  @@map("order")
+}
+
+model PaymentTransaction {
+  paymentTransactionId Int                    @id @default(autoincrement()) @map("payment_transaction_id")
+  provider             String                 @db.VarChar(32)
+  providerOrderId      String                 @unique @map("provider_order_id") @db.VarChar(128)
+  customerId           Int                    @map("customer_id")
+  orderId              Int?                   @map("order_id")
+  amount               Decimal                @db.Decimal(12, 2)
+  currency             String                 @db.VarChar(10)
+  status               String                 @db.VarChar(40)
+  checkoutUrl          String?                @map("checkout_url")
+  requestDataBase64    String?                @map("request_data_base64")
+  requestSignature     String?                @map("request_signature") @db.VarChar(255)
+  responseDataBase64   String?                @map("response_data_base64")
+  responseSignature    String?                @map("response_signature") @db.VarChar(255)
+  providerPaymentId    String?                @map("provider_payment_id") @db.VarChar(128)
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime               @default(now()) @map("updated_at") @db.Timestamptz(6)
+  verifiedAt           DateTime?              @map("verified_at") @db.Timestamptz(6)
+  customer             Customer               @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+  order                Order?                 @relation(fields: [orderId], references: [orderId], onDelete: SetNull)
+  statusHistory        PaymentStatusHistory[]
+
+  @@index([providerOrderId], map: "idx_payment_transaction_provider_order")
+  @@map("payment_transaction")
+}
+
+model BookReservation {
+  reservationId  Int                   @id @default(autoincrement()) @map("reservation_id")
+  customerId     Int                   @map("customer_id")
+  providerOrderId String               @unique @map("provider_order_id") @db.VarChar(128)
+  orderId        Int?                  @map("order_id")
+  status         String                @db.VarChar(32)
+  expiresAt      DateTime              @map("expires_at") @db.Timestamptz(6)
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime              @default(now()) @map("updated_at") @db.Timestamptz(6)
+  customer       Customer              @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+  order          Order?                @relation(fields: [orderId], references: [orderId], onDelete: SetNull)
+  items          BookReservationItem[]
+
+  @@index([providerOrderId], map: "idx_book_reservation_provider_order")
+  @@index([status, expiresAt], map: "idx_book_reservation_status_expires")
+  @@map("book_reservation")
+}
+
+model BookReservationItem {
+  reservationItemId Int             @id @default(autoincrement()) @map("reservation_item_id")
+  reservationId     Int             @map("reservation_id")
+  bookId            Int             @map("book_id")
+  quantity          Int
+  reservation       BookReservation @relation(fields: [reservationId], references: [reservationId], onDelete: Cascade)
+  book              Book            @relation(fields: [bookId], references: [bookId], onDelete: Restrict)
+
+  @@unique([reservationId, bookId], map: "uq_book_reservation_item")
+  @@index([bookId], map: "idx_book_reservation_item_book")
+  @@map("book_reservation_item")
+}
+
+model BookAuthor {
+  bookId   Int     @map("book_id")
+  authorId Int     @map("author_id")
+  role     String? @db.VarChar(100)
+  book     Book    @relation(fields: [bookId], references: [bookId], onDelete: Cascade)
+  author   Author  @relation(fields: [authorId], references: [authorId], onDelete: Cascade)
+
+  @@id([bookId, authorId])
+  @@map("book_author")
+}
+
+model OrderItem {
+  orderItemId   Int     @id @default(autoincrement()) @map("order_item_id")
+  orderId       Int     @map("order_id")
+  bookId        Int     @map("book_id")
+  quantity      Int
+  pricePerUnit  Decimal @map("price_per_unit") @db.Decimal(10, 2)
+  order         Order   @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+  book          Book    @relation(fields: [bookId], references: [bookId], onDelete: Restrict)
+
+  @@index([orderId], map: "idx_order_item_order")
+  @@map("order_item")
+}
+
+model OrderStatus {
+  orderStatusId   Int      @id @default(autoincrement()) @map("order_status_id")
+  orderId         Int      @map("order_id")
+  status          String   @db.VarChar(50)
+  statusDate      DateTime @default(now()) @map("status_date") @db.Timestamptz(6)
+  trackingNumber  String?  @map("tracking_number") @db.VarChar(100)
+  order           Order    @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+
+  @@index([orderId, statusDate], map: "idx_order_status_order_date")
+  @@map("order_status")
+}
+
+model PaymentStatusHistory {
+  paymentStatusHistoryId Int                @id @default(autoincrement()) @map("payment_status_history_id")
+  paymentTransactionId   Int                @map("payment_transaction_id")
+  status                 String             @db.VarChar(40)
+  statusDate             DateTime           @default(now()) @map("status_date") @db.Timestamptz(6)
+  details                String?
+  paymentTransaction     PaymentTransaction @relation(fields: [paymentTransactionId], references: [paymentTransactionId], onDelete: Cascade)
+
+  @@index([paymentTransactionId, statusDate], map: "idx_payment_status_history_tx_date")
+  @@map("payment_status_history")
+}
+
+model Comment {
+  commentId    Int      @id @default(autoincrement()) @map("comment_id")
+  bookId       Int      @map("book_id")
+  customerId   Int      @map("customer_id")
+  commentText  String   @map("comment_text")
+  commentDate  DateTime @default(now()) @map("comment_date") @db.Timestamptz(6)
+  rating       Int?
+  book         Book     @relation(fields: [bookId], references: [bookId], onDelete: Cascade)
+  customer     Customer @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+
+  @@index([bookId, commentDate], map: "idx_comment_book_date")
+  @@map("comment")
+}
+
+model CartItem {
+  customerId Int      @map("customer_id")
+  bookId     Int      @map("book_id")
+  quantity   Int
+  addedDate  DateTime @default(now()) @map("added_date") @db.Timestamptz(6)
+  customer   Customer @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+  book       Book     @relation(fields: [bookId], references: [bookId], onDelete: Cascade)
+
+  @@id([customerId, bookId])
+  @@map("cart_item")
+}
