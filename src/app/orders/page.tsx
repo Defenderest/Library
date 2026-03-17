@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { PageScaffold } from "@/components/ui/page-scaffold";
 import { getServerSessionUser } from "@/lib/auth/server-session";
 
+export const dynamic = "force-dynamic";
+
 export default async function OrdersPage() {
   const session = await getServerSessionUser();
 

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { CartPageClient } from "@/components/cart/cart-page-client";
 import { getServerSessionUser } from "@/lib/auth/server-session";
 
+export const dynamic = "force-dynamic";
+
 type CartPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
