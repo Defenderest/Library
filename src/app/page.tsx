@@ -61,7 +61,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </div>
         </div>
 
-        <div className="relative flex h-full max-w-[620px] flex-col justify-end px-[var(--spacing-xxl)] pb-[var(--spacing-xxl)]">
+        <div className="relative flex h-full max-w-[620px] flex-col justify-end px-l pb-xl mobile:px-xxl mobile:pb-xxl">
           <h2 className="font-display text-[32px] leading-none text-app-primary mobile:text-[44px] compact:text-[64px]">
             Естетика
           </h2>
@@ -83,7 +83,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <section className="space-y-4">
         <h3 className="font-display text-3xl text-app-primary">Новинки Колекції</h3>
 
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-10">
+        <div className="grid grid-cols-1 gap-8 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
           {newArrivals.map((book) => (
             <BookCardHome key={book.bookId} book={book} className="w-full" />
           ))}

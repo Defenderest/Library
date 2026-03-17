@@ -55,7 +55,7 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
 
   return (
     <section className="space-y-10">
-      <div className="h-[70px]">
+      <div className="h-[46px] mobile:h-[70px]">
         <Link href="/authors" className="inline-flex items-center gap-s font-body text-sm text-app-primary transition duration-fast hover:text-app-secondary">
           <ArrowLeft size={16} />
           Назад
@@ -63,7 +63,7 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
       </div>
 
       <div className="flex flex-col gap-xxl compact:flex-row">
-        <div className="h-[120px] w-[120px] flex-none overflow-hidden rounded-full bg-[#111]">
+        <div className="mx-auto h-[120px] w-[120px] flex-none overflow-hidden rounded-full bg-[#111] compact:mx-0">
           {portrait ? (
             <img src={portrait} alt={details.fullName} className="h-full w-full object-cover" />
           ) : (
@@ -74,7 +74,9 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
         </div>
 
         <div className="min-w-0 flex-1 space-y-m">
-          <h2 className="font-display text-[42px] leading-tight text-app-primary">{details.fullName}</h2>
+          <h2 className="font-display text-[34px] leading-tight text-app-primary mobile:text-[42px]">
+            {details.fullName}
+          </h2>
           <p className="font-body text-xs uppercase tracking-[0.1em] text-app-muted">
             {(details.nationality || "").toUpperCase()}
           </p>
@@ -97,7 +99,7 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
         {details.books.length === 0 ? (
           <p className="font-body text-sm text-app-secondary">Книги відсутні</p>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-10">
+          <div className="grid grid-cols-1 gap-8 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
             {details.books.map((book) => (
               <BookCard key={book.bookId} book={book} />
             ))}

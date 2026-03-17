@@ -8,7 +8,7 @@ export default async function AuthorsPage() {
 
   return (
     <section className="space-y-8">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-10">
+      <div className="grid grid-cols-1 gap-8 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
         {authors.map((author) => (
           <AuthorCard key={author.authorId} author={author} />
         ))}

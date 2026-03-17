@@ -372,18 +372,20 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                 {cart.items.map((item) => (
                   <article
                     key={item.bookId}
-                    className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-l border-b border-app-border-light py-l"
+                    className="grid grid-cols-[1fr_auto_auto] items-center gap-m border-b border-app-border-light py-l mobile:grid-cols-[1fr_auto_auto_auto] mobile:gap-l"
                   >
-                    <div className="flex min-w-0 items-center gap-xl">
+                    <div className="col-span-3 flex min-w-0 items-center gap-m mobile:col-span-1 mobile:gap-xl">
                       <BookCover
                         title={item.title}
                         imagePath={item.coverImagePath}
-                        className="h-[90px] w-[60px] flex-none"
+                        className="h-[82px] w-[56px] flex-none mobile:h-[90px] mobile:w-[60px]"
                         imageClassName="brightness-[0.9] contrast-[1.08] saturate-[0.86] sepia-[0.16]"
                       />
 
                       <div className="min-w-0 space-y-1">
-                        <p className="truncate font-display text-[20px] text-app-primary">{item.title}</p>
+                        <p className="truncate font-display text-[18px] text-app-primary mobile:text-[20px]">
+                          {item.title}
+                        </p>
                         <p className="truncate font-body text-xs text-app-muted">{item.author}</p>
                         <p className="font-body text-xs text-app-secondary">{item.price.toFixed(2)} UAH / шт</p>
                       </div>
@@ -432,15 +434,15 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                 ))}
               </div>
 
-              <div className="flex flex-col items-end gap-s pt-m">
+              <div className="flex flex-col items-start gap-s pt-m mobile:items-end">
                 <p className="font-body text-xs uppercase tracking-[0.12em] text-app-muted">Усього позицій: {cart.totalItems}</p>
-                <p className="font-display text-5xl text-app-primary">{formatMoney(cart.totalPrice)}</p>
+                <p className="font-display text-4xl text-app-primary mobile:text-5xl">{formatMoney(cart.totalPrice)}</p>
 
                 <button
                   type="button"
                   onClick={openCheckoutStep}
                   disabled={cart.totalItems <= 0}
-                  className="mt-s flex h-[50px] w-[260px] items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45"
+                  className="mt-s flex h-[50px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45 mobile:w-[260px]"
                 >
                   Оформити замовлення
                 </button>
@@ -543,7 +545,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
               <button
                 type="submit"
                 disabled={checkoutSubmitting || cart.totalItems <= 0}
-                className="flex h-[54px] w-[320px] max-w-full items-center justify-center rounded-pill border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45"
+                className="flex h-[54px] w-full max-w-full items-center justify-center rounded-pill border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45 mobile:w-[320px]"
               >
                 {checkoutSubmitting ? "Обробка..." : confirmButtonText}
               </button>

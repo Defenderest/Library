@@ -49,7 +49,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
 
   return (
     <section className="relative">
-      <div className="flex items-center gap-m">
+      <div className="flex flex-wrap items-center gap-m">
         <div className="min-w-[120px]">
           <BooksFiltersPanel
             genres={genres}
@@ -65,7 +65,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
           />
         </div>
 
-        <div className="ml-auto">
+        <div className="w-full text-right mobile:ml-auto mobile:w-auto">
           <p className="font-body text-xs text-app-secondary">{formatResultsLabel(books.length)}</p>
         </div>
       </div>
@@ -76,7 +76,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
         </p>
       ) : null}
 
-      <div className="mt-10 grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-10">
+      <div className="mt-10 grid grid-cols-1 gap-8 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
         {books.map((book) => (
           <BookCard key={book.bookId} book={book} />
         ))}
