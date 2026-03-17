@@ -9,13 +9,30 @@ import { resolveMediaPath } from "@/lib/media";
 export const dynamic = "force-dynamic";
 
 type AuthorDetailsPageProps = {
-  params: {
+  params?: {
     authorId: string;
   };
 };
 
 export default async function AuthorDetailsPage({ params }: AuthorDetailsPageProps) {
-  const parsedAuthorId = Number(params.authorId);
+  const parsedAuthorId = Number(params?.authorId ?? "");
+
+  if (!Number.isFinite(parsedAuthorId) || parsedAuthorId <= 0) {
+    return (
+      <section className="space-y-8">
+        <Link href="/authors" className="inline-flex items-center gap-s font-body text-sm text-app-primary">
+          <ArrowLeft size={16} />
+          Назад
+        </Link>
+
+        <div className="rounded-soft border border-app-border-light bg-app-card p-8 text-center">
+          <p className="font-display text-3xl text-app-primary">Автора не знайдено</p>
+          <p className="mt-2 font-body text-sm text-app-secondary">Перейдіть до загального списку авторів.</p>
+        </div>
+      </section>
+    );
+  }
+
   const details = await getAuthorDetails(parsedAuthorId);
 
   if (!details) {

@@ -12,13 +12,32 @@ import { getBookDetails, getSimilarBooks } from "@/lib/catalog/queries";
 export const dynamic = "force-dynamic";
 
 type BookDetailsPageProps = {
-  params: {
+  params?: {
     bookId: string;
   };
 };
 
 export default async function BookDetailsPage({ params }: BookDetailsPageProps) {
-  const parsedBookId = Number(params.bookId);
+  const parsedBookId = Number(params?.bookId ?? "");
+
+  if (!Number.isFinite(parsedBookId) || parsedBookId <= 0) {
+    return (
+      <section className="space-y-8">
+        <Link href="/books" className="inline-flex items-center gap-s font-body text-sm text-app-primary">
+          <ArrowLeft size={16} />
+          Назад
+        </Link>
+
+        <div className="rounded-soft border border-app-border-light bg-app-card p-8 text-center">
+          <p className="font-display text-3xl text-app-primary">Книгу не знайдено</p>
+          <p className="mt-2 font-body text-sm text-app-secondary">
+            Оберіть іншу позицію у каталозі.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   const details = await getBookDetails(parsedBookId);
 
   if (!details) {
