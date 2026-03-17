@@ -9,6 +9,8 @@ import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { formatUADate } from "@/lib/catalog/format";
 import { getBookDetails, getSimilarBooks } from "@/lib/catalog/queries";
 
+export const dynamic = "force-dynamic";
+
 type BookDetailsPageProps = {
   params: {
     bookId: string;

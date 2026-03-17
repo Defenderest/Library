@@ -1,13 +1,5 @@
 import { Prisma } from "@prisma/client";
 
-import {
-  FALLBACK_AUTHOR_DETAILS,
-  FALLBACK_AUTHORS,
-  FALLBACK_BOOK_DETAILS,
-  FALLBACK_BOOKS,
-  FALLBACK_NEW_ARRIVAL_IDS,
-  FALLBACK_SEARCH_SUGGESTIONS,
-} from "@/lib/catalog/fallback-data";
 import { formatUADate } from "@/lib/catalog/format";
 import type {
   AuthorCardData,
@@ -46,18 +38,8 @@ type PrismaCommentWithCustomer = {
   };
 };
 
-const DATABASE_CONFIGURED = Boolean(process.env.DATABASE_URL);
-
 function compareUa(a: string, b: string): number {
   return a.localeCompare(b, "uk", { sensitivity: "base" });
-}
-
-function normalizeText(value?: string): string {
-  return value?.trim() ?? "";
-}
-
-function containsNormalized(text: string, query: string): boolean {
-  return normalizeText(text).toLowerCase().includes(normalizeText(query).toLowerCase());
 }
 
 function mapAuthors(
@@ -94,91 +76,6 @@ function mapPrismaComment(comment: PrismaCommentWithCustomer) {
     rating: comment.rating ?? 0,
     commentText: comment.commentText,
   };
-}
-
-function getFallbackLanguages(): string[] {
-  const languageSet = new Set(
-    Object.values(FALLBACK_BOOK_DETAILS)
-      .map((book) => book.language)
-      .filter((value) => value.length > 0),
-  );
-
-  return Array.from(languageSet).sort(compareUa);
-}
-
-function getFallbackGenres(): string[] {
-  const genreSet = new Set(
-    FALLBACK_BOOKS.map((book) => book.genre).filter((value) => value.length > 0),
-  );
-
-  return Array.from(genreSet).sort(compareUa);
-}
-
-function filterFallbackBooks(filters: BooksCatalogFilters): BookCardData[] {
-  return FALLBACK_BOOKS.filter((book) => {
-    if (filters.query) {
-      const searchable = `${book.title} ${book.authors}`;
-      if (!containsNormalized(searchable, filters.query)) {
-        return false;
-      }
-    }
-
-    if (filters.genre && book.genre !== filters.genre) {
-      return false;
-    }
-
-    const details = FALLBACK_BOOK_DETAILS[book.bookId];
-    if (filters.language && details?.language !== filters.language) {
-      return false;
-    }
-
-    if (typeof filters.minPrice === "number" && book.price < filters.minPrice) {
-      return false;
-    }
-
-    if (typeof filters.maxPrice === "number" && book.price > filters.maxPrice) {
-      return false;
-    }
-
-    if (filters.inStockOnly && book.stockQuantity <= 0) {
-      return false;
-    }
-
-    return true;
-  }).sort((a, b) => compareUa(a.title, b.title));
-}
-
-function getFallbackBookDetails(bookId: number): BookDetailsData | null {
-  return FALLBACK_BOOK_DETAILS[bookId] ?? null;
-}
-
-function getFallbackSimilarBooks(bookId: number, genre: string, limit: number): BookCardData[] {
-  const sameGenre = FALLBACK_BOOKS.filter((book) => book.bookId !== bookId && book.genre === genre);
-  if (sameGenre.length >= limit) {
-    return sameGenre.slice(0, limit);
-  }
-
-  const rest = FALLBACK_BOOKS.filter(
-    (book) => book.bookId !== bookId && !sameGenre.some((match) => match.bookId === book.bookId),
-  );
-
-  return [...sameGenre, ...rest].slice(0, limit);
-}
-
-function getFallbackAuthorDetails(authorId: number): AuthorDetailsData | null {
-  return FALLBACK_AUTHOR_DETAILS[authorId] ?? null;
-}
-
-function getFallbackSearchSuggestions(query: string, limit: number): SearchSuggestionData[] {
-  const normalized = query.trim().toLowerCase();
-  if (normalized.length < 2) {
-    return [];
-  }
-
-  return FALLBACK_SEARCH_SUGGESTIONS.filter((item) => item.displayText.toLowerCase().includes(normalized)).slice(
-    0,
-    limit,
-  );
 }
 
 function createBooksWhereInput(filters: BooksCatalogFilters): Prisma.BookWhereInput {
@@ -233,12 +130,6 @@ function createBooksWhereInput(filters: BooksCatalogFilters): Prisma.BookWhereIn
 }
 
 export async function getHomeNewArrivals(limit = 6): Promise<BookCardData[]> {
-  if (!DATABASE_CONFIGURED) {
-    return FALLBACK_NEW_ARRIVAL_IDS.map((id) => FALLBACK_BOOKS.find((book) => book.bookId === id))
-      .filter((book): book is BookCardData => Boolean(book))
-      .slice(0, limit);
-  }
-
   try {
     const books = await prisma.book.findMany({
       take: limit,
@@ -259,22 +150,12 @@ export async function getHomeNewArrivals(limit = 6): Promise<BookCardData[]> {
 
     return books.map((book) => mapPrismaBookToCard(book as PrismaBookWithAuthors));
   } catch (error) {
-    console.warn("Falling back to local new-arrivals data:", error);
-    return FALLBACK_NEW_ARRIVAL_IDS.map((id) => FALLBACK_BOOKS.find((book) => book.bookId === id))
-      .filter((book): book is BookCardData => Boolean(book))
-      .slice(0, limit);
+    console.warn("Failed to load new arrivals from database:", error);
+    return [];
   }
 }
 
 export async function getBooksCatalog(filters: BooksCatalogFilters) {
-  if (!DATABASE_CONFIGURED) {
-    return {
-      books: filterFallbackBooks(filters),
-      genres: getFallbackGenres(),
-      languages: getFallbackLanguages(),
-    };
-  }
-
   try {
     const where = createBooksWhereInput(filters);
 
@@ -335,12 +216,12 @@ export async function getBooksCatalog(filters: BooksCatalogFilters) {
         .filter((value): value is string => value.length > 0),
     };
   } catch (error) {
-    console.warn("Falling back to local books catalog data:", error);
+    console.warn("Failed to load books catalog from database:", error);
 
     return {
-      books: filterFallbackBooks(filters),
-      genres: getFallbackGenres(),
-      languages: getFallbackLanguages(),
+      books: [],
+      genres: [],
+      languages: [],
     };
   }
 }
@@ -348,10 +229,6 @@ export async function getBooksCatalog(filters: BooksCatalogFilters) {
 export async function getBookDetails(bookId: number): Promise<BookDetailsData | null> {
   if (!Number.isFinite(bookId) || bookId <= 0) {
     return null;
-  }
-
-  if (!DATABASE_CONFIGURED) {
-    return getFallbackBookDetails(bookId);
   }
 
   try {
@@ -415,8 +292,8 @@ export async function getBookDetails(bookId: number): Promise<BookDetailsData | 
       comments,
     };
   } catch (error) {
-    console.warn("Falling back to local book details data:", error);
-    return getFallbackBookDetails(bookId);
+    console.warn("Failed to load book details from database:", error);
+    return null;
   }
 }
 
@@ -425,10 +302,6 @@ export async function getSimilarBooks(
   genre: string,
   limit = 5,
 ): Promise<BookCardData[]> {
-  if (!DATABASE_CONFIGURED) {
-    return getFallbackSimilarBooks(currentBookId, genre, limit);
-  }
-
   try {
     const similar = await prisma.book.findMany({
       where: {
@@ -481,16 +354,12 @@ export async function getSimilarBooks(
 
     return similar.map((book) => mapPrismaBookToCard(book as PrismaBookWithAuthors));
   } catch (error) {
-    console.warn("Falling back to local similar books data:", error);
-    return getFallbackSimilarBooks(currentBookId, genre, limit);
+    console.warn("Failed to load similar books from database:", error);
+    return [];
   }
 }
 
 export async function getAuthorsList(): Promise<AuthorCardData[]> {
-  if (!DATABASE_CONFIGURED) {
-    return [...FALLBACK_AUTHORS].sort((a, b) => compareUa(a.lastName, b.lastName));
-  }
-
   try {
     const authors = await prisma.author.findMany({
       orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
@@ -511,18 +380,14 @@ export async function getAuthorsList(): Promise<AuthorCardData[]> {
       imagePath: author.imagePath ?? "",
     }));
   } catch (error) {
-    console.warn("Falling back to local authors data:", error);
-    return [...FALLBACK_AUTHORS].sort((a, b) => compareUa(a.lastName, b.lastName));
+    console.warn("Failed to load authors from database:", error);
+    return [];
   }
 }
 
 export async function getAuthorDetails(authorId: number): Promise<AuthorDetailsData | null> {
   if (!Number.isFinite(authorId) || authorId <= 0) {
     return null;
-  }
-
-  if (!DATABASE_CONFIGURED) {
-    return getFallbackAuthorDetails(authorId);
   }
 
   try {
@@ -571,8 +436,8 @@ export async function getAuthorDetails(authorId: number): Promise<AuthorDetailsD
       books,
     };
   } catch (error) {
-    console.warn("Falling back to local author details data:", error);
-    return getFallbackAuthorDetails(authorId);
+    console.warn("Failed to load author details from database:", error);
+    return null;
   }
 }
 
@@ -583,10 +448,6 @@ export async function getSearchSuggestions(
   const trimmedQuery = query.trim();
   if (trimmedQuery.length < 2) {
     return [];
-  }
-
-  if (!DATABASE_CONFIGURED) {
-    return getFallbackSearchSuggestions(trimmedQuery, limit);
   }
 
   try {
@@ -662,7 +523,7 @@ export async function getSearchSuggestions(
 
     return Array.from(unique.values()).slice(0, limit);
   } catch (error) {
-    console.warn("Falling back to local search suggestions:", error);
-    return getFallbackSearchSuggestions(trimmedQuery, limit);
+    console.warn("Failed to load search suggestions from database:", error);
+    return [];
   }
 }
