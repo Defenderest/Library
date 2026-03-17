@@ -4,9 +4,40 @@ import { NextResponse } from "next/server";
 import { createPasswordHash } from "@/lib/auth/password";
 import { AUTH_COOKIE_NAME, createSessionToken, getSessionCookieOptions } from "@/lib/auth/session";
 import { validateRegistrationPayload } from "@/lib/auth/validation";
+import { queryFirst } from "@/lib/db/raw";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+
+type CreatedCustomerRow = {
+  customerId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  isAdmin: boolean;
+};
+
+function isUniqueViolation(error: unknown): boolean {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+    return false;
+  }
+
+  if (error.code === "P2002") {
+    return true;
+  }
+
+  if (error.code === "P2010") {
+    const meta = (error.meta ?? {}) as { code?: string; message?: string };
+    if (meta.code === "23505") {
+      return true;
+    }
+
+    const message = String(meta.message ?? "").toLowerCase();
+    return message.includes("duplicate") || message.includes("unique");
+  }
+
+  return false;
+}
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -25,22 +56,17 @@ export async function POST(request: Request) {
   }
 
   try {
-    const created = await prisma.customer.create({
-      data: {
-        firstName: validated.data.firstName,
-        lastName: validated.data.lastName,
-        email: validated.data.email,
-        phone: validated.data.phone,
-        passwordHash,
-      },
-      select: {
-        customerId: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        isAdmin: true,
-      },
-    });
+    const created = await queryFirst<CreatedCustomerRow>(prisma, "auth/create_customer", [
+      validated.data.firstName,
+      validated.data.lastName,
+      validated.data.email,
+      validated.data.phone,
+      passwordHash,
+    ]);
+
+    if (!created) {
+      throw new Error("Customer create query returned no rows");
+    }
 
     const token = createSessionToken(created.customerId);
 
@@ -57,7 +83,7 @@ export async function POST(request: Request) {
     response.cookies.set(AUTH_COOKIE_NAME, token, getSessionCookieOptions());
     return response;
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (isUniqueViolation(error)) {
       return NextResponse.json({ error: "Користувач з таким email вже існує" }, { status: 409 });
     }
 

@@ -1,7 +1,6 @@
-import { Prisma } from "@prisma/client";
-
 import type { CartSummaryData, CheckoutResult } from "@/lib/cart/types";
 import type { PaymentMethod } from "@/lib/cart/validation";
+import { execute, queryFirst, queryRows } from "@/lib/db/raw";
 import { prisma } from "@/lib/prisma";
 
 type CartQuantityAction = "increase" | "decrease" | "set";
@@ -15,79 +14,67 @@ class CartServiceError extends Error {
   }
 }
 
-function toMoney(value: Prisma.Decimal | number | null | undefined): number {
+function toMoney(value: number | string | null | undefined): number {
   return Number(value ?? 0);
 }
 
-function toDecimal(value: number): Prisma.Decimal {
-  return new Prisma.Decimal(value.toFixed(2));
-}
+type CartItemRow = {
+  bookId: number;
+  quantity: number;
+  title: string;
+  price: number | string | null;
+  coverImagePath: string | null;
+  stockQuantity: number | null;
+  authors: string | null;
+};
 
-function mapAuthors(
-  authors: Array<{
-    author: {
-      firstName: string;
-      lastName: string;
-    };
-  }>,
-): string {
-  const names = authors
-    .map(({ author }) => `${author.firstName} ${author.lastName}`.trim())
-    .filter((value) => value.length > 0);
+type CartBookRow = {
+  bookId: number;
+  title: string;
+  stockQuantity: number | null;
+};
 
-  if (names.length === 0) {
-    return "Невідомий автор";
+type CartQuantityRow = {
+  quantity: number;
+};
+
+type CheckoutCartRow = {
+  bookId: number;
+  quantity: number;
+  title: string;
+  price: number | string | null;
+  stockQuantity: number | null;
+};
+
+type CreatedOrderRow = {
+  orderId: number;
+};
+
+function asNonNegativeInteger(value: number | null | undefined): number {
+  const numeric = Number(value ?? 0);
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return 0;
   }
 
-  return names.join(", ");
+  return Math.floor(numeric);
 }
 
 export async function getCartSummary(customerId: number): Promise<CartSummaryData> {
-  const cartRows = await prisma.cartItem.findMany({
-    where: {
-      customerId,
-    },
-    orderBy: {
-      addedDate: "desc",
-    },
-    include: {
-      book: {
-        select: {
-          bookId: true,
-          title: true,
-          price: true,
-          coverImagePath: true,
-          stockQuantity: true,
-          authors: {
-            include: {
-              author: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+  const cartRows = await queryRows<CartItemRow>(prisma, "cart/get_cart_items", [customerId]);
 
-  const items = cartRows
-    .filter((row) => Boolean(row.book))
-    .map((row) => {
-      const price = toMoney(row.book.price);
+  const items = cartRows.map((row) => {
+      const price = toMoney(row.price);
       const subtotal = Number((price * row.quantity).toFixed(2));
 
       return {
-        bookId: row.book.bookId,
-        title: row.book.title,
-        author: mapAuthors(row.book.authors),
+        bookId: row.bookId,
+        title: row.title,
+        author: row.authors?.trim() || "Невідомий автор",
         price,
         quantity: row.quantity,
-        coverImagePath: row.book.coverImagePath ?? "",
+        coverImagePath: row.coverImagePath ?? "",
         subtotal,
-        stockQuantity: row.book.stockQuantity,
+        stockQuantity: asNonNegativeInteger(row.stockQuantity),
       };
     });
 
@@ -115,61 +102,30 @@ export async function addCartItem(
   }
 
   await prisma.$transaction(async (tx) => {
-    const book = await tx.book.findUnique({
-      where: {
-        bookId,
-      },
-      select: {
-        bookId: true,
-        title: true,
-        stockQuantity: true,
-      },
-    });
+    const book = await queryFirst<CartBookRow>(tx, "cart/get_book_for_cart", [bookId]);
 
     if (!book) {
       throw new CartServiceError("Книгу не знайдено", 404);
     }
 
-    if (book.stockQuantity <= 0) {
+    if (asNonNegativeInteger(book.stockQuantity) <= 0) {
       throw new CartServiceError("Книги немає в наявності", 409);
     }
 
-    const existing = await tx.cartItem.findUnique({
-      where: {
-        customerId_bookId: {
-          customerId,
-          bookId,
-        },
-      },
-      select: {
-        quantity: true,
-      },
-    });
+    const existing = await queryFirst<CartQuantityRow>(tx, "cart/get_cart_item_quantity", [
+      customerId,
+      bookId,
+    ]);
 
     const nextQuantity = (existing?.quantity ?? 0) + quantity;
-    if (nextQuantity > book.stockQuantity) {
+    if (nextQuantity > asNonNegativeInteger(book.stockQuantity)) {
       throw new CartServiceError(
         `Книга "${book.title}" вже недоступна у потрібній кількості`,
         409,
       );
     }
 
-    await tx.cartItem.upsert({
-      where: {
-        customerId_bookId: {
-          customerId,
-          bookId,
-        },
-      },
-      update: {
-        quantity: nextQuantity,
-      },
-      create: {
-        customerId,
-        bookId,
-        quantity: nextQuantity,
-      },
-    });
+    await execute(tx, "cart/upsert_cart_item", [customerId, bookId, nextQuantity]);
   });
 
   return getCartSummary(customerId);
@@ -186,17 +142,10 @@ export async function updateCartItemQuantity(
   }
 
   await prisma.$transaction(async (tx) => {
-    const existing = await tx.cartItem.findUnique({
-      where: {
-        customerId_bookId: {
-          customerId,
-          bookId,
-        },
-      },
-      select: {
-        quantity: true,
-      },
-    });
+    const existing = await queryFirst<CartQuantityRow>(tx, "cart/get_cart_item_quantity", [
+      customerId,
+      bookId,
+    ]);
 
     if (!existing) {
       throw new CartServiceError("Позицію не знайдено у кошику", 404);
@@ -220,49 +169,24 @@ export async function updateCartItemQuantity(
     }
 
     if (nextQuantity <= 0) {
-      await tx.cartItem.delete({
-        where: {
-          customerId_bookId: {
-            customerId,
-            bookId,
-          },
-        },
-      });
+      await execute(tx, "cart/delete_cart_item", [customerId, bookId]);
       return;
     }
 
-    const book = await tx.book.findUnique({
-      where: {
-        bookId,
-      },
-      select: {
-        title: true,
-        stockQuantity: true,
-      },
-    });
+    const book = await queryFirst<CartBookRow>(tx, "cart/get_book_for_cart", [bookId]);
 
     if (!book) {
       throw new CartServiceError("Книгу не знайдено", 404);
     }
 
-    if (nextQuantity > book.stockQuantity) {
+    if (nextQuantity > asNonNegativeInteger(book.stockQuantity)) {
       throw new CartServiceError(
         `Книга "${book.title}" вже недоступна у потрібній кількості`,
         409,
       );
     }
 
-    await tx.cartItem.update({
-      where: {
-        customerId_bookId: {
-          customerId,
-          bookId,
-        },
-      },
-      data: {
-        quantity: nextQuantity,
-      },
-    });
+    await execute(tx, "cart/update_cart_item_quantity", [customerId, bookId, nextQuantity]);
   });
 
   return getCartSummary(customerId);
@@ -273,22 +197,13 @@ export async function removeCartItem(customerId: number, bookId: number): Promis
     throw new CartServiceError("Некоректний ідентифікатор книги", 400);
   }
 
-  await prisma.cartItem.deleteMany({
-    where: {
-      customerId,
-      bookId,
-    },
-  });
+  await execute(prisma, "cart/delete_cart_item", [customerId, bookId]);
 
   return getCartSummary(customerId);
 }
 
 export async function clearCart(customerId: number): Promise<CartSummaryData> {
-  await prisma.cartItem.deleteMany({
-    where: {
-      customerId,
-    },
-  });
+  await execute(prisma, "cart/clear_cart", [customerId]);
 
   return getCartSummary(customerId);
 }
@@ -303,24 +218,7 @@ export async function createStandardOrderFromCart(
   }
 
   return prisma.$transaction(async (tx) => {
-    const cartRows = await tx.cartItem.findMany({
-      where: {
-        customerId,
-      },
-      include: {
-        book: {
-          select: {
-            bookId: true,
-            title: true,
-            price: true,
-            stockQuantity: true,
-          },
-        },
-      },
-      orderBy: {
-        addedDate: "desc",
-      },
-    });
+    const cartRows = await queryRows<CheckoutCartRow>(tx, "cart/get_checkout_cart_rows", [customerId]);
 
     if (cartRows.length === 0) {
       throw new CartServiceError("Кошик порожній", 409);
@@ -329,74 +227,51 @@ export async function createStandardOrderFromCart(
     let totalAmount = 0;
 
     for (const row of cartRows) {
-      if (!row.book) {
-        throw new CartServiceError("Одна з книг у кошику більше недоступна", 409);
-      }
-
       if (row.quantity <= 0) {
         throw new CartServiceError("Кошик містить некоректну кількість товару", 409);
       }
 
-      const updated = await tx.book.updateMany({
-        where: {
-          bookId: row.bookId,
-          stockQuantity: {
-            gte: row.quantity,
-          },
-        },
-        data: {
-          stockQuantity: {
-            decrement: row.quantity,
-          },
-        },
-      });
+      const updatedStock = await queryFirst<{ bookId: number }>(tx, "cart/decrement_book_stock", [
+        row.bookId,
+        row.quantity,
+      ]);
 
-      if (updated.count === 0) {
+      if (!updatedStock) {
         throw new CartServiceError(
-          `Книга "${row.book.title}" вже недоступна у потрібній кількості`,
+          `Книга "${row.title}" вже недоступна у потрібній кількості`,
           409,
         );
       }
 
-      const itemPrice = toMoney(row.book.price);
+      const itemPrice = toMoney(row.price);
       totalAmount += itemPrice * row.quantity;
     }
 
     const normalizedTotalAmount = Number(totalAmount.toFixed(2));
 
-    const order = await tx.order.create({
-      data: {
-        customerId,
-        shippingAddress,
-        paymentMethod,
-        totalAmount: toDecimal(normalizedTotalAmount),
-      },
-      select: {
-        orderId: true,
-      },
-    });
+    const order = await queryFirst<CreatedOrderRow>(tx, "cart/create_order", [
+      customerId,
+      normalizedTotalAmount,
+      shippingAddress,
+      paymentMethod,
+    ]);
 
-    await tx.orderItem.createMany({
-      data: cartRows.map((row) => ({
-        orderId: order.orderId,
-        bookId: row.bookId,
-        quantity: row.quantity,
-        pricePerUnit: toDecimal(toMoney(row.book?.price ?? 0)),
-      })),
-    });
+    if (!order) {
+      throw new CartServiceError("Не вдалося створити замовлення", 500);
+    }
 
-    await tx.orderStatus.create({
-      data: {
-        orderId: order.orderId,
-        status: "Створено",
-      },
-    });
+    for (const row of cartRows) {
+      await execute(tx, "cart/create_order_item", [
+        order.orderId,
+        row.bookId,
+        row.quantity,
+        toMoney(row.price),
+      ]);
+    }
 
-    await tx.cartItem.deleteMany({
-      where: {
-        customerId,
-      },
-    });
+    await execute(tx, "cart/create_order_status", [order.orderId, "Створено"]);
+
+    await execute(tx, "cart/clear_cart", [customerId]);
 
     return {
       orderId: order.orderId,

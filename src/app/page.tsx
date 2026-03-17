@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import { BookCardHome } from "@/components/books/book-card-home";
@@ -35,7 +36,32 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.2),transparent_48%),linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(3,3,3,0.95)_100%)]" />
         <div className="absolute inset-0 bg-[rgba(3,3,3,0.55)]" />
 
-        <div className="relative flex h-full flex-col justify-end px-[var(--spacing-xxl)] pb-[var(--spacing-xxl)]">
+        <div className="pointer-events-none absolute inset-0 compact:hidden">
+          <Image
+            src="/images/estetika-tyshi-hero.svg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover opacity-35"
+            priority
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,3,3,0.8)_15%,rgba(3,3,3,0.35)_100%)]" />
+        </div>
+
+        <div className="pointer-events-none absolute inset-y-0 right-[4%] hidden w-[38%] max-w-[500px] items-end py-6 compact:flex">
+          <div className="relative h-full w-full overflow-hidden rounded-soft border border-white/15 bg-black/30 shadow-glass">
+            <Image
+              src="/images/estetika-tyshi-hero.svg"
+              alt="Мінімалістична ілюстрація книжкової естетики"
+              fill
+              sizes="(min-width: 1100px) 500px, 0px"
+              className="object-cover opacity-80"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,3,3,0.06)_0%,rgba(3,3,3,0.4)_100%)]" />
+          </div>
+        </div>
+
+        <div className="relative flex h-full max-w-[620px] flex-col justify-end px-[var(--spacing-xxl)] pb-[var(--spacing-xxl)]">
           <h2 className="font-display text-[32px] leading-none text-app-primary mobile:text-[44px] compact:text-[64px]">
             Естетика
           </h2>

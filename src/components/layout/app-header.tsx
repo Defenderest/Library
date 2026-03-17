@@ -199,6 +199,7 @@ export function AppHeader({ pageTitle, cartCount, onOpenSidebar }: AppHeaderProp
 
         <Link
           href="/cart"
+          prefetch={false}
           aria-label="Перейти до кошика"
           className="relative ml-s inline-flex h-10 w-10 flex-none items-center justify-center rounded-full border border-app-border-light text-app-primary transition duration-fast hover:border-app-border-hover"
         >

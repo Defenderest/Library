@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { AUTH_COOKIE_NAME, verifySessionToken } from "@/lib/auth/session";
 import type { SessionUser } from "@/lib/auth/types";
+import { queryFirst } from "@/lib/db/raw";
 
 type CustomerSessionRecord = {
   customerId: number;
@@ -23,18 +24,11 @@ function mapCustomerToSession(customer: CustomerSessionRecord): SessionUser {
 }
 
 async function findSessionCustomer(customerId: number): Promise<SessionUser | null> {
-  const customer = await prisma.customer.findUnique({
-    where: {
-      customerId,
-    },
-    select: {
-      customerId: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-      isAdmin: true,
-    },
-  });
+  const customer = await queryFirst<CustomerSessionRecord>(
+    prisma,
+    "auth/get_customer_session_by_id",
+    [customerId],
+  );
 
   if (!customer) {
     return null;

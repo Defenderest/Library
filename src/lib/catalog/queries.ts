@@ -1,5 +1,3 @@
-import { Prisma } from "@prisma/client";
-
 import { formatUADate } from "@/lib/catalog/format";
 import type {
   AuthorCardData,
@@ -9,146 +7,105 @@ import type {
   BooksCatalogFilters,
   SearchSuggestionData,
 } from "@/lib/catalog/types";
+import { queryFirst, queryRows } from "@/lib/db/raw";
 import { prisma } from "@/lib/prisma";
 
-type PrismaBookWithAuthors = {
+type BookCardRow = {
   bookId: number;
   title: string;
-  price: Prisma.Decimal | null;
+  authors: string | null;
+  price: number | string | null;
   coverImagePath: string | null;
-  stockQuantity: number;
+  stockQuantity: number | null;
   genre: string | null;
+};
+
+type BookDetailsRow = BookCardRow & {
+  description: string | null;
   language: string | null;
-  publicationDate: Date | null;
-  authors: Array<{
-    author: {
-      firstName: string;
-      lastName: string;
-    };
-  }>;
+  publisherName: string | null;
+  publicationDate: Date | string | null;
+  isbn: string | null;
+  pageCount: number | null;
 };
 
-type PrismaCommentWithCustomer = {
+type BookCommentRow = {
   commentText: string;
-  commentDate: Date;
+  commentDate: Date | string;
   rating: number | null;
-  customer: {
-    firstName: string;
-    lastName: string;
-  };
+  firstName: string;
+  lastName: string;
 };
 
-function compareUa(a: string, b: string): number {
-  return a.localeCompare(b, "uk", { sensitivity: "base" });
+type AuthorRow = {
+  authorId: number;
+  firstName: string;
+  lastName: string;
+  nationality: string | null;
+  imagePath: string | null;
+};
+
+type AuthorDetailsRow = AuthorRow & {
+  biography: string | null;
+  birthDate: Date | string | null;
+};
+
+type SearchBookRow = {
+  bookId: number;
+  title: string;
+  coverImagePath: string | null;
+  price: number | string | null;
+};
+
+type SearchAuthorRow = {
+  authorId: number;
+  firstName: string;
+  lastName: string;
+  imagePath: string | null;
+};
+
+function asNumber(value: number | string | null | undefined): number {
+  const parsed = Number(value ?? 0);
+  if (!Number.isFinite(parsed)) {
+    return 0;
+  }
+
+  return parsed;
 }
 
-function mapAuthors(
-  authors: Array<{
-    author: {
-      firstName: string;
-      lastName: string;
-    };
-  }>,
-): string {
-  const names = authors
-    .map(({ author }) => `${author.firstName} ${author.lastName}`.trim())
-    .filter((value) => value.length > 0);
-
-  return names.length > 0 ? names.join(", ") : "Невідомий автор";
+function asString(value: string | null | undefined): string {
+  return value?.trim() ?? "";
 }
 
-function mapPrismaBookToCard(book: PrismaBookWithAuthors): BookCardData {
+function asOptionalText(value?: string): string | null {
+  const normalized = value?.trim();
+  return normalized && normalized.length > 0 ? normalized : null;
+}
+
+function asOptionalNumber(value?: number): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return value;
+}
+
+function mapBookCard(row: BookCardRow): BookCardData {
   return {
-    bookId: book.bookId,
-    title: book.title,
-    authors: mapAuthors(book.authors),
-    price: Number(book.price ?? 0),
-    coverImagePath: book.coverImagePath ?? "",
-    stockQuantity: book.stockQuantity,
-    genre: book.genre ?? "",
+    bookId: row.bookId,
+    title: row.title,
+    authors: asString(row.authors) || "Невідомий автор",
+    price: asNumber(row.price),
+    coverImagePath: asString(row.coverImagePath),
+    stockQuantity: Math.max(0, Math.floor(asNumber(row.stockQuantity))),
+    genre: asString(row.genre),
   };
-}
-
-function mapPrismaComment(comment: PrismaCommentWithCustomer) {
-  return {
-    authorName: `${comment.customer.firstName} ${comment.customer.lastName}`.trim() || "Читач",
-    commentDate: comment.commentDate.toISOString(),
-    rating: comment.rating ?? 0,
-    commentText: comment.commentText,
-  };
-}
-
-function createBooksWhereInput(filters: BooksCatalogFilters): Prisma.BookWhereInput {
-  const clauses: Prisma.BookWhereInput[] = [];
-
-  if (filters.query) {
-    clauses.push({
-      OR: [
-        { title: { contains: filters.query, mode: "insensitive" } },
-        {
-          authors: {
-            some: {
-              author: {
-                OR: [
-                  { firstName: { contains: filters.query, mode: "insensitive" } },
-                  { lastName: { contains: filters.query, mode: "insensitive" } },
-                ],
-              },
-            },
-          },
-        },
-      ],
-    });
-  }
-
-  if (filters.genre) {
-    clauses.push({ genre: filters.genre });
-  }
-
-  if (filters.language) {
-    clauses.push({ language: filters.language });
-  }
-
-  if (typeof filters.minPrice === "number" || typeof filters.maxPrice === "number") {
-    clauses.push({
-      price: {
-        gte: filters.minPrice,
-        lte: filters.maxPrice,
-      },
-    });
-  }
-
-  if (filters.inStockOnly) {
-    clauses.push({ stockQuantity: { gt: 0 } });
-  }
-
-  if (clauses.length === 0) {
-    return {};
-  }
-
-  return { AND: clauses };
 }
 
 export async function getHomeNewArrivals(limit = 6): Promise<BookCardData[]> {
   try {
-    const books = await prisma.book.findMany({
-      take: limit,
-      orderBy: [{ publicationDate: "desc" }, { bookId: "desc" }],
-      include: {
-        authors: {
-          include: {
-            author: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return books.map((book) => mapPrismaBookToCard(book as PrismaBookWithAuthors));
+    const rows = await queryRows<BookCardRow>(prisma, "catalog/home_new_arrivals", [limit]);
+    return rows.map(mapBookCard);
   } catch (error) {
     console.warn("Failed to load new arrivals from database:", error);
     return [];
@@ -157,67 +114,30 @@ export async function getHomeNewArrivals(limit = 6): Promise<BookCardData[]> {
 
 export async function getBooksCatalog(filters: BooksCatalogFilters) {
   try {
-    const where = createBooksWhereInput(filters);
-
-    const [books, genresRaw, languagesRaw] = await Promise.all([
-      prisma.book.findMany({
-        where,
-        orderBy: [{ title: "asc" }],
-        include: {
-          authors: {
-            include: {
-              author: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-        },
-      }),
-      prisma.book.findMany({
-        where: {
-          genre: {
-            not: null,
-          },
-        },
-        select: {
-          genre: true,
-        },
-        distinct: ["genre"],
-        orderBy: {
-          genre: "asc",
-        },
-      }),
-      prisma.book.findMany({
-        where: {
-          language: {
-            not: null,
-          },
-        },
-        select: {
-          language: true,
-        },
-        distinct: ["language"],
-        orderBy: {
-          language: "asc",
-        },
-      }),
+    const [booksRows, genresRows, languagesRows] = await Promise.all([
+      queryRows<BookCardRow>(prisma, "catalog/books_catalog", [
+        asOptionalText(filters.query),
+        asOptionalText(filters.genre),
+        asOptionalText(filters.language),
+        asOptionalNumber(filters.minPrice),
+        asOptionalNumber(filters.maxPrice),
+        Boolean(filters.inStockOnly),
+      ]),
+      queryRows<{ genre: string | null }>(prisma, "catalog/books_genres"),
+      queryRows<{ language: string | null }>(prisma, "catalog/books_languages"),
     ]);
 
     return {
-      books: books.map((book) => mapPrismaBookToCard(book as PrismaBookWithAuthors)),
-      genres: genresRaw
-        .map((entry) => entry.genre?.trim() ?? "")
-        .filter((value): value is string => value.length > 0),
-      languages: languagesRaw
-        .map((entry) => entry.language?.trim() ?? "")
-        .filter((value): value is string => value.length > 0),
+      books: booksRows.map(mapBookCard),
+      genres: genresRows
+        .map((entry) => asString(entry.genre))
+        .filter((value) => value.length > 0),
+      languages: languagesRows
+        .map((entry) => asString(entry.language))
+        .filter((value) => value.length > 0),
     };
   } catch (error) {
     console.warn("Failed to load books catalog from database:", error);
-
     return {
       books: [],
       genres: [],
@@ -232,62 +152,36 @@ export async function getBookDetails(bookId: number): Promise<BookDetailsData | 
   }
 
   try {
-    const book = await prisma.book.findUnique({
-      where: { bookId },
-      include: {
-        publisher: {
-          select: {
-            name: true,
-          },
-        },
-        authors: {
-          include: {
-            author: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-        comments: {
-          take: 40,
-          orderBy: {
-            commentDate: "desc",
-          },
-          include: {
-            customer: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!book) {
+    const row = await queryFirst<BookDetailsRow>(prisma, "catalog/book_details", [bookId]);
+    if (!row) {
       return null;
     }
 
-    const comments = book.comments.map((comment) => mapPrismaComment(comment as PrismaCommentWithCustomer));
+    const commentsRows = await queryRows<BookCommentRow>(prisma, "catalog/book_comments", [bookId, 40]);
+    const comments = commentsRows.map((comment) => ({
+      authorName: `${comment.firstName} ${comment.lastName}`.trim() || "Читач",
+      commentDate:
+        comment.commentDate instanceof Date
+          ? comment.commentDate.toISOString()
+          : new Date(comment.commentDate).toISOString(),
+      rating: Math.max(0, Math.floor(asNumber(comment.rating))),
+      commentText: comment.commentText,
+    }));
+
     const ratings = comments.map((comment) => comment.rating).filter((rating) => rating > 0);
     const averageRating =
       ratings.length > 0
         ? Number((ratings.reduce((sum, value) => sum + value, 0) / ratings.length).toFixed(1))
         : 0;
 
-    const mappedCard = mapPrismaBookToCard(book as PrismaBookWithAuthors);
-
     return {
-      ...mappedCard,
-      description: book.description ?? "Опис відсутній",
-      language: book.language ?? "-",
-      publisherName: book.publisher?.name ?? "-",
-      publicationDate: formatUADate(book.publicationDate),
-      isbn: book.isbn ?? "-",
-      pageCount: book.pageCount ?? 0,
+      ...mapBookCard(row),
+      description: asString(row.description) || "Опис відсутній",
+      language: asString(row.language) || "-",
+      publisherName: asString(row.publisherName) || "-",
+      publicationDate: formatUADate(row.publicationDate),
+      isbn: asString(row.isbn) || "-",
+      pageCount: Math.max(0, Math.floor(asNumber(row.pageCount))),
       averageRating,
       comments,
     };
@@ -303,56 +197,13 @@ export async function getSimilarBooks(
   limit = 5,
 ): Promise<BookCardData[]> {
   try {
-    const similar = await prisma.book.findMany({
-      where: {
-        bookId: {
-          not: currentBookId,
-        },
-        ...(genre ? { genre } : {}),
-      },
-      take: limit,
-      orderBy: [{ publicationDate: "desc" }, { bookId: "desc" }],
-      include: {
-        authors: {
-          include: {
-            author: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const rows = await queryRows<BookCardRow>(prisma, "catalog/similar_books", [
+      currentBookId,
+      asOptionalText(genre),
+      limit,
+    ]);
 
-    if (similar.length === 0 && genre.length > 0) {
-      const fallbackByRecency = await prisma.book.findMany({
-        where: {
-          bookId: {
-            not: currentBookId,
-          },
-        },
-        take: limit,
-        orderBy: [{ publicationDate: "desc" }, { bookId: "desc" }],
-        include: {
-          authors: {
-            include: {
-              author: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-        },
-      });
-
-      return fallbackByRecency.map((book) => mapPrismaBookToCard(book as PrismaBookWithAuthors));
-    }
-
-    return similar.map((book) => mapPrismaBookToCard(book as PrismaBookWithAuthors));
+    return rows.map(mapBookCard);
   } catch (error) {
     console.warn("Failed to load similar books from database:", error);
     return [];
@@ -361,23 +212,14 @@ export async function getSimilarBooks(
 
 export async function getAuthorsList(): Promise<AuthorCardData[]> {
   try {
-    const authors = await prisma.author.findMany({
-      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-      select: {
-        authorId: true,
-        firstName: true,
-        lastName: true,
-        nationality: true,
-        imagePath: true,
-      },
-    });
+    const rows = await queryRows<AuthorRow>(prisma, "catalog/authors_list");
 
-    return authors.map((author) => ({
+    return rows.map((author) => ({
       authorId: author.authorId,
       firstName: author.firstName,
       lastName: author.lastName,
-      nationality: author.nationality ?? "",
-      imagePath: author.imagePath ?? "",
+      nationality: asString(author.nationality),
+      imagePath: asString(author.imagePath),
     }));
   } catch (error) {
     console.warn("Failed to load authors from database:", error);
@@ -391,49 +233,23 @@ export async function getAuthorDetails(authorId: number): Promise<AuthorDetailsD
   }
 
   try {
-    const author = await prisma.author.findUnique({
-      where: { authorId },
-      include: {
-        authoredBooks: {
-          include: {
-            book: {
-              include: {
-                authors: {
-                  include: {
-                    author: {
-                      select: {
-                        firstName: true,
-                        lastName: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
+    const author = await queryFirst<AuthorDetailsRow>(prisma, "catalog/author_details", [authorId]);
     if (!author) {
       return null;
     }
 
-    const books = author.authoredBooks
-      .map((entry) => entry.book)
-      .map((book) => mapPrismaBookToCard(book as PrismaBookWithAuthors))
-      .sort((a, b) => compareUa(a.title, b.title));
+    const booksRows = await queryRows<BookCardRow>(prisma, "catalog/author_books", [authorId]);
 
     return {
       authorId: author.authorId,
       firstName: author.firstName,
       lastName: author.lastName,
       fullName: `${author.firstName} ${author.lastName}`.trim(),
-      nationality: author.nationality ?? "",
-      imagePath: author.imagePath ?? "",
-      biography: author.biography ?? "Біографія відсутня",
+      nationality: asString(author.nationality),
+      imagePath: asString(author.imagePath),
+      biography: asString(author.biography) || "Біографія відсутня",
       birthDate: formatUADate(author.birthDate),
-      books,
+      books: booksRows.map(mapBookCard),
     };
   } catch (error) {
     console.warn("Failed to load author details from database:", error);
@@ -451,65 +267,24 @@ export async function getSearchSuggestions(
   }
 
   try {
-    const [books, authors] = await Promise.all([
-      prisma.book.findMany({
-        where: {
-          OR: [
-            { title: { contains: trimmedQuery, mode: "insensitive" } },
-            {
-              authors: {
-                some: {
-                  author: {
-                    OR: [
-                      { firstName: { contains: trimmedQuery, mode: "insensitive" } },
-                      { lastName: { contains: trimmedQuery, mode: "insensitive" } },
-                    ],
-                  },
-                },
-              },
-            },
-          ],
-        },
-        take: limit,
-        orderBy: [{ title: "asc" }],
-        select: {
-          bookId: true,
-          title: true,
-          coverImagePath: true,
-          price: true,
-        },
-      }),
-      prisma.author.findMany({
-        where: {
-          OR: [
-            { firstName: { contains: trimmedQuery, mode: "insensitive" } },
-            { lastName: { contains: trimmedQuery, mode: "insensitive" } },
-          ],
-        },
-        take: limit,
-        orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
-        select: {
-          authorId: true,
-          firstName: true,
-          lastName: true,
-          imagePath: true,
-        },
-      }),
+    const [booksRows, authorsRows] = await Promise.all([
+      queryRows<SearchBookRow>(prisma, "catalog/search_books", [trimmedQuery, limit]),
+      queryRows<SearchAuthorRow>(prisma, "catalog/search_authors", [trimmedQuery, limit]),
     ]);
 
     const suggestions: SearchSuggestionData[] = [
-      ...books.map((book) => ({
+      ...booksRows.map((book) => ({
         id: book.bookId,
         type: "book" as const,
         displayText: book.title,
-        imagePath: book.coverImagePath ?? "",
-        price: Number(book.price ?? 0),
+        imagePath: asString(book.coverImagePath),
+        price: asNumber(book.price),
       })),
-      ...authors.map((author) => ({
+      ...authorsRows.map((author) => ({
         id: author.authorId,
         type: "author" as const,
         displayText: `${author.firstName} ${author.lastName}`.trim(),
-        imagePath: author.imagePath ?? "",
+        imagePath: asString(author.imagePath),
       })),
     ];
 

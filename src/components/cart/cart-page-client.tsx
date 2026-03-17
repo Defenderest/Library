@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Minus, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { BookCover } from "@/components/books/book-cover";
@@ -28,6 +28,15 @@ type CartApiResponse = {
   error?: string;
 };
 
+type LiqPayApiResponse = {
+  state?: "success" | "pending" | "failed" | "canceled" | "expired";
+  orderId?: number;
+  message?: string;
+  checkoutUrl?: string;
+  providerOrderId?: string;
+  error?: string;
+};
+
 function formatMoney(value: number): string {
   return `${value.toFixed(2)} UAH`;
 }
@@ -42,7 +51,9 @@ function FieldError({ message }: { message?: string }) {
 
 export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setCartCount } = useCart();
+  const liqPayReturnHandled = useRef(false);
 
   const [cart, setCart] = useState<CartSummaryData>({
     items: [],
@@ -117,6 +128,61 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
   useEffect(() => {
     void loadCart();
   }, [loadCart]);
+
+  useEffect(() => {
+    if (liqPayReturnHandled.current) {
+      return;
+    }
+
+    const flow = searchParams.get("liqpay");
+    const providerOrderId = searchParams.get("providerOrderId");
+
+    if (flow !== "return" || !providerOrderId) {
+      return;
+    }
+
+    liqPayReturnHandled.current = true;
+    setCheckoutError(false);
+    setCheckoutMessage("Перевіряємо статус платежу LiqPay...");
+    setCheckoutStep(false);
+
+    void (async () => {
+      try {
+        const response = await fetch("/api/checkout/liqpay/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ providerOrderId }),
+        });
+
+        const data = (await response.json().catch(() => null)) as LiqPayApiResponse | null;
+
+        if (response.status === 401) {
+          redirectToProfile();
+          return;
+        }
+
+        if (!response.ok) {
+          setCheckoutError(true);
+          setCheckoutMessage(data?.error || "Не вдалося перевірити платіж LiqPay");
+          return;
+        }
+
+        setCheckoutError(data?.state !== "success");
+        setCheckoutMessage(data?.message || "Статус платежу оновлено");
+
+        if (data?.state === "success") {
+          await loadCart();
+        }
+      } catch {
+        setCheckoutError(true);
+        setCheckoutMessage("Не вдалося перевірити платіж LiqPay");
+      } finally {
+        router.replace("/cart");
+      }
+    })();
+  }, [loadCart, redirectToProfile, router, searchParams]);
 
   const runRowAction = useCallback(
     async (bookId: number, action: CartAction) => {
@@ -206,16 +272,13 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
     setCheckoutMessage("");
     setCheckoutError(false);
 
-    if (values.paymentMethod === "LiqPay Sandbox") {
-      setCheckoutError(true);
-      setCheckoutMessage("LiqPay Sandbox буде доступний у наступній фазі");
-      return;
-    }
-
     setCheckoutSubmitting(true);
 
     try {
-      const response = await fetch("/api/checkout/order", {
+      const endpoint =
+        values.paymentMethod === "LiqPay Sandbox" ? "/api/checkout/liqpay/start" : "/api/checkout/order";
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -223,12 +286,16 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
         body: JSON.stringify(values),
       });
 
-      const data = (await response.json().catch(() => null)) as {
-        orderId?: number;
-        totalAmount?: number;
-        message?: string;
-        error?: string;
-      } | null;
+      const data = (await response.json().catch(() => null)) as
+        | {
+            orderId?: number;
+            totalAmount?: number;
+            message?: string;
+            error?: string;
+            checkoutUrl?: string;
+            providerOrderId?: string;
+          }
+        | null;
 
       if (response.status === 401) {
         redirectToProfile();
@@ -238,6 +305,19 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
       if (!response.ok) {
         setCheckoutError(true);
         setCheckoutMessage(data?.error || "Не вдалося оформити замовлення");
+        return;
+      }
+
+      if (values.paymentMethod === "LiqPay Sandbox") {
+        if (!data?.checkoutUrl) {
+          setCheckoutError(true);
+          setCheckoutMessage("Не вдалося створити платіж LiqPay");
+          return;
+        }
+
+        setCheckoutError(false);
+        setCheckoutMessage("Переходимо до LiqPay...");
+        window.location.href = data.checkoutUrl;
         return;
       }
 
@@ -299,7 +379,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                         title={item.title}
                         imagePath={item.coverImagePath}
                         className="h-[90px] w-[60px] flex-none"
-                        imageClassName="grayscale"
+                        imageClassName="brightness-[0.9] contrast-[1.08] saturate-[0.86] sepia-[0.16]"
                       />
 
                       <div className="min-w-0 space-y-1">

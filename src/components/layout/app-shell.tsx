@@ -70,7 +70,9 @@ export function AppShell({ children }: PropsWithChildren) {
           onOpenSidebar={() => setMobileSidebarOpen(true)}
         />
 
-        <main className="px-6 pb-[60px] pt-0 mobile:px-10 desktop:px-[60px]">{children}</main>
+        <main className="px-6 pb-[60px] pt-l mobile:px-10 mobile:pt-xl desktop:px-[60px]">
+          {children}
+        </main>
       </div>
     </div>
   );

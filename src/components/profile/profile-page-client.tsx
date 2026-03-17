@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -43,6 +44,7 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProps) {
+  const router = useRouter();
   const { session, loading, setSession, logout } = useAuthSession();
 
   const [authFormVisible, setAuthFormVisible] = useState(false);
@@ -177,6 +179,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
       }
 
       setSession(data.session);
+      router.refresh();
       setAuthMessage("Успішно");
       setAuthMessageTone("success");
       loginForm.reset({
@@ -221,6 +224,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
       }
 
       setSession(data.session);
+      router.refresh();
       setAuthMessage("Успішно");
       setAuthMessageTone("success");
       registerForm.reset({
@@ -316,6 +320,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
 
   const logoutFromProfile = async () => {
     await logout();
+    router.refresh();
     setSaveMessage("");
     setProfile(null);
     setAuthFormVisible(false);
