@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, ShoppingBag } from "lucide-react";
+import { Menu, ShoppingBag, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from "react";
@@ -14,6 +14,8 @@ type AppHeaderProps = {
   pageTitle: string;
   cartCount: number;
   onOpenSidebar: () => void;
+  showMenuButton?: boolean;
+  showProfileButton?: boolean;
 };
 
 function getSuggestionMeta(item: SearchSuggestionData): string {
@@ -24,7 +26,13 @@ function getSuggestionMeta(item: SearchSuggestionData): string {
   return "Автор";
 }
 
-export function AppHeader({ pageTitle, cartCount, onOpenSidebar }: AppHeaderProps) {
+export function AppHeader({
+  pageTitle,
+  cartCount,
+  onOpenSidebar,
+  showMenuButton = true,
+  showProfileButton = true,
+}: AppHeaderProps) {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -108,23 +116,36 @@ export function AppHeader({ pageTitle, cartCount, onOpenSidebar }: AppHeaderProp
 
   return (
     <header className="sticky top-0 z-30 border-b border-app-border-light bg-transparent">
-      <div className="flex flex-wrap items-center gap-s px-4 py-s mobile:gap-l mobile:px-10 mobile:py-m desktop:h-[var(--layout-header-height)] desktop:flex-nowrap desktop:px-10 desktop:py-0 compact:px-[60px]">
-        <button
-          type="button"
-          onClick={onOpenSidebar}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-app-border-light text-app-primary transition duration-fast hover:border-app-border-hover desktop:hidden"
-          aria-label="Відкрити меню"
-        >
-          <Menu size={16} />
-        </button>
+      <div className="flex flex-wrap items-center gap-3 px-4 py-3 mobile:gap-l mobile:px-10 mobile:py-m desktop:h-[var(--layout-header-height)] desktop:flex-nowrap desktop:px-10 desktop:py-0 compact:px-[60px]">
+        {showMenuButton ? (
+          <button
+            type="button"
+            onClick={onOpenSidebar}
+            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition duration-fast hover:border-white/[0.14] hover:bg-white/[0.05] desktop:hidden"
+            aria-label="Відкрити меню"
+          >
+            <Menu size={16} />
+          </button>
+        ) : null}
 
-        <h1 className="order-1 min-w-0 flex-1 truncate font-display text-[24px] font-normal leading-none text-app-primary mobile:text-[30px] desktop:flex-none desktop:text-[30px] compact:text-[36px]">
+        {!showMenuButton && showProfileButton ? (
+          <Link
+            href="/profile"
+            prefetch={false}
+            aria-label="Перейти до профілю"
+            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition duration-fast hover:border-white/[0.14] hover:bg-white/[0.05] desktop:hidden"
+          >
+            <UserRound size={16} />
+          </Link>
+        ) : null}
+
+        <h1 className="order-2 min-w-0 flex-1 truncate px-1 pt-[1px] font-display text-[22px] font-normal leading-[1.08] text-app-primary mobile:text-[30px] desktop:flex-none desktop:px-0 desktop:text-[30px] compact:text-[36px]">
           {pageTitle}
         </h1>
 
         <form
           onSubmit={submitGlobalSearch}
-          className="order-3 w-full desktop:order-2 desktop:ml-auto desktop:max-w-[300px]"
+          className="order-4 w-full pt-1 desktop:order-2 desktop:ml-auto desktop:max-w-[300px] desktop:pt-0"
         >
           <label htmlFor="global-search" className="sr-only">
             Пошук книг та авторів
@@ -141,7 +162,7 @@ export function AppHeader({ pageTitle, cartCount, onOpenSidebar }: AppHeaderProp
               }}
               placeholder="Пошук..."
               onKeyDown={handleEscape}
-              className="h-[42px] w-full border-b border-[#333] bg-transparent px-0 font-body text-sm text-app-primary outline-none placeholder:text-app-secondary transition duration-fast focus:border-app-white"
+              className="h-[40px] w-full border-b border-[#333] bg-transparent px-0 font-body text-sm text-app-primary outline-none placeholder:text-app-secondary transition duration-fast focus:border-app-white desktop:h-[42px]"
             />
           </div>
 
@@ -204,7 +225,7 @@ export function AppHeader({ pageTitle, cartCount, onOpenSidebar }: AppHeaderProp
           href="/cart"
           prefetch={false}
           aria-label="Перейти до кошика"
-          className="order-2 ml-auto inline-flex h-10 w-10 flex-none items-center justify-center rounded-full border border-app-border-light text-app-primary transition duration-fast hover:border-app-border-hover desktop:order-3 desktop:ml-s"
+          className="order-3 inline-flex h-11 w-11 flex-none items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition duration-fast hover:border-white/[0.14] hover:bg-white/[0.05] desktop:ml-s desktop:h-10 desktop:w-10 desktop:border-app-border-light desktop:bg-transparent desktop:shadow-none desktop:backdrop-blur-0 desktop:hover:border-app-border-hover"
         >
           <ShoppingBag size={15} />
 

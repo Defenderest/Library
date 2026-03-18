@@ -17,7 +17,7 @@ export function BookCard({ book, detailsHref = `/books/${book.bookId}`, classNam
   return (
     <article
       className={cn(
-        "group relative flex h-full min-h-[520px] w-full flex-col overflow-hidden rounded-sharp border border-app-border-light bg-app-card p-5 transition-[transform,border-color,box-shadow,background-color] duration-[500ms] ease-out hover:-translate-y-[4px] hover:border-white/15 hover:bg-white/[0.015] hover:shadow-[0_24px_60px_rgba(0,0,0,0.42)]",
+        "group relative flex h-full min-h-[360px] w-full flex-col overflow-hidden rounded-sharp border border-app-border-light bg-app-card p-3 transition-[transform,border-color,box-shadow,background-color] duration-[500ms] ease-out hover:-translate-y-[4px] hover:border-white/15 hover:bg-white/[0.015] hover:shadow-[0_24px_60px_rgba(0,0,0,0.42)] mobile:min-h-[520px] mobile:p-5",
         className,
       )}
     >
@@ -44,24 +44,28 @@ export function BookCard({ book, detailsHref = `/books/${book.bookId}`, classNam
         </div>
       </Link>
 
-      <div className="relative mt-[25px] space-y-[5px]">
+      <div className="relative mt-4 space-y-1 mobile:mt-[25px] mobile:space-y-[5px]">
         <Link href={detailsHref} className="block">
-          <h3 className="truncate font-display text-[20px] text-app-primary transition duration-[350ms] group-hover:text-white/95">
+          <h3 className="truncate font-display text-[16px] leading-tight text-app-primary transition duration-[350ms] group-hover:text-white/95 mobile:text-[20px]">
             {book.title}
           </h3>
         </Link>
 
-        <p className="truncate font-body text-xs uppercase tracking-[0.08em] text-app-muted">
+        <p className="truncate font-body text-[10px] uppercase tracking-[0.08em] text-app-muted mobile:text-xs">
           {(book.authors || "Невідомий автор").toUpperCase()}
         </p>
 
-        <p className="pt-[15px] font-display text-sm font-medium text-app-primary">
+        <p className="pt-2 font-display text-[13px] font-medium text-app-primary mobile:pt-[15px] mobile:text-sm">
           UAH {book.price.toFixed(2)}
         </p>
       </div>
 
-      <div className="relative mt-auto pt-[18px]">
-        <AddToCartButton bookId={book.bookId} stockQuantity={book.stockQuantity} />
+      <div className="relative mt-auto pt-3 mobile:pt-[18px]">
+        <AddToCartButton
+          bookId={book.bookId}
+          stockQuantity={book.stockQuantity}
+          className="h-[36px] text-[10px] mobile:h-[42px] mobile:text-[11px]"
+        />
       </div>
     </article>
   );

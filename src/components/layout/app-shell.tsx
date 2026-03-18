@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState, type PropsWithChildren } from "react";
 
 import { AppHeader } from "@/components/layout/app-header";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { useAuthSession } from "@/components/providers/auth-session-provider";
 import { useCart } from "@/components/providers/cart-provider";
@@ -63,17 +64,24 @@ export function AppShell({ children }: PropsWithChildren) {
         ) : null}
       </AnimatePresence>
 
-      <div className="relative min-h-screen desktop:pl-[var(--layout-sidebar-width)]">
+      <div className="relative flex min-h-screen flex-col desktop:pl-[var(--layout-sidebar-width)]">
         <AppHeader
           pageTitle={pageTitle}
           cartCount={cartCount}
           onOpenSidebar={() => setMobileSidebarOpen(true)}
+          showMenuButton={false}
         />
 
-        <main className="px-4 pb-[60px] pt-l mobile:px-10 mobile:pt-xl desktop:px-10 compact:px-[60px]">
+        <main className="flex-1 px-4 pb-8 pt-l mobile:px-10 mobile:pb-10 mobile:pt-xl desktop:px-10 desktop:pb-12 compact:px-[60px]">
           {children}
         </main>
+
+        <footer className="border-t border-app-border-light px-4 pb-[76px] pt-4 text-center font-body text-[10px] uppercase tracking-[0.18em] text-app-muted mobile:px-10 mobile:pb-[82px] desktop:px-10 desktop:pb-8 desktop:pt-6 compact:px-[60px]">
+          Patsera Ihor 2026
+        </footer>
       </div>
+
+      <MobileBottomNav pathname={pathname} isAdmin={isAdmin} />
     </div>
   );
 }

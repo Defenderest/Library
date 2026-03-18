@@ -83,7 +83,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <section className="space-y-4">
         <h3 className="font-display text-3xl text-app-primary">Новинки Колекції</h3>
 
-        <div className="grid grid-cols-1 gap-8 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
+        <div className="grid grid-cols-2 gap-4 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
           {newArrivals.map((book) => (
             <BookCardHome key={book.bookId} book={book} className="w-full" />
           ))}

@@ -141,7 +141,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
         </p>
       ) : null}
 
-      <div className="mt-10 grid grid-cols-1 gap-8 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
+      <div className="mt-8 grid grid-cols-2 gap-4 mobile:mt-10 mobile:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] mobile:gap-10">
         {books.map((book) => (
           <BookCard key={book.bookId} book={book} />
         ))}

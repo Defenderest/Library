@@ -1,17 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {
-  BookOpen,
-  House,
-  ScrollText,
-  Shield,
-  ShoppingCart,
-  UserRound,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
 
+import { APP_NAV_ITEMS, isNavPathActive } from "@/components/layout/navigation-config";
 import { cn } from "@/lib/cn";
 
 type SidebarProps = {
@@ -21,28 +12,6 @@ type SidebarProps = {
   onNavigate?: () => void;
   className?: string;
 };
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  adminOnly?: boolean;
-  showCartBadge?: boolean;
-};
-
-const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Головна", icon: House },
-  { href: "/books", label: "Колекція", icon: BookOpen },
-  { href: "/authors", label: "Автори", icon: Users },
-  { href: "/orders", label: "Історія", icon: ScrollText },
-  { href: "/admin", label: "Адмін", icon: Shield, adminOnly: true },
-  { href: "/profile", label: "Профіль", icon: UserRound },
-  { href: "/cart", label: "Кошик", icon: ShoppingCart, showCartBadge: true },
-];
-
-function isActive(pathname: string, href: string): boolean {
-  return pathname === href;
-}
 
 export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className }: SidebarProps) {
   return (
@@ -59,9 +28,9 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
       </div>
 
       <nav className="mt-[150px] flex flex-col items-center gap-4 px-s pb-8 compact:mt-[190px] compact:gap-5">
-        {NAV_ITEMS.filter((item) => (item.adminOnly ? isAdmin : true)).map((item) => {
+        {APP_NAV_ITEMS.filter((item) => (item.adminOnly ? isAdmin : true)).map((item) => {
           const Icon = item.icon;
-          const active = isActive(pathname, item.href);
+          const active = isNavPathActive(pathname, item.href);
 
           return (
             <div key={item.href} className="group relative">

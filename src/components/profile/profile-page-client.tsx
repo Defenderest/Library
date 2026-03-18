@@ -589,6 +589,16 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                   Зберегти зміни
                 </button>
 
+                {session.isAdmin ? (
+                  <button
+                    type="button"
+                    onClick={() => router.push("/admin")}
+                    className="flex h-[46px] w-[220px] items-center justify-center rounded-sharp border border-app-border-light bg-transparent font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-white/[0.04]"
+                  >
+                    Адмін панель
+                  </button>
+                ) : null}
+
                 <button
                   type="button"
                   onClick={logoutFromProfile}
