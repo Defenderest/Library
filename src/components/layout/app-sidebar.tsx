@@ -54,11 +54,11 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
     >
       <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-app-border-light" />
 
-      <div className="pointer-events-none absolute left-1/2 top-10 -translate-x-1/2 select-none font-display text-2xl italic font-semibold tracking-[0.12em] text-app-primary/80 [writing-mode:vertical-rl] [transform:translateX(-50%)_rotate(180deg)]">
+      <div className="pointer-events-none absolute left-1/2 top-8 -translate-x-1/2 select-none font-display text-xl italic font-semibold tracking-[0.12em] text-app-primary/80 [writing-mode:vertical-rl] [transform:translateX(-50%)_rotate(180deg)] compact:top-10 compact:text-2xl">
         LUXE.
       </div>
 
-      <nav className="mt-[190px] flex flex-col items-center gap-5 px-s pb-8">
+      <nav className="mt-[150px] flex flex-col items-center gap-4 px-s pb-8 compact:mt-[190px] compact:gap-5">
         {NAV_ITEMS.filter((item) => (item.adminOnly ? isAdmin : true)).map((item) => {
           const Icon = item.icon;
           const active = isActive(pathname, item.href);
@@ -71,7 +71,7 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
                 aria-label={item.label}
                 onClick={onNavigate}
                 className={cn(
-                  "relative flex h-[50px] w-[50px] items-center justify-center rounded-full border border-transparent transition duration-normal",
+                  "relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-transparent transition duration-normal compact:h-[50px] compact:w-[50px]",
                   active
                     ? "bg-white/[0.05] text-app-primary"
                     : "text-app-primary/65 hover:border-app-border-light hover:text-app-primary",
@@ -93,7 +93,7 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
                 )}
               />
 
-              <span className="pointer-events-none absolute left-[70px] top-1/2 -translate-y-1/2 rounded-sharp bg-app-white px-2 py-1 font-body text-[10px] font-semibold uppercase tracking-[0.08em] text-app-body opacity-0 transition duration-fast group-hover:opacity-100 group-focus-within:opacity-100">
+              <span className="pointer-events-none absolute left-[62px] top-1/2 -translate-y-1/2 rounded-sharp bg-app-white px-2 py-1 font-body text-[10px] font-semibold uppercase tracking-[0.08em] text-app-body opacity-0 transition duration-fast group-hover:opacity-100 group-focus-within:opacity-100 compact:left-[70px]">
                 {item.label}
               </span>
             </div>

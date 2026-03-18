@@ -56,4 +56,6 @@ export type BooksCatalogFilters = {
   minPrice?: number;
   maxPrice?: number;
   inStockOnly?: boolean;
+  page?: number;
+  pageSize?: number;
 };

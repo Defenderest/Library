@@ -5,6 +5,7 @@ import { Filter, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
+import { SteppedNumberField } from "@/components/ui/stepped-number-field";
 import { cn } from "@/lib/cn";
 
 type FilterState = {
@@ -53,6 +54,31 @@ export function BooksFiltersPanel({
 
   const displayGenres = useMemo(() => ["Всі", ...genres], [genres]);
   const displayLanguages = useMemo(() => ["Будь-яка", ...languages], [languages]);
+  const selectedFiltersCount = useMemo(() => {
+    let count = 0;
+
+    if (state.genre) {
+      count += 1;
+    }
+
+    if (state.language) {
+      count += 1;
+    }
+
+    if (parseNumericInput(state.minPrice)) {
+      count += 1;
+    }
+
+    if (parseNumericInput(state.maxPrice)) {
+      count += 1;
+    }
+
+    if (state.inStockOnly) {
+      count += 1;
+    }
+
+    return count;
+  }, [state.genre, state.inStockOnly, state.language, state.maxPrice, state.minPrice]);
 
   const applyFilters = () => {
     const params = new URLSearchParams();
@@ -153,137 +179,165 @@ export function BooksFiltersPanel({
               animate={{ x: 0 }}
               exit={{ x: 420 }}
               transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed inset-y-0 right-0 z-50 w-full max-w-[400px] border-l border-app-border-light bg-app-glass p-l backdrop-blur-[16px]"
+              className="fixed inset-y-0 right-0 z-50 w-full max-w-[420px] border-l border-app-border-light bg-[rgba(7,7,7,0.96)] backdrop-blur-[18px]"
             >
-              <div className="h-full overflow-y-auto pr-s">
-                <div className="flex items-center gap-m">
-                  <h2 className="font-display text-[28px] italic text-app-primary">Фільтри</h2>
-                  <div className="ml-auto">
-                    <button
-                      type="button"
-                      onClick={() => setOpen(false)}
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-app-primary transition duration-fast hover:bg-white/[0.1]"
-                      aria-label="Закрити"
-                    >
-                      <X size={18} />
-                    </button>
+              <div className="flex h-full flex-col">
+                <header className="flex items-center gap-m border-b border-app-border-light px-m py-m">
+                  <div>
+                    <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
+                      Каталог
+                    </p>
+                    <h2 className="font-display text-[34px] italic text-app-primary">Фільтри</h2>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-app-primary transition duration-fast hover:bg-white/[0.1]"
+                    aria-label="Закрити"
+                  >
+                    <X size={18} />
+                  </button>
+                </header>
+
+                <div className="min-h-0 flex-1 overflow-y-auto px-m py-m">
+                  <div className="space-y-m">
+                    <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
+                      <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
+                        Активні фільтри
+                      </p>
+                      <p className="mt-2 font-body text-sm text-app-secondary">
+                        {selectedFiltersCount > 0
+                          ? `Вибрано: ${selectedFiltersCount}`
+                          : "Фільтри не застосовано"}
+                      </p>
+                    </div>
+
+                    <section className="space-y-m rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                      <p className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">Жанр</p>
+                      <div className="flex flex-wrap gap-s">
+                        {displayGenres.map((genre) => {
+                          const value = genre === "Всі" ? "" : genre;
+                          const active = state.genre === value;
+
+                          return (
+                            <button
+                              type="button"
+                              key={genre}
+                              onClick={() => setState((current) => ({ ...current, genre: value }))}
+                              className={cn(
+                                "rounded-pill border px-4 py-[10px] font-body text-xs transition duration-fast",
+                                active
+                                  ? "border-app-white bg-white/[0.1] text-app-primary"
+                                  : "border-app-border-light text-app-secondary hover:border-app-border-hover hover:bg-white/[0.06] hover:text-app-primary",
+                              )}
+                            >
+                              {genre}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    <section className="space-y-m rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                      <p className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">Мова</p>
+                      <div className="flex flex-wrap gap-s">
+                        {displayLanguages.map((language) => {
+                          const value = language === "Будь-яка" ? "" : language;
+                          const active = state.language === value;
+
+                          return (
+                            <button
+                              type="button"
+                              key={language}
+                              onClick={() => setState((current) => ({ ...current, language: value }))}
+                              className={cn(
+                                "rounded-pill border px-4 py-[10px] font-body text-xs transition duration-fast",
+                                active
+                                  ? "border-app-white bg-white/[0.1] text-app-primary"
+                                  : "border-app-border-light text-app-secondary hover:border-app-border-hover hover:bg-white/[0.06] hover:text-app-primary",
+                              )}
+                            >
+                              {language}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    <section className="space-y-m rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                      <p className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">
+                        Діапазон ціни (UAH)
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-s">
+                        <label className="space-y-2">
+                          <span className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">
+                            Від
+                          </span>
+                          <SteppedNumberField
+                            value={state.minPrice}
+                            onChange={(value) =>
+                              setState((current) => ({ ...current, minPrice: value }))
+                            }
+                            min={0}
+                            step={1}
+                            placeholder="Мін"
+                            inputClassName="h-[50px] rounded-sharp bg-transparent font-display text-base focus:bg-white/[0.04]"
+                          />
+                        </label>
+
+                        <label className="space-y-2">
+                          <span className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">
+                            До
+                          </span>
+                          <SteppedNumberField
+                            value={state.maxPrice}
+                            onChange={(value) =>
+                              setState((current) => ({ ...current, maxPrice: value }))
+                            }
+                            min={0}
+                            step={1}
+                            placeholder="Макс"
+                            inputClassName="h-[50px] rounded-sharp bg-transparent font-display text-base focus:bg-white/[0.04]"
+                          />
+                        </label>
+                      </div>
+                    </section>
+
+                    <section className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                      <label className="flex cursor-pointer items-center gap-s font-body text-sm text-app-secondary">
+                        <input
+                          type="checkbox"
+                          checked={state.inStockOnly}
+                          onChange={(event) =>
+                            setState((current) => ({ ...current, inStockOnly: event.target.checked }))
+                          }
+                          className="h-4 w-4 rounded border-app-border-light bg-transparent accent-white"
+                        />
+                        Лише в наявності
+                      </label>
+                    </section>
                   </div>
                 </div>
 
-                <div className="mt-6 space-y-6">
-                  <section className="space-y-m">
-                    <p className="font-body text-[10px] uppercase tracking-[0.08em] text-app-muted">Жанр</p>
-                    <div className="flex flex-wrap gap-s">
-                      {displayGenres.map((genre) => {
-                        const value = genre === "Всі" ? "" : genre;
-                        const active = state.genre === value;
+                <footer className="shrink-0 space-y-s border-t border-app-border-light bg-[rgba(5,5,5,0.96)] px-m pb-[calc(16px+env(safe-area-inset-bottom))] pt-m">
+                  <button
+                    type="button"
+                    onClick={applyFilters}
+                    className="flex h-[52px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+                  >
+                    Застосувати
+                  </button>
 
-                        return (
-                          <button
-                            type="button"
-                            key={genre}
-                            onClick={() => setState((current) => ({ ...current, genre: value }))}
-                            className={cn(
-                              "rounded-pill border px-4 py-2 font-body text-xs transition duration-fast",
-                              active
-                                ? "border-app-white bg-white/[0.05] text-app-primary"
-                                : "border-app-border-light text-app-secondary hover:bg-white/[0.05]",
-                            )}
-                          >
-                            {genre}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </section>
-
-                  <section className="space-y-m">
-                    <p className="font-body text-[10px] uppercase tracking-[0.08em] text-app-muted">Мова</p>
-                    <div className="flex flex-wrap gap-s">
-                      {displayLanguages.map((language) => {
-                        const value = language === "Будь-яка" ? "" : language;
-                        const active = state.language === value;
-
-                        return (
-                          <button
-                            type="button"
-                            key={language}
-                            onClick={() => setState((current) => ({ ...current, language: value }))}
-                            className={cn(
-                              "rounded-pill border px-4 py-2 font-body text-xs transition duration-fast",
-                              active
-                                ? "border-app-white bg-white/[0.05] text-app-primary"
-                                : "border-app-border-light text-app-secondary hover:bg-white/[0.05]",
-                            )}
-                          >
-                            {language}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </section>
-
-                  <section className="space-y-m">
-                    <p className="font-body text-[10px] uppercase tracking-[0.08em] text-app-muted">
-                      Діапазон Ціни (UAH)
-                    </p>
-                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-s">
-                      <input
-                        type="number"
-                        min="0"
-                        value={state.minPrice}
-                        onChange={(event) =>
-                          setState((current) => ({ ...current, minPrice: event.target.value }))
-                        }
-                        placeholder="Мін"
-                        className="h-[50px] w-full border border-app-border-light bg-transparent px-4 text-center font-display text-base text-app-primary outline-none placeholder:text-app-muted"
-                      />
-                      <span className="w-5 border-b border-app-border-light" />
-                      <input
-                        type="number"
-                        min="0"
-                        value={state.maxPrice}
-                        onChange={(event) =>
-                          setState((current) => ({ ...current, maxPrice: event.target.value }))
-                        }
-                        placeholder="Макс"
-                        className="h-[50px] w-full border border-app-border-light bg-transparent px-4 text-center font-display text-base text-app-primary outline-none placeholder:text-app-muted"
-                      />
-                    </div>
-                  </section>
-
-                  <section className="space-y-m">
-                    <label className="flex cursor-pointer items-center gap-s font-body text-sm text-app-secondary">
-                      <input
-                        type="checkbox"
-                        checked={state.inStockOnly}
-                        onChange={(event) =>
-                          setState((current) => ({ ...current, inStockOnly: event.target.checked }))
-                        }
-                        className="h-4 w-4 rounded border-app-border-light bg-transparent accent-white"
-                      />
-                      Лише в наявності
-                    </label>
-                  </section>
-
-                  <section className="space-y-s pt-6">
-                    <button
-                      type="button"
-                      onClick={applyFilters}
-                      className="flex h-[50px] w-full items-center justify-center border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
-                    >
-                      Застосувати
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={resetFilters}
-                      className="flex h-[50px] w-full items-center justify-center border border-app-error bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-secondary transition duration-fast hover:bg-[rgba(255,68,68,0.2)] hover:text-app-error"
-                    >
-                      Скинути фільтри
-                    </button>
-                  </section>
-                </div>
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="flex h-[52px] w-full items-center justify-center rounded-sharp border border-app-error bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-secondary transition duration-fast hover:bg-[rgba(255,68,68,0.2)] hover:text-app-error"
+                  >
+                    Скинути фільтри
+                  </button>
+                </footer>
               </div>
             </motion.aside>
           </>

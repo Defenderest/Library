@@ -9,6 +9,7 @@ import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { formatUADate } from "@/lib/catalog/format";
 import { getBookDetails, getSimilarBooks } from "@/lib/catalog/queries";
+import { resolveMediaPath } from "@/lib/media";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
 
   const similarBooks = await getSimilarBooks(details.bookId, details.genre, 5);
   const stockAvailable = details.stockQuantity > 0;
+  const coverAmbientSource = resolveMediaPath(details.coverImagePath);
   const detailsCards = [
     {
       label: "Видавець",
@@ -90,12 +92,30 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
       </div>
 
       <GlassPanel className="relative overflow-hidden p-5 mobile:p-8">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.14),transparent_42%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(4,4,4,0.36)_100%)]" />
+        {coverAmbientSource ? (
+          <>
+            <img
+              src={coverAmbientSource}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full scale-[1.22] object-cover opacity-[0.16] blur-[70px] saturate-[1.35] brightness-[0.42]"
+            />
+            <img
+              src={coverAmbientSource}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-[10%] top-[-8%] hidden h-[130%] w-[58%] object-cover opacity-[0.18] blur-[88px] saturate-[1.45] brightness-[0.46] compact:block"
+            />
+          </>
+        ) : null}
 
-        <div className="relative grid gap-xl compact:grid-cols-[220px_1fr] compact:gap-xxl">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(3,3,3,0.94)_0%,rgba(3,3,3,0.82)_48%,rgba(3,3,3,0.92)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(255,255,255,0.08),transparent_34%)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(4,4,4,0.46)_100%)]" />
+
+        <div className="relative grid items-start gap-xl compact:grid-cols-[220px_minmax(0,540px)_1fr] compact:gap-xxl">
           <div className="mx-auto w-full max-w-[220px] compact:mx-0">
-            <div className="relative overflow-hidden rounded-soft border border-app-border-light bg-[#0f0f0f] p-2">
+            <div className="relative overflow-hidden rounded-soft border border-app-border-light bg-[#0f0f0f] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.34)]">
               <BookCover
                 title={details.title}
                 imagePath={details.coverImagePath}
@@ -106,8 +126,8 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
             </div>
           </div>
 
-          <div className="min-w-0 space-y-l">
-            <div className="flex flex-wrap gap-s">
+          <div className="min-w-0 max-w-[560px] space-y-l pt-1 compact:pt-3">
+            <div className="flex flex-wrap items-center gap-s">
               <span className="rounded-pill border border-app-border-light bg-white/[0.04] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
                 {details.genre || "Без жанру"}
               </span>
@@ -116,16 +136,16 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
               </span>
             </div>
 
-            <div className="space-y-s">
-              <h2 className="font-display text-[34px] leading-tight text-app-primary mobile:text-[46px]">
+            <div className="space-y-[6px]">
+              <h2 className="max-w-[12ch] font-display text-[34px] leading-[1.06] text-app-primary mobile:text-[46px]">
                 {details.title}
               </h2>
-              <p className="font-body text-xs uppercase tracking-[0.14em] text-app-muted">
+              <p className="font-body text-xs uppercase tracking-[0.16em] text-app-muted">
                 {(details.authors || "Невідомий автор").toUpperCase()}
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-m">
+            <div className="flex flex-wrap items-center gap-m pt-1">
               <div className="inline-flex items-center gap-s rounded-pill border border-app-border-light bg-white/[0.04] px-m py-2">
                 <StarRating rating={details.averageRating} starSize="lg" />
                 <span className="font-body text-sm text-app-primary">{details.averageRating.toFixed(1)}</span>
@@ -138,8 +158,8 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-m">
-              <p className="font-display text-[34px] text-app-primary mobile:text-[38px]">
+            <div className="flex flex-wrap items-center gap-m pt-1">
+              <p className="font-display text-[34px] leading-none text-app-primary mobile:text-[38px]">
                 UAH {details.price.toFixed(2)}
               </p>
               <span
@@ -153,7 +173,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
               </span>
             </div>
 
-            <div className="flex flex-col gap-s mobile:flex-row mobile:items-center">
+            <div className="flex flex-col gap-s pt-1 mobile:flex-row mobile:items-center">
               <AddToCartButton
                 bookId={details.bookId}
                 stockQuantity={details.stockQuantity}
@@ -164,6 +184,8 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
               </p>
             </div>
           </div>
+
+          <div className="hidden compact:block" />
         </div>
       </GlassPanel>
 

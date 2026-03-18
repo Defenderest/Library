@@ -113,9 +113,12 @@ export async function getHomeNewArrivals(limit = 6): Promise<BookCardData[]> {
 }
 
 export async function getBooksCatalog(filters: BooksCatalogFilters) {
+  const requestedPage = Math.max(1, Math.floor(filters.page ?? 1));
+  const pageSize = Math.min(Math.max(Math.floor(filters.pageSize ?? 12), 1), 36);
+
   try {
-    const [booksRows, genresRows, languagesRows] = await Promise.all([
-      queryRows<BookCardRow>(prisma, "catalog/books_catalog", [
+    const [countRow, genresRows, languagesRows] = await Promise.all([
+      queryFirst<{ totalCount: number | null }>(prisma, "catalog/books_catalog_count", [
         asOptionalText(filters.query),
         asOptionalText(filters.genre),
         asOptionalText(filters.language),
@@ -127,8 +130,28 @@ export async function getBooksCatalog(filters: BooksCatalogFilters) {
       queryRows<{ language: string | null }>(prisma, "catalog/books_languages"),
     ]);
 
+    const totalCount = Math.max(0, Math.floor(asNumber(countRow?.totalCount)));
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const page = Math.min(requestedPage, totalPages);
+    const offset = (page - 1) * pageSize;
+
+    const booksRows = await queryRows<BookCardRow>(prisma, "catalog/books_catalog", [
+      asOptionalText(filters.query),
+      asOptionalText(filters.genre),
+      asOptionalText(filters.language),
+      asOptionalNumber(filters.minPrice),
+      asOptionalNumber(filters.maxPrice),
+      Boolean(filters.inStockOnly),
+      pageSize,
+      offset,
+    ]);
+
     return {
       books: booksRows.map(mapBookCard),
+      totalCount,
+      page,
+      pageSize,
+      totalPages,
       genres: genresRows
         .map((entry) => asString(entry.genre))
         .filter((value) => value.length > 0),
@@ -140,6 +163,10 @@ export async function getBooksCatalog(filters: BooksCatalogFilters) {
     console.warn("Failed to load books catalog from database:", error);
     return {
       books: [],
+      totalCount: 0,
+      page: 1,
+      pageSize,
+      totalPages: 1,
       genres: [],
       languages: [],
     };

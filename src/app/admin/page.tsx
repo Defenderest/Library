@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 
-import { PageScaffold } from "@/components/ui/page-scaffold";
+import { AdminPageClient } from "@/components/admin/admin-page-client";
 import { getServerSessionUser } from "@/lib/auth/server-session";
+import { getAdminDashboardData } from "@/lib/admin/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -15,34 +16,10 @@ export default async function AdminPage() {
 
   if (!session.isAdmin) {
     const message = encodeURIComponent("Адмін-панель доступна лише адміністраторам");
-    redirect(`/?message=${message}`);
+    redirect(`/profile?message=${message}`);
   }
 
-  return (
-    <PageScaffold
-      eyebrow="Адмін панель"
-      description="Підготовлено єдиний багатосекційний адмін-контейнер з місцем під керування книгами, коментарями, замовленнями та ролями користувачів."
-      zones={[
-        {
-          title: "Books management",
-          description:
-            "Каркас для CRUD, пошуку, фільтрації, inline оновлення ціни та збільшення залишків на складі.",
-        },
-        {
-          title: "Comments moderation",
-          description: "Підготовлено таблицю/листинг для пошуку коментарів і модерації з видаленням.",
-        },
-        {
-          title: "Orders management",
-          description:
-            "Зона для перегляду замовлень, додавання статусів і трек-номерів на основі історії статусів.",
-        },
-        {
-          title: "Users and roles",
-          description:
-            "Каркас для списку користувачів, loyalty points та server-verified перемикання admin-ролі.",
-        },
-      ]}
-    />
-  );
+  const dashboardData = await getAdminDashboardData();
+
+  return <AdminPageClient initialData={dashboardData} currentAdminId={session.customerId} />;
 }

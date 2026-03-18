@@ -35,4 +35,6 @@ WHERE
   AND ($5::numeric IS NULL OR b.price <= $5)
   AND (NOT $6::boolean OR COALESCE(b.stock_quantity, 0) > 0)
 GROUP BY b.book_id, b.title, b.price, b.cover_image_path, b.stock_quantity, b.genre
-ORDER BY b.title ASC;
+ORDER BY b.title ASC
+LIMIT $7
+OFFSET $8;

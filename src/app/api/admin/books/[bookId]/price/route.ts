@@ -1,0 +1,38 @@
+import { NextResponse } from "next/server";
+
+import { requireAdminApiSession } from "@/lib/admin/access";
+import { mapAdminServiceError, updateAdminBookPrice } from "@/lib/admin/queries";
+
+export const dynamic = "force-dynamic";
+
+type RouteContext = {
+  params: {
+    bookId: string;
+  };
+};
+
+type UpdatePricePayload = {
+  price?: number;
+};
+
+function parseBookId(value: string): number {
+  return Number(value);
+}
+
+export async function PATCH(request: Request, { params }: RouteContext) {
+  const auth = await requireAdminApiSession();
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const bookId = parseBookId(params.bookId);
+  const body = (await request.json().catch(() => null)) as UpdatePricePayload | null;
+
+  try {
+    await updateAdminBookPrice(bookId, Number(body?.price ?? 0));
+    return NextResponse.json({ message: "Ціну оновлено" });
+  } catch (error) {
+    const mapped = mapAdminServiceError(error);
+    return NextResponse.json({ error: mapped.message }, { status: mapped.status });
+  }
+}

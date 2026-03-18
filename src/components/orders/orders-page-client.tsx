@@ -14,6 +14,9 @@ type OrdersPageClientProps = {
   orders: OrderHistoryEntry[];
 };
 
+const NUMERIC_TEXT_CLASS =
+  "font-display font-normal tracking-[0.01em] [font-variant-numeric:tabular-nums]";
+
 function formatMoney(value: number): string {
   return `${value.toFixed(2)} UAH`;
 }
@@ -115,8 +118,8 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
   return (
     <section className="space-y-8">
       <GlassPanel className="p-4 mobile:p-6">
-        <p className="font-body text-[10px] uppercase tracking-[0.16em] text-app-muted">Історія замовлень</p>
-        <h2 className="mt-s font-display text-[28px] text-app-primary mobile:text-[34px]">
+        <p className="font-body text-[10px] uppercase tracking-[0.18em] text-app-muted">Історія замовлень</p>
+        <h2 className="mt-s font-display text-[30px] leading-[1.08] text-app-primary mobile:text-[36px]">
           Ваші покупки
         </h2>
         <p className="mt-s max-w-2xl font-body text-sm text-app-secondary">
@@ -126,15 +129,19 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
         <div className="mt-m grid gap-s mobile:grid-cols-3">
           <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Усього замовлень</p>
-            <p className="mt-2 font-display text-[24px] text-app-primary">{orders.length}</p>
+            <p className={cn("mt-2 text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+              {orders.length}
+            </p>
           </div>
           <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Сума покупок</p>
-            <p className="mt-2 font-display text-[24px] text-app-primary">{formatMoney(totalSpent)}</p>
+            <p className={cn("mt-2 text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+              {formatMoney(totalSpent)}
+            </p>
           </div>
           <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Активні замовлення</p>
-            <p className="mt-2 font-display text-[24px] text-app-primary">
+            <p className={cn("mt-2 text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
               {orders.filter((entry) => !entry.trackingSummary.isCanceled).length}
             </p>
           </div>
@@ -166,12 +173,14 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
             >
               <div className="space-y-1 mobile:space-y-0">
                 <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Замовлення</p>
-                <p className="font-display text-[24px] text-app-primary">#{order.orderId}</p>
+                <p className={cn("text-[26px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+                  #{order.orderId}
+                </p>
               </div>
 
               <div className="space-y-1 mobile:space-y-0">
                 <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Дата</p>
-                <p className="font-body text-sm text-app-secondary">{formatDate(order.orderDate)}</p>
+                <p className={cn("font-body text-sm text-app-secondary [font-variant-numeric:tabular-nums]")}>{formatDate(order.orderDate)}</p>
               </div>
 
               <div className="col-span-2 space-y-2 mobile:col-span-1">
@@ -191,11 +200,15 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
 
               <div className="space-y-1 text-right mobile:text-left">
                 <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Сума</p>
-                <p className="font-display text-[24px] text-app-primary">{order.totalAmount.toFixed(2)}</p>
+                <p className={cn("text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+                  {order.totalAmount.toFixed(2)}
+                </p>
               </div>
 
               <div className="hidden mobile:block">
-                <p className="font-body text-xs text-app-secondary">{formatDateTime(order.currentStatusDate)}</p>
+                <p className="font-body text-xs text-app-secondary [font-variant-numeric:tabular-nums]">
+                  {formatDateTime(order.currentStatusDate)}
+                </p>
               </div>
 
               <div className="flex items-center justify-end text-app-secondary transition duration-fast group-hover:text-app-primary">
@@ -230,7 +243,9 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                 <div className="flex items-center gap-m border-b border-app-border-light px-m py-m">
                   <div>
                     <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Деталі замовлення</p>
-                    <h3 className="font-display text-[30px] text-app-primary">#{activeOrder.orderId}</h3>
+                    <h3 className={cn("text-[34px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+                      #{activeOrder.orderId}
+                    </h3>
                   </div>
 
                   <button
@@ -246,7 +261,9 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                 <div className="min-h-0 flex-1 space-y-m overflow-y-auto px-m py-m">
                   <GlassPanel className="p-m">
                     <div className="flex flex-wrap items-center gap-s">
-                      <p className="font-display text-[26px] text-app-primary">Замовлення #{activeOrder.orderId}</p>
+                      <p className="font-display text-[28px] leading-[1.12] text-app-primary">
+                        Замовлення #{activeOrder.orderId}
+                      </p>
                       <span
                         className={cn(
                           "rounded-pill border px-3 py-1 font-body text-[10px] uppercase tracking-[0.1em]",
@@ -265,12 +282,14 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                   <div className="grid gap-s mobile:grid-cols-2">
                     <article className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Сума</p>
-                      <p className="mt-s font-display text-[28px] text-app-primary">{formatMoney(activeOrder.totalAmount)}</p>
+                      <p className={cn("mt-s text-[30px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+                        {formatMoney(activeOrder.totalAmount)}
+                      </p>
                     </article>
 
                     <article className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Оплата</p>
-                      <p className="mt-s truncate font-display text-[22px] text-app-primary">
+                      <p className="mt-s truncate font-display text-[24px] leading-tight text-app-primary">
                         {activeOrder.paymentMethod}
                       </p>
                     </article>
@@ -279,7 +298,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
                         Позиції / Статуси
                       </p>
-                      <p className="mt-s font-display text-[28px] text-app-primary">
+                      <p className={cn("mt-s text-[30px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
                         {activeOrder.itemCount} / {activeOrder.statusCount}
                       </p>
                     </article>
@@ -288,7 +307,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
                         Поточний етап
                       </p>
-                      <p className="mt-s font-display text-[22px] text-app-primary">
+                      <p className="mt-s font-display text-[26px] leading-tight text-app-primary">
                         {activeOrder.trackingSummary.currentStageLabel}
                       </p>
                     </article>
@@ -318,7 +337,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                       <div className="flex items-center gap-s">
                         <Clock3 size={14} className="text-app-secondary" />
                         <p className="font-body text-xs uppercase tracking-[0.12em] text-app-muted">Стан доставки</p>
-                        <p className="ml-auto font-body text-xs text-app-secondary">
+                        <p className="ml-auto font-body text-xs text-app-secondary [font-variant-numeric:tabular-nums]">
                           {activeOrder.trackingSummary.progressPercent}%
                         </p>
                       </div>
@@ -350,7 +369,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                         <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
                           Трек-номер
                         </p>
-                        <p className="mt-1 break-all font-display text-[18px] text-app-primary">
+                        <p className={cn("mt-1 break-all text-[18px] leading-tight text-app-primary", NUMERIC_TEXT_CLASS)}>
                           {activeOrder.trackingSummary.trackingNumber || "Ще не присвоєно"}
                         </p>
                       </div>
@@ -428,7 +447,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                               <p className={cn("font-body text-sm", eventToneClass(activeOrder, event.status))}>
                                 {event.status}
                               </p>
-                              <p className="ml-auto font-body text-xs text-app-muted">
+                              <p className="ml-auto font-body text-xs text-app-muted [font-variant-numeric:tabular-nums]">
                                 {formatDateTime(event.statusDate)}
                               </p>
                             </div>
@@ -469,7 +488,9 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                             />
 
                             <div className="min-w-0 space-y-1">
-                              <p className="truncate font-display text-[20px] text-app-primary">{item.title}</p>
+                              <p className="truncate font-display text-[20px] leading-tight text-app-primary">
+                                {item.title}
+                              </p>
                               <p className="truncate font-body text-xs text-app-muted">{item.authors}</p>
 
                               <div className="flex flex-wrap items-center gap-s pt-1">
@@ -479,7 +500,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                                 <span className="font-body text-xs text-app-secondary">
                                   {item.pricePerUnit.toFixed(2)} UAH / шт.
                                 </span>
-                                <span className="ml-auto font-display text-[20px] text-app-primary">
+                                <span className={cn("ml-auto text-[20px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
                                   {item.subtotal.toFixed(2)} UAH
                                 </span>
                               </div>

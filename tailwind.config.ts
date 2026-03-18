@@ -6,7 +6,7 @@ const config: Config = {
     extend: {
       screens: {
         mobile: "680px",
-        desktop: "900px",
+        desktop: "1024px",
         compact: "1100px",
       },
       colors: {

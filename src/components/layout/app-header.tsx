@@ -108,7 +108,7 @@ export function AppHeader({ pageTitle, cartCount, onOpenSidebar }: AppHeaderProp
 
   return (
     <header className="sticky top-0 z-30 border-b border-app-border-light bg-transparent">
-      <div className="flex flex-wrap items-center gap-s px-4 py-s mobile:gap-l mobile:px-10 mobile:py-m desktop:h-[var(--layout-header-height)] desktop:flex-nowrap desktop:px-[60px] desktop:py-0">
+      <div className="flex flex-wrap items-center gap-s px-4 py-s mobile:gap-l mobile:px-10 mobile:py-m desktop:h-[var(--layout-header-height)] desktop:flex-nowrap desktop:px-10 desktop:py-0 compact:px-[60px]">
         <button
           type="button"
           onClick={onOpenSidebar}
@@ -118,7 +118,7 @@ export function AppHeader({ pageTitle, cartCount, onOpenSidebar }: AppHeaderProp
           <Menu size={16} />
         </button>
 
-        <h1 className="order-1 min-w-0 flex-1 truncate font-display text-[24px] font-normal leading-none text-app-primary mobile:text-[30px] desktop:flex-none desktop:text-[36px]">
+        <h1 className="order-1 min-w-0 flex-1 truncate font-display text-[24px] font-normal leading-none text-app-primary mobile:text-[30px] desktop:flex-none desktop:text-[30px] compact:text-[36px]">
           {pageTitle}
         </h1>
 
