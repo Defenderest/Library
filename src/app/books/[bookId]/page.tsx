@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { BookCard } from "@/components/books/book-card";
 import { BookCover } from "@/components/books/book-cover";
 import { CommentItem } from "@/components/books/comment-item";
+import { BookReviewForm } from "@/components/books/book-review-form";
 import { StarRating } from "@/components/books/star-rating";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { GlassPanel } from "@/components/ui/glass-panel";
@@ -109,35 +110,35 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
           </>
         ) : null}
 
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(3,3,3,0.94)_0%,rgba(3,3,3,0.82)_48%,rgba(3,3,3,0.92)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(255,255,255,0.08),transparent_34%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(4,4,6,0.92)_0%,rgba(8,6,9,0.8)_22%,rgba(7,5,10,0.76)_46%,rgba(15,9,8,0.78)_68%,rgba(22,12,8,0.86)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_26%,rgba(92,38,22,0.18),transparent_26%),radial-gradient(circle_at_32%_54%,rgba(148,38,24,0.14),transparent_24%),radial-gradient(circle_at_74%_28%,rgba(210,166,134,0.08),transparent_22%),radial-gradient(circle_at_82%_18%,rgba(255,255,255,0.06),transparent_34%)]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(4,4,4,0.46)_100%)]" />
 
-        <div className="relative grid items-start gap-xl compact:grid-cols-[220px_minmax(0,540px)_1fr] compact:gap-xxl">
-          <div className="mx-auto w-full max-w-[220px] compact:mx-0">
+        <div className="relative grid items-start gap-xl compact:grid-cols-[228px_minmax(0,1fr)] compact:items-center compact:gap-[56px]">
+          <div className="mx-auto w-full max-w-[228px] compact:mx-0 compact:self-center">
             <div className="relative overflow-hidden rounded-soft border border-app-border-light bg-[#0f0f0f] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.34)]">
               <BookCover
                 title={details.title}
                 imagePath={details.coverImagePath}
-                className="h-[300px] rounded-sharp mobile:h-[340px] compact:h-[360px]"
+                className="h-[300px] rounded-sharp mobile:h-[340px] compact:h-[368px]"
                 imageClassName="brightness-[0.94] contrast-[1.06] saturate-[0.9] sepia-[0.12]"
               />
               <div className="pointer-events-none absolute inset-2 rounded-sharp border border-white/10" />
             </div>
           </div>
 
-          <div className="min-w-0 max-w-[560px] space-y-l pt-1 compact:pt-3">
-            <div className="flex flex-wrap items-center gap-s">
+          <div className="min-w-0 max-w-[640px] space-y-6 pt-1 compact:pt-0">
+            <div className="flex flex-wrap items-center gap-2.5">
               <span className="rounded-pill border border-app-border-light bg-white/[0.04] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
                 {details.genre || "Без жанру"}
               </span>
-              <span className="rounded-pill border border-app-border-light bg-white/[0.03] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-secondary">
+              <span className="rounded-pill border border-app-border-light bg-white/[0.03] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
                 {details.language || "Мова не вказана"}
               </span>
             </div>
 
-            <div className="space-y-[6px]">
-              <h2 className="max-w-[12ch] font-display text-[34px] leading-[1.06] text-app-primary mobile:text-[46px]">
+            <div className="space-y-2.5">
+              <h2 className="max-w-[14ch] font-display text-[34px] leading-[1.04] text-app-primary mobile:text-[46px]">
                 {details.title}
               </h2>
               <p className="font-body text-xs uppercase tracking-[0.16em] text-app-muted">
@@ -145,7 +146,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-m pt-1">
+            <div className="flex flex-wrap items-center gap-4 pt-1">
               <div className="inline-flex items-center gap-s rounded-pill border border-app-border-light bg-white/[0.04] px-m py-2">
                 <StarRating rating={details.averageRating} starSize="lg" />
                 <span className="font-body text-sm text-app-primary">{details.averageRating.toFixed(1)}</span>
@@ -158,7 +159,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-m pt-1">
+            <div className="flex flex-wrap items-center gap-4 pt-1">
               <p className="font-display text-[34px] leading-none text-app-primary mobile:text-[38px]">
                 UAH {details.price.toFixed(2)}
               </p>
@@ -173,19 +174,17 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
               </span>
             </div>
 
-            <div className="flex flex-col gap-s pt-1 mobile:flex-row mobile:items-center">
+            <div className="flex flex-col gap-3 pt-1 mobile:flex-row mobile:items-center mobile:gap-4">
               <AddToCartButton
                 bookId={details.bookId}
                 stockQuantity={details.stockQuantity}
                 className="h-[48px] w-full mobile:w-[260px]"
               />
-              <p className="font-body text-xs text-app-secondary">
+              <p className="shrink-0 font-body text-xs leading-none text-app-secondary">
                 Доступно зараз: {Math.max(details.stockQuantity, 0)} шт.
               </p>
             </div>
           </div>
-
-          <div className="hidden compact:block" />
         </div>
       </GlassPanel>
 
@@ -193,10 +192,12 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
         {detailsCards.map((card) => (
           <article
             key={card.label}
-            className="rounded-soft border border-app-border-light bg-white/[0.02] p-m"
+            className="min-h-[88px] rounded-soft border border-app-border-light bg-white/[0.02] p-m"
           >
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">{card.label}</p>
-            <p className="mt-2 truncate font-display text-[18px] text-app-primary">{card.value}</p>
+            <p className="mt-2 break-words font-display text-[18px] leading-tight text-app-primary">
+              {card.value}
+            </p>
           </article>
         ))}
       </div>
@@ -204,7 +205,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
       <section className="space-y-s">
         <h3 className="font-display text-2xl text-app-primary">Опис</h3>
         <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
-          <p className="max-w-4xl font-body text-sm leading-relaxed text-app-secondary">
+          <p className="font-body text-sm leading-relaxed text-app-secondary [text-align:justify]">
             {details.description || "Опис відсутній"}
           </p>
         </div>
@@ -217,6 +218,8 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
             {details.comments.length > 0 ? `${details.comments.length} відгуків` : "Поки без відгуків"}
           </p>
         </div>
+
+        <BookReviewForm bookId={details.bookId} />
 
         {details.comments.length === 0 ? (
           <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">

@@ -70,6 +70,7 @@ type LiqPayConfig = {
   publicKey: string;
   privateKey: string;
   baseUrl: string;
+  sandboxMode: boolean;
 };
 
 type LiqPayStatusResponse = {
@@ -176,12 +177,32 @@ function getBaseUrl(): string {
     return direct.trim().replace(/\/$/, "");
   }
 
+  const productionVercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (productionVercelUrl && productionVercelUrl.trim().length > 0) {
+    return `https://${productionVercelUrl.trim().replace(/\/$/, "")}`;
+  }
+
+  const branchVercelUrl = process.env.VERCEL_BRANCH_URL;
+  if (branchVercelUrl && branchVercelUrl.trim().length > 0) {
+    return `https://${branchVercelUrl.trim().replace(/\/$/, "")}`;
+  }
+
   const vercelUrl = process.env.VERCEL_URL;
   if (vercelUrl && vercelUrl.trim().length > 0) {
     return `https://${vercelUrl.trim().replace(/\/$/, "")}`;
   }
 
   return "http://localhost:3000";
+}
+
+function isSandboxMode(): boolean {
+  const rawValue = process.env.LIQPAY_SANDBOX_MODE?.trim().toLowerCase();
+
+  if (!rawValue) {
+    return true;
+  }
+
+  return rawValue === "1" || rawValue === "true" || rawValue === "yes";
 }
 
 function getLiqPayConfig(): LiqPayConfig {
@@ -196,6 +217,7 @@ function getLiqPayConfig(): LiqPayConfig {
     publicKey,
     privateKey,
     baseUrl: getBaseUrl(),
+    sandboxMode: isSandboxMode(),
   };
 }
 
@@ -248,13 +270,16 @@ function createCheckoutPayload(
     description: `Оплата замовлення ${providerOrderId}`,
     order_id: providerOrderId,
     language: "uk",
-    sandbox: "1",
     result_url: `${config.baseUrl}/cart?liqpay=return&providerOrderId=${providerOrderId}`,
     server_url: `${config.baseUrl}/api/checkout/liqpay/callback`,
     info: JSON.stringify({
       holdExpiresAt: expiresAt.toISOString(),
     }),
   };
+
+  if (config.sandboxMode) {
+    Object.assign(payload, { sandbox: "1" });
+  }
 
   const data = encodePayload(payload);
   const signature = createSignature(config.privateKey, data);

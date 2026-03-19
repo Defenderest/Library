@@ -35,7 +35,9 @@ export function CommentItem({ comment, className }: CommentItemProps) {
         {comment.rating > 0 ? <StarRating rating={comment.rating} starSize="sm" /> : null}
       </div>
 
-      <p className="mt-m font-body text-[13px] leading-relaxed text-app-primary">{comment.commentText}</p>
+      <p className="mt-m break-words font-body text-[13px] leading-relaxed text-app-primary">
+        {comment.commentText}
+      </p>
     </article>
   );
 }

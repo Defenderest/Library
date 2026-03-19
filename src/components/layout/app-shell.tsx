@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState, type PropsWithChildren } from "react";
 import { AppHeader } from "@/components/layout/app-header";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { AiChatWidget } from "@/components/ai/ai-chat-widget";
 import { useAuthSession } from "@/components/providers/auth-session-provider";
 import { useCart } from "@/components/providers/cart-provider";
 import { resolvePageTitle } from "@/lib/routing";
@@ -24,6 +25,11 @@ export function AppShell({ children }: PropsWithChildren) {
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [pathname]);
+
+  const pageTransition = {
+    duration: 0.24,
+    ease: [0.22, 1, 0.36, 1] as const,
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-app-body text-app-primary">
@@ -73,7 +79,18 @@ export function AppShell({ children }: PropsWithChildren) {
         />
 
         <main className="flex-1 px-4 pb-8 pt-l mobile:px-10 mobile:pb-10 mobile:pt-xl desktop:px-10 desktop:pb-12 compact:px-[60px]">
-          {children}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={pageTransition}
+              className="will-change-opacity"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         <footer className="border-t border-app-border-light px-4 pb-[76px] pt-4 text-center font-body text-[10px] uppercase tracking-[0.18em] text-app-muted mobile:px-10 mobile:pb-[82px] desktop:px-10 desktop:pb-8 desktop:pt-6 compact:px-[60px]">
@@ -82,6 +99,7 @@ export function AppShell({ children }: PropsWithChildren) {
       </div>
 
       <MobileBottomNav pathname={pathname} isAdmin={isAdmin} />
+      <AiChatWidget />
     </div>
   );
 }

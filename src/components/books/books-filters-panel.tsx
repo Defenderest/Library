@@ -155,7 +155,7 @@ export function BooksFiltersPanel({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="inline-flex h-[45px] items-center gap-m rounded-pill border border-app-border-light bg-white/[0.05] px-6 font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:bg-white/[0.1]"
+        className="inline-flex h-[45px] items-center gap-m rounded-pill border border-app-border-light bg-white/[0.05] px-6 font-body text-xs uppercase tracking-[0.08em] text-app-primary transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:bg-white/[0.1] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0"
       >
         <Filter size={14} />
         Фільтри
@@ -166,7 +166,7 @@ export function BooksFiltersPanel({
           <>
             <motion.button
               aria-label="Закрити панель фільтрів"
-              className="fixed inset-0 z-40 bg-black/60"
+              className="fixed inset-0 z-[60] bg-black/60"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -179,7 +179,7 @@ export function BooksFiltersPanel({
               animate={{ x: 0 }}
               exit={{ x: 420 }}
               transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed inset-y-0 right-0 z-50 w-full max-w-[420px] border-l border-app-border-light bg-[rgba(7,7,7,0.96)] backdrop-blur-[18px]"
+              className="fixed inset-y-0 right-0 z-[70] w-full max-w-[420px] border-l border-app-border-light bg-[rgba(7,7,7,0.96)] backdrop-blur-[18px]"
             >
               <div className="flex h-full flex-col">
                 <header className="flex items-center gap-m border-b border-app-border-light px-m py-m">
@@ -193,14 +193,14 @@ export function BooksFiltersPanel({
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-app-primary transition duration-fast hover:bg-white/[0.1]"
+                    className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-app-primary transition-[background-color,color,transform] duration-fast hover:bg-white/[0.1] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0"
                     aria-label="Закрити"
                   >
                     <X size={18} />
                   </button>
                 </header>
 
-                <div className="min-h-0 flex-1 overflow-y-auto px-m py-m">
+                <div className="min-h-0 flex-1 overflow-y-auto px-m py-m pb-[calc(20px+env(safe-area-inset-bottom))]">
                   <div className="space-y-m">
                     <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
@@ -226,7 +226,7 @@ export function BooksFiltersPanel({
                               key={genre}
                               onClick={() => setState((current) => ({ ...current, genre: value }))}
                               className={cn(
-                                "rounded-pill border px-4 py-[10px] font-body text-xs transition duration-fast",
+                                "rounded-pill border px-4 py-[10px] font-body text-xs transition-[color,background-color,border-color,transform] duration-fast focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070707]",
                                 active
                                   ? "border-app-white bg-white/[0.1] text-app-primary"
                                   : "border-app-border-light text-app-secondary hover:border-app-border-hover hover:bg-white/[0.06] hover:text-app-primary",
@@ -252,7 +252,7 @@ export function BooksFiltersPanel({
                               key={language}
                               onClick={() => setState((current) => ({ ...current, language: value }))}
                               className={cn(
-                                "rounded-pill border px-4 py-[10px] font-body text-xs transition duration-fast",
+                                "rounded-pill border px-4 py-[10px] font-body text-xs transition-[color,background-color,border-color,transform] duration-fast focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070707]",
                                 active
                                   ? "border-app-white bg-white/[0.1] text-app-primary"
                                   : "border-app-border-light text-app-secondary hover:border-app-border-hover hover:bg-white/[0.06] hover:text-app-primary",
@@ -318,26 +318,26 @@ export function BooksFiltersPanel({
                         Лише в наявності
                       </label>
                     </section>
+
+                    <footer className="mt-s space-y-s border-t border-app-border-light pt-m">
+                      <button
+                        type="button"
+                        onClick={applyFilters}
+                        className="flex h-[52px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:bg-app-white hover:text-app-body focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] active:translate-y-0"
+                      >
+                        Застосувати
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="flex h-[52px] w-full items-center justify-center rounded-sharp border border-app-error bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-secondary transition-[color,background-color,border-color,transform] duration-fast hover:-translate-y-[1px] hover:bg-[rgba(255,68,68,0.2)] hover:text-app-error focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505] active:translate-y-0"
+                      >
+                        Скинути фільтри
+                      </button>
+                    </footer>
                   </div>
                 </div>
-
-                <footer className="shrink-0 space-y-s border-t border-app-border-light bg-[rgba(5,5,5,0.96)] px-m pb-[calc(16px+env(safe-area-inset-bottom))] pt-m">
-                  <button
-                    type="button"
-                    onClick={applyFilters}
-                    className="flex h-[52px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
-                  >
-                    Застосувати
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={resetFilters}
-                    className="flex h-[52px] w-full items-center justify-center rounded-sharp border border-app-error bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-secondary transition duration-fast hover:bg-[rgba(255,68,68,0.2)] hover:text-app-error"
-                  >
-                    Скинути фільтри
-                  </button>
-                </footer>
               </div>
             </motion.aside>
           </>

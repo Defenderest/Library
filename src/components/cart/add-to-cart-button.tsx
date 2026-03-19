@@ -64,7 +64,7 @@ export function AddToCartButton({ bookId, stockQuantity, className }: AddToCartB
       onClick={handleAddToCart}
       disabled={submitting}
       className={cn(
-        "flex h-[42px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-[11px] uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-60",
+        "flex h-[42px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-[11px] uppercase tracking-[0.08em] text-app-primary transition-[color,background-color,border-color,opacity,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:bg-app-white hover:text-app-body focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 disabled:opacity-60",
         className,
       )}
     >

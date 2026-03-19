@@ -17,7 +17,7 @@ export function BookCard({ book, detailsHref = `/books/${book.bookId}`, classNam
   return (
     <article
       className={cn(
-        "group relative flex h-full min-h-[360px] w-full flex-col overflow-hidden rounded-sharp border border-app-border-light bg-app-card p-3 transition-[transform,border-color,box-shadow,background-color] duration-[500ms] ease-out hover:-translate-y-[4px] hover:border-white/15 hover:bg-white/[0.015] hover:shadow-[0_24px_60px_rgba(0,0,0,0.42)] mobile:min-h-[520px] mobile:p-5",
+        "group relative flex h-full min-h-[360px] w-full flex-col overflow-hidden rounded-sharp border border-app-border-light bg-app-card p-3 transition-[transform,border-color,box-shadow,background-color] duration-[500ms] ease-out hover:-translate-y-[4px] hover:border-white/15 hover:bg-white/[0.015] hover:shadow-[0_24px_60px_rgba(0,0,0,0.42)] focus-within:-translate-y-[4px] focus-within:border-white/15 focus-within:bg-white/[0.015] focus-within:shadow-[0_24px_60px_rgba(0,0,0,0.42)] mobile:min-h-[520px] mobile:p-5",
         className,
       )}
     >
@@ -26,6 +26,7 @@ export function BookCard({ book, detailsHref = `/books/${book.bookId}`, classNam
 
       <Link
         href={detailsHref}
+        aria-label={`Переглянути книгу ${book.title}`}
         className="relative block overflow-hidden rounded-sharp bg-[linear-gradient(180deg,rgba(255,255,255,0.11)_0%,rgba(255,255,255,0.03)_100%)] p-px transition duration-[500ms] group-hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.06)_100%)]"
       >
         <div className="relative overflow-hidden rounded-[3px] bg-[#0a0a0a]">
@@ -45,8 +46,8 @@ export function BookCard({ book, detailsHref = `/books/${book.bookId}`, classNam
       </Link>
 
       <div className="relative mt-4 space-y-1 mobile:mt-[25px] mobile:space-y-[5px]">
-        <Link href={detailsHref} className="block">
-          <h3 className="truncate font-display text-[16px] leading-tight text-app-primary transition duration-[350ms] group-hover:text-white/95 mobile:text-[20px]">
+        <Link href={detailsHref} className="block rounded-sharp">
+          <h3 className="min-h-[40px] overflow-hidden font-display text-[16px] leading-tight text-app-primary transition duration-[350ms] group-hover:text-white/95 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] mobile:min-h-[50px] mobile:text-[20px]">
             {book.title}
           </h3>
         </Link>

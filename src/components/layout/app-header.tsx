@@ -85,8 +85,7 @@ export function AppHeader({
     };
   }, [focused, query]);
 
-  const showSuggestions =
-    focused && query.trim().length >= 2 && (suggestions.length > 0 || suggestionsLoading);
+  const showSuggestions = focused && query.trim().length >= 2;
 
   const submitGlobalSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -121,7 +120,7 @@ export function AppHeader({
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition duration-fast hover:border-white/[0.14] hover:bg-white/[0.05] desktop:hidden"
+            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:hidden"
             aria-label="Відкрити меню"
           >
             <Menu size={16} />
@@ -133,7 +132,7 @@ export function AppHeader({
             href="/profile"
             prefetch={false}
             aria-label="Перейти до профілю"
-            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition duration-fast hover:border-white/[0.14] hover:bg-white/[0.05] desktop:hidden"
+            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:hidden"
           >
             <UserRound size={16} />
           </Link>
@@ -145,7 +144,7 @@ export function AppHeader({
 
         <form
           onSubmit={submitGlobalSearch}
-          className="order-4 w-full pt-1 desktop:order-2 desktop:ml-auto desktop:max-w-[300px] desktop:pt-0"
+          className="relative order-4 w-full pt-1 desktop:order-2 desktop:ml-auto desktop:max-w-[300px] desktop:pt-0"
         >
           <label htmlFor="global-search" className="sr-only">
             Пошук книг та авторів
@@ -162,9 +161,9 @@ export function AppHeader({
               }}
               placeholder="Пошук..."
               onKeyDown={handleEscape}
-              className="h-[40px] w-full border-b border-[#333] bg-transparent px-0 font-body text-sm text-app-primary outline-none placeholder:text-app-secondary transition duration-fast focus:border-app-white desktop:h-[42px]"
-            />
-          </div>
+               className="h-[40px] w-full border-b border-[#333] bg-transparent px-0 font-body text-sm text-app-primary outline-none placeholder:text-app-secondary transition-[color,border-color,box-shadow] duration-fast focus:border-app-white focus-visible:ring-1 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body desktop:h-[42px]"
+             />
+           </div>
 
           <AnimatePresence>
             {showSuggestions ? (
@@ -182,6 +181,12 @@ export function AppHeader({
                     </li>
                   ) : null}
 
+                  {!suggestionsLoading && suggestions.length === 0 ? (
+                    <li className="px-s py-s font-body text-xs uppercase tracking-[0.12em] text-app-muted">
+                      Нічого не знайдено
+                    </li>
+                  ) : null}
+
                   {suggestions.map((item) => {
                     const imageSource = resolveMediaPath(item.imagePath);
 
@@ -189,7 +194,7 @@ export function AppHeader({
                       <li key={`${item.type}-${item.id}`}>
                         <button
                           type="button"
-                          className="flex w-full items-center gap-s rounded-soft px-s py-s text-left transition duration-fast hover:bg-app-hover"
+                          className="flex w-full items-center gap-s rounded-soft px-s py-s text-left transition-[background-color,color,transform] duration-fast hover:bg-app-hover focus-visible:bg-app-hover"
                           onMouseDown={(event) => {
                             event.preventDefault();
                             openSuggestion(item);
@@ -225,7 +230,7 @@ export function AppHeader({
           href="/cart"
           prefetch={false}
           aria-label="Перейти до кошика"
-          className="order-3 inline-flex h-11 w-11 flex-none items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition duration-fast hover:border-white/[0.14] hover:bg-white/[0.05] desktop:ml-s desktop:h-10 desktop:w-10 desktop:border-app-border-light desktop:bg-transparent desktop:shadow-none desktop:backdrop-blur-0 desktop:hover:border-app-border-hover"
+          className="order-3 inline-flex h-11 w-11 flex-none items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:ml-s desktop:h-10 desktop:w-10 desktop:border-app-border-light desktop:bg-transparent desktop:shadow-none desktop:backdrop-blur-0 desktop:hover:border-app-border-hover"
         >
           <ShoppingBag size={15} />
 

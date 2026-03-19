@@ -57,7 +57,16 @@ const TAB_META: Array<{ key: AdminTabKey; label: string; icon: typeof Package }>
 
 const PANEL_LABEL_CLASS = "font-body text-[9px] uppercase tracking-[0.14em] text-app-muted";
 const PANEL_VALUE_CLASS = "mt-1 font-display text-[24px] leading-none text-app-primary";
-const PANEL_TEXT_VALUE_CLASS = "mt-1 font-body text-[15px] leading-tight text-app-secondary";
+const BOOK_INFO_CARD_CLASS =
+  "flex h-full min-h-[90px] flex-col justify-between rounded-soft border border-white/[0.05] bg-[linear-gradient(180deg,rgba(255,255,255,0.014)_0%,rgba(255,255,255,0.006)_100%)] px-m py-m backdrop-blur-[14px]";
+const BOOK_CONTROL_CARD_CLASS =
+  "flex h-full min-h-[132px] flex-col rounded-soft border border-white/[0.05] bg-[linear-gradient(180deg,rgba(255,255,255,0.014)_0%,rgba(255,255,255,0.006)_100%)] p-m backdrop-blur-[14px]";
+const BOOK_INFO_VALUE_CLASS = "mt-4 break-words font-body text-[15px] leading-[1.45] text-app-primary/92";
+const BOOK_INFO_METRIC_CLASS = "mt-4 font-display text-[32px] leading-none text-app-primary";
+const BOOK_INLINE_VALUE_CLASS =
+  "font-body text-[10px] uppercase tracking-[0.1em] text-app-secondary whitespace-nowrap";
+const BOOK_ACTION_BUTTON_CLASS =
+  "inline-flex h-[46px] min-w-0 items-center justify-center rounded-soft border px-m font-body text-[10px] uppercase tracking-[0.12em] transition-[color,background-color,border-color,transform] duration-fast hover:-translate-y-[1px] active:translate-y-0 disabled:opacity-45";
 const ADMIN_SELECT_CLASS =
   "h-[42px] w-full appearance-none rounded-sharp border border-app-border-light bg-black/20 px-m pr-10 font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-white";
 const ADMIN_OPTION_STYLE = {
@@ -732,35 +741,34 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                         </div>
 
                         <div className="grid gap-s mobile:grid-cols-2 compact:grid-cols-4">
-                          <div className="min-h-[76px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
+                          <div className={BOOK_INFO_CARD_CLASS}>
                             <p className={PANEL_LABEL_CLASS}>Жанр</p>
-                            <p className={cn("truncate", PANEL_TEXT_VALUE_CLASS)}>{book.genre || "-"}</p>
+                            <p className={BOOK_INFO_VALUE_CLASS}>{book.genre || "-"}</p>
                           </div>
 
-                          <div className="min-h-[76px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
+                          <div className={BOOK_INFO_CARD_CLASS}>
                             <p className={PANEL_LABEL_CLASS}>Мова</p>
-                            <p className={cn("truncate", PANEL_TEXT_VALUE_CLASS)}>{book.language || "-"}</p>
+                            <p className={BOOK_INFO_VALUE_CLASS}>{book.language || "-"}</p>
                           </div>
 
-                          <div className="min-h-[76px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
+                          <div className={BOOK_INFO_CARD_CLASS}>
                             <p className={PANEL_LABEL_CLASS}>Коментарі</p>
-                            <p className={PANEL_VALUE_CLASS}>{book.commentCount}</p>
+                            <p className={BOOK_INFO_METRIC_CLASS}>{book.commentCount}</p>
                           </div>
 
-                          <div className="min-h-[76px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
+                          <div className={BOOK_INFO_CARD_CLASS}>
                             <p className={PANEL_LABEL_CLASS}>Видавець</p>
-                            <p className={cn("truncate", PANEL_TEXT_VALUE_CLASS)}>
-                              {book.publisherName || "-"}
-                            </p>
+                            <p className={BOOK_INFO_VALUE_CLASS}>{book.publisherName || "-"}</p>
                           </div>
                         </div>
 
-                        <div className="grid gap-s mobile:grid-cols-2 compact:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_240px] compact:items-start">
-                          <div className="self-start rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.18)_100%)] p-m">
-                            <p className={PANEL_LABEL_CLASS}>
-                              Оновити ціну
-                            </p>
-                            <div className="mt-3 grid grid-cols-[1fr_auto] items-center gap-s">
+                        <div className="grid gap-s mobile:grid-cols-2 compact:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_272px] compact:items-stretch">
+                          <div className={BOOK_CONTROL_CARD_CLASS}>
+                            <div className="flex items-center justify-between gap-s">
+                              <p className={PANEL_LABEL_CLASS}>Оновити ціну</p>
+                              <span className={BOOK_INLINE_VALUE_CLASS}>{formatMoney(book.price)}</span>
+                            </div>
+                            <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-s pt-4">
                               <SteppedNumberField
                                 value={priceValue}
                                 onChange={(value) =>
@@ -771,24 +779,28 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 }
                                 min={0}
                                 step={0.01}
-                                inputClassName="h-[44px] rounded-soft bg-black/20"
+                                inputClassName="h-[44px] rounded-soft border-white/[0.07] bg-black/20"
                               />
                               <button
                                 type="button"
                                 onClick={() => void submitBookPrice(book.bookId)}
                                 disabled={busyAction === `price-${book.bookId}`}
-                                className="inline-flex h-[44px] min-w-[72px] items-center justify-center rounded-soft border border-app-white px-m font-body text-[10px] uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45"
+                                className={cn(
+                                  BOOK_ACTION_BUTTON_CLASS,
+                                  "min-w-[72px] border-app-border-light bg-white/[0.03] text-app-primary hover:border-white/18 hover:bg-white/[0.08]",
+                                )}
                               >
                                 Ок
                               </button>
                             </div>
                           </div>
 
-                          <div className="self-start rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.18)_100%)] p-m">
-                            <p className={PANEL_LABEL_CLASS}>
-                              Склад: {book.stockQuantity} шт.
-                            </p>
-                            <div className="mt-3 grid grid-cols-[1fr_auto] items-center gap-s">
+                          <div className={BOOK_CONTROL_CARD_CLASS}>
+                            <div className="flex items-center justify-between gap-s">
+                              <p className={PANEL_LABEL_CLASS}>Поповнити склад</p>
+                              <span className={BOOK_INLINE_VALUE_CLASS}>{book.stockQuantity} шт.</span>
+                            </div>
+                            <div className="mt-auto grid grid-cols-[1fr_auto] items-center gap-s pt-4">
                               <SteppedNumberField
                                 value={stockValue}
                                 onChange={(value) =>
@@ -800,26 +812,37 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 min={1}
                                 step={1}
                                 placeholder="+1"
-                                inputClassName="h-[44px] rounded-soft bg-black/20"
+                                inputClassName="h-[44px] rounded-soft border-white/[0.07] bg-black/20"
                               />
                               <button
                                 type="button"
                                 onClick={() => void submitBookStockIncrement(book.bookId)}
                                 disabled={busyAction === `stock-${book.bookId}`}
-                                className="inline-flex h-[44px] min-w-[104px] items-center justify-center rounded-soft border border-app-white px-m font-body text-[10px] uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45"
+                                className={cn(
+                                  BOOK_ACTION_BUTTON_CLASS,
+                                  "min-w-[104px] border-app-border-light bg-white/[0.03] text-app-primary hover:border-white/18 hover:bg-white/[0.08]",
+                                )}
                               >
                                 Додати
                               </button>
                             </div>
                           </div>
 
-                          <div className="self-start rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.18)_100%)] p-m mobile:col-span-2 compact:col-span-1">
+                          <div
+                            className={cn(
+                              BOOK_CONTROL_CARD_CLASS,
+                              "mobile:col-span-2 compact:col-span-1",
+                            )}
+                          >
                             <p className={PANEL_LABEL_CLASS}>Дії</p>
-                            <div className="mt-3 grid gap-s grid-cols-2 compact:grid-cols-2">
+                            <div className="mt-auto grid grid-cols-2 gap-s pt-4">
                               <button
                                 type="button"
                                 onClick={() => openEditBook(book.bookId)}
-                                className="inline-flex h-[44px] w-full items-center justify-center rounded-soft border border-app-border-light px-m font-body text-[10px] uppercase tracking-[0.12em] text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-white/[0.04] hover:text-app-primary"
+                                className={cn(
+                                  BOOK_ACTION_BUTTON_CLASS,
+                                  "w-full border-white/[0.08] bg-white/[0.012] text-app-secondary hover:border-app-border-hover hover:bg-white/[0.04] hover:text-app-primary",
+                                )}
                               >
                                 Редагувати
                               </button>
@@ -827,7 +850,10 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 type="button"
                                 onClick={() => void submitDeleteBook(book.bookId)}
                                 disabled={busyAction === `delete-book-${book.bookId}`}
-                                className="inline-flex h-[44px] w-full items-center justify-center rounded-soft border border-app-error px-m font-body text-[10px] uppercase tracking-[0.12em] text-app-secondary transition duration-fast hover:bg-app-error/20 hover:text-app-error disabled:opacity-45"
+                                className={cn(
+                                  BOOK_ACTION_BUTTON_CLASS,
+                                  "w-full border-app-error/32 bg-white/[0.012] text-app-secondary hover:border-app-error/60 hover:bg-app-error/8 hover:text-app-error",
+                                )}
                               >
                                 Видалити
                               </button>
@@ -1242,9 +1268,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
 
                     <div className="grid gap-s mobile:grid-cols-2 compact:grid-cols-4">
                       <div className="min-h-[78px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
-                        <p className={PANEL_LABEL_CLASS}>
-                          Loyalty points
-                        </p>
+                        <p className={PANEL_LABEL_CLASS}>Бонусні бали</p>
                         <p className={PANEL_VALUE_CLASS}>
                           {user.loyaltyPoints}
                         </p>

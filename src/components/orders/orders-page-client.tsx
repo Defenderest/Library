@@ -15,7 +15,9 @@ type OrdersPageClientProps = {
 };
 
 const NUMERIC_TEXT_CLASS =
-  "font-display font-normal tracking-[0.01em] [font-variant-numeric:tabular-nums]";
+  "font-body font-normal tracking-[0.008em] [font-variant-numeric:tabular-nums]";
+const ORDER_ID_CLASS =
+  "mt-1 inline-flex items-baseline gap-[2px] font-body text-[20px] font-medium leading-none tracking-[0.01em] text-app-primary [font-variant-numeric:tabular-nums]";
 
 function formatMoney(value: number): string {
   return `${value.toFixed(2)} UAH`;
@@ -169,12 +171,13 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
               key={order.orderId}
               type="button"
               onClick={() => setActiveOrderId(order.orderId)}
-              className="group grid w-full grid-cols-[1fr_auto] gap-m border-b border-app-border-light px-m py-m text-left transition duration-fast last:border-b-0 hover:bg-white/[0.04] mobile:grid-cols-[96px_120px_1fr_auto_auto_22px] mobile:items-center"
+              className="group grid w-full grid-cols-[1fr_auto] gap-m border-b border-app-border-light px-m py-m text-left transition duration-fast last:border-b-0 hover:bg-white/[0.04] mobile:grid-cols-[96px_120px_1fr_auto_auto_22px] mobile:items-center desktop:grid-cols-[104px_128px_minmax(0,1fr)_168px_18px] desktop:gap-l"
             >
               <div className="space-y-1 mobile:space-y-0">
                 <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Замовлення</p>
-                <p className={cn("text-[26px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
-                  #{order.orderId}
+                <p className={ORDER_ID_CLASS}>
+                  <span className="text-app-primary/82">#</span>
+                  <span>{order.orderId}</span>
                 </p>
               </div>
 
@@ -198,21 +201,35 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                 </p>
               </div>
 
-              <div className="space-y-1 text-right mobile:text-left">
+              <div className="hidden space-y-1 text-right mobile:block mobile:text-left desktop:text-right">
                 <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Сума</p>
-                <p className={cn("text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+                <p className={cn("text-[20px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
                   {order.totalAmount.toFixed(2)}
+                </p>
+                <p className="hidden font-body text-[11px] text-app-secondary [font-variant-numeric:tabular-nums] desktop:block">
+                  {formatDateTime(order.currentStatusDate)}
                 </p>
               </div>
 
-              <div className="hidden mobile:block">
+              <div className="hidden mobile:block desktop:hidden">
                 <p className="font-body text-xs text-app-secondary [font-variant-numeric:tabular-nums]">
                   {formatDateTime(order.currentStatusDate)}
                 </p>
               </div>
 
-              <div className="flex items-center justify-end text-app-secondary transition duration-fast group-hover:text-app-primary">
+              <div className="hidden items-center justify-end text-app-secondary transition duration-fast group-hover:text-app-primary mobile:flex">
                 <ChevronRight size={16} />
+              </div>
+
+              <div className="col-span-2 mt-1 flex items-center justify-between border-t border-app-border-light/70 pt-s mobile:hidden">
+                <div className="space-y-1">
+                  <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Сума</p>
+                  <p className={cn("text-[18px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
+                    {formatMoney(order.totalAmount)}
+                  </p>
+                </div>
+
+                <ChevronRight size={16} className="text-app-secondary transition duration-fast group-hover:text-app-primary" />
               </div>
             </button>
           ))}

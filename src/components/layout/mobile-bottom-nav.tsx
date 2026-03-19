@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
@@ -30,10 +31,11 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
     [isAdmin],
   );
 
-  const activeIndex = Math.max(
-    0,
-    navItems.findIndex((item) => isNavPathActive(pathname, item.href)),
-  );
+  const [optimisticActiveIndex, setOptimisticActiveIndex] = useState<number | null>(null);
+
+  const matchedPathIndex = navItems.findIndex((item) => isNavPathActive(pathname, item.href));
+  const activeIndex = optimisticActiveIndex ?? matchedPathIndex;
+  const hasActiveItem = activeIndex >= 0;
 
   const railRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
@@ -42,6 +44,10 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
   const [capsuleMetrics, setCapsuleMetrics] = useState<CapsuleMetrics>(EMPTY_METRICS);
   const [dragLeft, setDragLeft] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    setOptimisticActiveIndex(null);
+  }, [pathname]);
 
   const getItemMetrics = (index: number): CapsuleMetrics | null => {
     const railRect = railRef.current?.getBoundingClientRect();
@@ -63,6 +69,11 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
         return;
       }
 
+      if (!hasActiveItem) {
+        setCapsuleMetrics(EMPTY_METRICS);
+        return;
+      }
+
       const nextMetrics = getItemMetrics(activeIndex);
       if (nextMetrics) {
         setCapsuleMetrics(nextMetrics);
@@ -79,7 +90,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [activeIndex, isDragging, navItems.length]);
+  }, [activeIndex, hasActiveItem, isDragging, navItems.length]);
 
   useEffect(() => {
     if (!isDragging) {
@@ -108,7 +119,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
       const currentLeft = dragLeft ?? capsuleMetrics.left;
       const currentCenter = currentLeft + capsuleMetrics.width / 2;
 
-      let closestIndex = activeIndex;
+      let closestIndex = activeIndex >= 0 ? activeIndex : 0;
       let closestDistance = Number.POSITIVE_INFINITY;
 
       navItems.forEach((item, index) => {
@@ -137,6 +148,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
 
       const nextItem = navItems[closestIndex];
       if (nextItem && nextItem.href !== pathname) {
+        setOptimisticActiveIndex(closestIndex);
         router.push(nextItem.href);
       }
     };
@@ -155,6 +167,10 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
 
   const startDrag = (event: ReactPointerEvent<HTMLButtonElement>) => {
     event.preventDefault();
+
+    if (!hasActiveItem) {
+      return;
+    }
 
     const currentMetrics = getItemMetrics(activeIndex);
     if (!currentMetrics) {
@@ -175,35 +191,42 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
   const capsuleLeft = dragLeft ?? capsuleMetrics.left;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-2 pb-[calc(8px+env(safe-area-inset-bottom))] desktop:hidden">
-      <nav className="relative w-[min(76vw,296px)] rounded-[999px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(18,18,20,0.34)_0%,rgba(10,10,12,0.46)_100%)] px-1.5 py-1.5 shadow-[0_8px_22px_rgba(0,0,0,0.18)] backdrop-blur-[24px]">
-        <span className="pointer-events-none absolute inset-x-[14%] top-0 h-[1px] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)]" />
-        <span className="pointer-events-none absolute inset-0 rounded-[999px] bg-[linear-gradient(180deg,rgba(255,255,255,0.012)_0%,rgba(255,255,255,0)_52%,rgba(0,0,0,0.05)_100%)]" />
+    <div className="mobile-bottom-nav-shell z-40 transition-[opacity,transform] duration-fast desktop:hidden">
+      <motion.nav
+        initial={{ opacity: 0, y: 12, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+        className="relative h-[var(--mobile-bottom-nav-height)] w-full rounded-[999px] border border-white/[0.06] bg-[linear-gradient(180deg,rgba(11,11,13,0.78)_0%,rgba(6,6,8,0.92)_100%)] px-[5px] py-[5px] shadow-[0_18px_36px_rgba(0,0,0,0.34)] backdrop-blur-[28px]"
+      >
+        <span className="pointer-events-none absolute inset-x-[16%] top-0 h-[1px] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0)_100%)]" />
+        <span className="pointer-events-none absolute inset-0 rounded-[999px] bg-[linear-gradient(180deg,rgba(255,255,255,0.012)_0%,rgba(255,255,255,0)_48%,rgba(0,0,0,0.14)_100%)]" />
 
         <div
           ref={railRef}
-          className="relative grid gap-[2px]"
+          className="relative grid h-full gap-[2px]"
           style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
         >
-          {capsuleMetrics.width > 0 ? (
-            <button
+          {hasActiveItem && capsuleMetrics.width > 0 ? (
+            <motion.button
               type="button"
               aria-label="Перетягнути активну вкладку"
               onPointerDown={startDrag}
               className={cn(
-                "absolute inset-y-0 z-10 rounded-[999px] border border-white/[0.07] bg-[rgba(255,255,255,0.024)] shadow-[inset_0_1px_0_rgba(255,255,255,0.025)] backdrop-blur-[18px] touch-none",
-                !isDragging && "transition-[transform,width] duration-[260ms] ease-out",
+                "absolute inset-y-[1px] left-0 z-10 rounded-[999px] border border-white/[0.07] bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.014)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_6px_16px_rgba(0,0,0,0.16)] backdrop-blur-[18px] touch-none",
+                isDragging && "cursor-grabbing",
               )}
-              style={{
-                width: `${capsuleMetrics.width}px`,
-                transform: `translateX(${capsuleLeft}px)`,
-              }}
+              animate={{ x: capsuleLeft, width: capsuleMetrics.width, scale: isDragging ? 1.02 : 1 }}
+              transition={
+                isDragging
+                  ? { duration: 0.12, ease: [0.22, 1, 0.36, 1] }
+                  : { type: "spring", stiffness: 460, damping: 34, mass: 0.72 }
+              }
             />
           ) : null}
 
           {navItems.map((item, index) => {
             const Icon = item.icon;
-            const active = index === activeIndex;
+            const active = hasActiveItem && index === activeIndex;
 
             return (
               <Link
@@ -214,24 +237,24 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
                 href={item.href}
                 prefetch={false}
                 aria-label={item.label}
+                onClick={() => setOptimisticActiveIndex(index)}
                 className={cn(
-                  "group relative z-20 flex min-w-0 items-center justify-center rounded-[999px] px-1 py-[10px] transition duration-[240ms] ease-out",
+                  "group relative z-20 flex h-full min-w-0 items-center justify-center rounded-[999px] px-[2px] py-0 transition-[color,background-color,transform] duration-[240ms] ease-out focus-visible:bg-white/[0.08]",
                   active && "pointer-events-none",
                 )}
               >
-                <span
-                  className={cn(
-                    "relative inline-flex h-8 w-8 items-center justify-center rounded-full transition duration-[240ms] ease-out",
-                    active ? "text-white/95" : "text-white/72 group-hover:text-white/88",
-                  )}
+                <motion.span
+                  animate={{ scale: active ? 1.14 : 1, y: 0, opacity: active ? 0.98 : 0.76 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 28, mass: 0.65 }}
+                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-white/72 group-hover:text-white/88"
                 >
-                  <Icon size={16} strokeWidth={1.8} />
-                </span>
+                  <Icon size={18} strokeWidth={1.8} />
+                </motion.span>
               </Link>
             );
           })}
         </div>
-      </nav>
+      </motion.nav>
     </div>
   );
 }

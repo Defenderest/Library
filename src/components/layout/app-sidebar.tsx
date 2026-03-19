@@ -40,7 +40,7 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
                 aria-label={item.label}
                 onClick={onNavigate}
                 className={cn(
-                  "relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-transparent transition duration-normal compact:h-[50px] compact:w-[50px]",
+                  "relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-transparent transition-[color,background-color,border-color,transform] duration-normal focus-visible:border-app-border-hover focus-visible:text-app-primary compact:h-[50px] compact:w-[50px]",
                   active
                     ? "bg-white/[0.05] text-app-primary"
                     : "text-app-primary/65 hover:border-app-border-light hover:text-app-primary",

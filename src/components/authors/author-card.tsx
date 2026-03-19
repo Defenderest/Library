@@ -17,7 +17,7 @@ export function AuthorCard({ author, href = `/authors/${author.authorId}`, class
     <Link
       href={href}
       className={cn(
-        "group block h-[280px] w-full rounded-sharp border border-app-border-light bg-app-card p-5 text-center transition duration-normal hover:-translate-y-[5px] hover:border-app-border-hover",
+        "group block h-[280px] w-full rounded-sharp border border-app-border-light bg-app-card p-5 text-center transition-[transform,border-color,background-color,box-shadow] duration-normal hover:-translate-y-[5px] hover:border-app-border-hover hover:bg-white/[0.015] hover:shadow-[0_20px_48px_rgba(0,0,0,0.38)] focus-visible:-translate-y-[5px] focus-visible:border-app-border-hover focus-visible:bg-white/[0.015] focus-visible:shadow-[0_20px_48px_rgba(0,0,0,0.38)]",
         className,
       )}
     >
@@ -36,7 +36,7 @@ export function AuthorCard({ author, href = `/authors/${author.authorId}`, class
       </div>
 
       <div className="mt-5 space-y-1">
-        <h3 className="truncate font-display text-[20px] text-app-primary">
+        <h3 className="overflow-hidden font-display text-[20px] leading-tight text-app-primary [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
           {author.firstName} {author.lastName}
         </h3>
         <p className="truncate font-body text-xs uppercase tracking-[0.08em] text-app-muted">

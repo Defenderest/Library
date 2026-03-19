@@ -35,6 +35,13 @@
   --animation-normal: 300ms;
   --animation-smooth: 400ms;
   --animation-slow: 600ms;
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --mobile-bottom-cluster-bottom: calc(12px + env(safe-area-inset-bottom));
+  --mobile-bottom-cluster-gap: 12px;
+  --mobile-ai-trigger-size: 56px;
+  --mobile-bottom-nav-width: min(76vw, 304px);
+  --mobile-bottom-nav-height: 56px;
 
   --layout-sidebar-width: 100px;
   --layout-header-height: 100px;
@@ -104,12 +111,84 @@ a {
   -moz-appearance: textfield;
 }
 
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@layer base {
+  :where(a, button, input, textarea, select) {
+    transition-timing-function: var(--ease-premium);
+  }
+
+  :where(a, button, input, textarea, select):focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.44);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+  }
+}
+
 @layer components {
+  .app-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.065) 0%,
+      rgba(255, 255, 255, 0.035) 100%
+    );
+  }
+
+  .app-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.11) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: skeleton-shimmer 1.6s var(--ease-premium) infinite;
+  }
+
   .editorial-kicker {
     @apply font-body text-[10px] uppercase tracking-[0.24em] text-app-muted;
   }
 
   .editorial-copy {
     @apply font-body text-sm leading-relaxed text-app-secondary;
+  }
+
+  @media (max-width: 1023px) {
+    .mobile-bottom-nav-shell {
+      position: fixed;
+      left: 12px;
+      right: calc(12px + var(--mobile-ai-trigger-size) + var(--mobile-bottom-cluster-gap));
+      bottom: var(--mobile-bottom-cluster-bottom);
+      width: auto;
+    }
+
+    .mobile-ai-trigger-shell {
+      position: fixed;
+      right: 12px;
+      bottom: var(--mobile-bottom-cluster-bottom);
+    }
+
+    .mobile-ai-panel-offset {
+      margin-bottom: 12px;
+    }
+
+    body.mobile-ai-chat-open .mobile-bottom-nav-shell {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+    }
   }
 }

@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 type ButtonVariant = "outline" | "solid";
 
 const BASE =
-  "inline-flex h-11 items-center justify-center rounded-pill border px-6 font-body text-[11px] font-medium uppercase tracking-[0.2em] transition duration-fast";
+  "inline-flex h-11 items-center justify-center rounded-pill border px-6 font-body text-[11px] font-medium uppercase tracking-[0.2em] transition-[color,background-color,border-color,opacity,transform,box-shadow] duration-fast focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body hover:-translate-y-[1px] active:translate-y-0";
 
 const VARIANT: Record<ButtonVariant, string> = {
   outline:

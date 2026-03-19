@@ -17,7 +17,7 @@ export function BookCardHome({ book, href = `/books/${book.bookId}`, className }
     <Link
       href={href}
       className={cn(
-        "group relative flex min-h-[320px] w-full flex-col overflow-hidden rounded-sharp border border-app-border-light bg-transparent p-3 transition-[transform,border-color,box-shadow,background-color] duration-[500ms] ease-out hover:-translate-y-[4px] hover:border-white/15 hover:bg-white/[0.015] hover:shadow-[0_24px_60px_rgba(0,0,0,0.42)] mobile:min-h-[520px] mobile:p-m",
+        "group relative flex min-h-[320px] w-full flex-col overflow-hidden rounded-sharp border border-app-border-light bg-transparent p-3 transition-[transform,border-color,box-shadow,background-color] duration-[500ms] ease-out hover:-translate-y-[4px] hover:border-white/15 hover:bg-white/[0.015] hover:shadow-[0_24px_60px_rgba(0,0,0,0.42)] focus-within:-translate-y-[4px] focus-within:border-white/15 focus-within:bg-white/[0.015] focus-within:shadow-[0_24px_60px_rgba(0,0,0,0.42)] mobile:min-h-[520px] mobile:p-m",
         className,
       )}
     >
@@ -42,7 +42,7 @@ export function BookCardHome({ book, href = `/books/${book.bookId}`, className }
       </div>
 
       <div className="relative mt-3 space-y-1 pb-1 mobile:mt-m mobile:pb-s">
-        <h3 className="truncate font-display text-[16px] leading-tight text-app-primary transition duration-[350ms] group-hover:text-white/95 mobile:text-[20px]">
+        <h3 className="min-h-[40px] overflow-hidden font-display text-[16px] leading-tight text-app-primary transition duration-[350ms] group-hover:text-white/95 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] mobile:min-h-[50px] mobile:text-[20px]">
           {book.title}
         </h3>
         <p className="truncate font-body text-[10px] uppercase tracking-[0.08em] text-app-secondary mobile:text-xs">
