@@ -23,9 +23,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: validated.error }, { status: 400 });
   }
 
-  if (validated.data.paymentMethod === "LiqPay Sandbox") {
+  if (validated.data.paymentMethod === "LiqPay") {
     return NextResponse.json(
-      { error: "LiqPay Sandbox буде доступний у наступній фазі" },
+      { error: "Для цього способу оплати використайте окремий LiqPay checkout" },
       { status: 400 },
     );
   }

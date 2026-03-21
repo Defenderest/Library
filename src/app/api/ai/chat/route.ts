@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           code: "AI_NOT_CONFIGURED",
-          error: "AI сервіс тимчасово не налаштований",
+          error: "AI сервіс не налаштований. Додайте GEMINI_API_KEY і GEMINI_MODEL=gemini-3-flash-preview на сервері.",
         },
         { status: 503 },
       );

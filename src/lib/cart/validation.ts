@@ -5,7 +5,7 @@ const STREET_ALLOWED_PATTERN = /^[0-9\p{L}\s'’"\-.,\/()]+$/u;
 const HOUSE_ALLOWED_PATTERN = /^[0-9\p{L}\-\/]+$/u;
 const SHIPPING_ALLOWED_PATTERN = /^[0-9A-Za-zА-Яа-яІіЇїЄєҐґ\s\.,'"\-\/()]+$/;
 
-export const PAYMENT_METHOD_OPTIONS = ["Готівка", "Картка", "LiqPay Sandbox"] as const;
+export const PAYMENT_METHOD_OPTIONS = ["Готівка", "LiqPay"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHOD_OPTIONS)[number];
 
 type UnknownRecord = Record<string, unknown>;

@@ -213,8 +213,8 @@ export async function createStandardOrderFromCart(
   shippingAddress: string,
   paymentMethod: PaymentMethod,
 ): Promise<CheckoutResult> {
-  if (paymentMethod === "LiqPay Sandbox") {
-    throw new CartServiceError("LiqPay Sandbox буде доступний у наступній фазі", 400);
+  if (paymentMethod === "LiqPay") {
+    throw new CartServiceError("Для цього способу оплати використайте окремий LiqPay checkout", 400);
   }
 
   return prisma.$transaction(async (tx) => {

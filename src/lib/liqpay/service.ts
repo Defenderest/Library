@@ -493,8 +493,8 @@ async function finalizeSuccessfulPaymentTx(
     reservation.customerId,
     normalizedTotalAmount,
     checkoutContext.shippingAddress,
-    "LiqPay Sandbox",
-  ]);
+      "LiqPay",
+    ]);
 
   if (!order) {
     throw new LiqPayServiceError("Не вдалося створити замовлення", 500);

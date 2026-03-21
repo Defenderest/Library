@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { BookCard } from "@/components/books/book-card";
 import { BooksFiltersPanel } from "@/components/books/books-filters-panel";
@@ -148,49 +149,53 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
       </div>
 
       {books.length > 0 && totalPages > 1 ? (
-        <nav aria-label="Пагінація книг" className="mt-12 flex flex-wrap items-center gap-s">
-          <Link
-            href={buildPageHref(Math.max(1, page - 1))}
-            aria-disabled={page <= 1}
-            className={`inline-flex h-[44px] items-center justify-center rounded-pill border px-5 font-body text-xs uppercase tracking-[0.12em] transition duration-fast ${
-              page <= 1
-                ? "pointer-events-none border-app-border-light text-app-muted"
-                : "border-app-border-light text-app-primary hover:bg-white/[0.06]"
-            }`}
-          >
-            Назад
-          </Link>
+        <nav aria-label="Пагінація книг" className="mt-12 flex flex-col items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-s">
+            <Link
+              href={buildPageHref(Math.max(1, page - 1))}
+              aria-disabled={page <= 1}
+              aria-label="Попередня сторінка"
+              className={`inline-flex h-[44px] items-center justify-center rounded-pill border px-5 font-body text-xs uppercase tracking-[0.12em] transition duration-fast ${
+                page <= 1
+                  ? "pointer-events-none border-app-border-light text-app-muted"
+                  : "border-app-border-light text-app-primary hover:bg-white/[0.06]"
+              }`}
+            >
+              <ArrowLeft size={14} />
+            </Link>
 
-          <div className="flex flex-wrap items-center gap-s">
-            {visiblePages.map((pageNumber) => (
-              <Link
-                key={pageNumber}
-                href={buildPageHref(pageNumber)}
-                aria-current={pageNumber === page ? "page" : undefined}
-                className={`inline-flex h-[40px] min-w-[40px] items-center justify-center rounded-full border px-3 font-body text-xs transition duration-fast ${
-                  pageNumber === page
-                    ? "border-app-white bg-white/[0.1] text-app-primary"
-                    : "border-app-border-light text-app-secondary hover:bg-white/[0.06] hover:text-app-primary"
-                }`}
-              >
-                {pageNumber}
-              </Link>
-            ))}
+            <div className="flex flex-wrap items-center justify-center gap-s">
+              {visiblePages.map((pageNumber) => (
+                <Link
+                  key={pageNumber}
+                  href={buildPageHref(pageNumber)}
+                  aria-current={pageNumber === page ? "page" : undefined}
+                  className={`inline-flex h-[40px] min-w-[40px] items-center justify-center rounded-full border px-3 font-body text-xs transition duration-fast ${
+                    pageNumber === page
+                      ? "border-app-white bg-white/[0.1] text-app-primary"
+                      : "border-app-border-light text-app-secondary hover:bg-white/[0.06] hover:text-app-primary"
+                  }`}
+                >
+                  {pageNumber}
+                </Link>
+              ))}
+            </div>
+
+            <Link
+              href={buildPageHref(Math.min(totalPages, page + 1))}
+              aria-disabled={page >= totalPages}
+              aria-label="Наступна сторінка"
+              className={`inline-flex h-[44px] items-center justify-center rounded-pill border px-5 font-body text-xs uppercase tracking-[0.12em] transition duration-fast ${
+                page >= totalPages
+                  ? "pointer-events-none border-app-border-light text-app-muted"
+                  : "border-app-border-light text-app-primary hover:bg-white/[0.06]"
+              }`}
+            >
+              <ArrowRight size={14} />
+            </Link>
           </div>
 
-          <Link
-            href={buildPageHref(Math.min(totalPages, page + 1))}
-            aria-disabled={page >= totalPages}
-            className={`inline-flex h-[44px] items-center justify-center rounded-pill border px-5 font-body text-xs uppercase tracking-[0.12em] transition duration-fast ${
-              page >= totalPages
-                ? "pointer-events-none border-app-border-light text-app-muted"
-                : "border-app-border-light text-app-primary hover:bg-white/[0.06]"
-            }`}
-          >
-            Далі
-          </Link>
-
-          <p className="ml-auto font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
+          <p className="text-center font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
             Сторінка {page} з {totalPages}
           </p>
         </nav>

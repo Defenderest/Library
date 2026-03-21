@@ -79,7 +79,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
 
   const paymentMethod = checkoutForm.watch("paymentMethod");
   const confirmButtonText = useMemo(
-    () => (paymentMethod === "LiqPay Sandbox" ? "Перейти до LiqPay" : "Підтвердити замовлення"),
+    () => (paymentMethod === "LiqPay" ? "Перейти до LiqPay" : "Підтвердити замовлення"),
     [paymentMethod],
   );
 
@@ -276,7 +276,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
 
     try {
       const endpoint =
-        values.paymentMethod === "LiqPay Sandbox" ? "/api/checkout/liqpay/start" : "/api/checkout/order";
+        values.paymentMethod === "LiqPay" ? "/api/checkout/liqpay/start" : "/api/checkout/order";
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -308,7 +308,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
         return;
       }
 
-      if (values.paymentMethod === "LiqPay Sandbox") {
+      if (values.paymentMethod === "LiqPay") {
         if (!data?.checkoutUrl) {
           setCheckoutError(true);
           setCheckoutMessage("Не вдалося створити платіж LiqPay");

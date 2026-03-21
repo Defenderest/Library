@@ -313,7 +313,7 @@ export function AiChatWidget() {
 
                     {serviceState === "not_configured" ? (
                       <article className="rounded-[12px] border border-app-warning/45 bg-app-warning/10 px-4 py-3 font-body text-xs text-app-warning">
-                        Gemini 3.1 ще не налаштовано на сервері.
+                        Gemini ще не налаштовано на сервері. Додайте `GEMINI_API_KEY` і `GEMINI_MODEL=gemini-3-flash-preview` у Vercel Environment Variables.
                       </article>
                     ) : null}
                   </div>

@@ -23,8 +23,8 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
     >
       <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-app-border-light" />
 
-      <div className="pointer-events-none absolute left-1/2 top-8 -translate-x-1/2 select-none font-display text-xl italic font-semibold tracking-[0.12em] text-app-primary/80 [writing-mode:vertical-rl] [transform:translateX(-50%)_rotate(180deg)] compact:top-10 compact:text-2xl">
-        LUXE.
+      <div className="pointer-events-none absolute left-1/2 top-8 -translate-x-1/2 select-none font-display text-lg italic font-semibold tracking-[0.08em] text-app-primary/80 [writing-mode:vertical-rl] [transform:translateX(-50%)_rotate(180deg)] compact:top-10 compact:text-[22px]">
+        Library
       </div>
 
       <nav className="mt-[150px] flex flex-col items-center gap-4 px-s pb-8 compact:mt-[190px] compact:gap-5">
