@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Bot, Loader2, SendHorizontal, Sparkles, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -76,29 +76,15 @@ export function AiChatWidget() {
     };
   }, [open]);
 
-  const stateLabel = useMemo(() => {
-    if (serviceState === "not_configured") {
-      return "Не налаштовано";
-    }
+  const stateLabel =
+    serviceState === "not_configured" ? "Не налаштовано" : serviceState === "error" ? "Помилка" : "Онлайн";
 
-    if (serviceState === "error") {
-      return "Помилка";
-    }
-
-    return "Онлайн";
-  }, [serviceState]);
-
-  const stateClass = useMemo(() => {
-    if (serviceState === "not_configured") {
-      return "border-app-warning/45 bg-app-warning/10 text-app-warning";
-    }
-
-    if (serviceState === "error") {
-      return "border-app-error/45 bg-app-error/10 text-app-error";
-    }
-
-    return "border-app-success/45 bg-app-success/10 text-app-success";
-  }, [serviceState]);
+  const stateClass =
+    serviceState === "not_configured"
+      ? "border-app-warning/45 bg-app-warning/10 text-app-warning"
+      : serviceState === "error"
+        ? "border-app-error/45 bg-app-error/10 text-app-error"
+        : "border-app-success/45 bg-app-success/10 text-app-success";
 
   const shouldShowQuickActions = messages.length <= 2;
 
@@ -372,7 +358,7 @@ export function AiChatWidget() {
                 transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
                 className="relative z-10 inline-flex items-center justify-center text-app-primary"
               >
-                <Bot size={20} className="desktop:h-[18px] desktop:w-[18px]" />
+                <Bot size={22} className="desktop:h-[18px] desktop:w-[18px]" />
               </motion.span>
             </motion.button>
           ) : null}

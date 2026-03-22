@@ -5,7 +5,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
   type PropsWithChildren,
 } from "react";
@@ -151,16 +150,13 @@ export function CartProvider({ children }: PropsWithChildren) {
     }
   }, [session]);
 
-  const value = useMemo(
-    () => ({
-      cartCount,
-      loading,
-      refreshCartCount,
-      addToCart,
-      setCartCount,
-    }),
-    [addToCart, cartCount, loading, refreshCartCount, setCartCount],
-  );
+  const value = {
+    cartCount,
+    loading,
+    refreshCartCount,
+    addToCart,
+    setCartCount,
+  };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

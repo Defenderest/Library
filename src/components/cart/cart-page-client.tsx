@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Minus, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { BookCover } from "@/components/books/book-cover";
@@ -78,10 +78,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
   });
 
   const paymentMethod = checkoutForm.watch("paymentMethod");
-  const confirmButtonText = useMemo(
-    () => (paymentMethod === "LiqPay" ? "Перейти до LiqPay" : "Підтвердити замовлення"),
-    [paymentMethod],
-  );
+  const confirmButtonText = paymentMethod === "LiqPay" ? "Перейти до LiqPay" : "Підтвердити замовлення";
 
   const redirectToProfile = useCallback(() => {
     const message = encodeURIComponent("Щоб працювати з кошиком, увійдіть у профіль");

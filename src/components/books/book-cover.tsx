@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { resolveMediaPath } from "@/lib/media";
@@ -26,7 +26,7 @@ export function BookCover({
   priority = false,
 }: BookCoverProps) {
   const [failed, setFailed] = useState(false);
-  const resolvedSource = useMemo(() => resolveMediaPath(imagePath), [imagePath]);
+  const resolvedSource = resolveMediaPath(imagePath);
   const isRemoteSource =
     resolvedSource?.startsWith("https://") || resolvedSource?.startsWith("http://") || false;
 

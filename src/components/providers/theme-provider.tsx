@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from "react";
+import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
 
 export type ThemeMode = "dark" | "light";
 
@@ -42,14 +42,11 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     applyTheme(theme);
   }, [theme]);
 
-  const value = useMemo(
-    () => ({
-      theme,
-      setTheme: setThemeState,
-      toggleTheme: () => setThemeState((current) => (current === "dark" ? "light" : "dark")),
-    }),
-    [theme],
-  );
+  const value = {
+    theme,
+    setTheme: setThemeState,
+    toggleTheme: () => setThemeState((current) => (current === "dark" ? "light" : "dark")),
+  };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

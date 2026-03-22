@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Filter, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SteppedNumberField } from "@/components/ui/stepped-number-field";
 import { cn } from "@/lib/cn";
@@ -52,33 +52,29 @@ export function BooksFiltersPanel({
     setState(initialFilters);
   }, [initialFilters]);
 
-  const displayGenres = useMemo(() => ["Всі", ...genres], [genres]);
-  const displayLanguages = useMemo(() => ["Будь-яка", ...languages], [languages]);
-  const selectedFiltersCount = useMemo(() => {
-    let count = 0;
+  const displayGenres = ["Всі", ...genres];
+  const displayLanguages = ["Будь-яка", ...languages];
+  let selectedFiltersCount = 0;
 
-    if (state.genre) {
-      count += 1;
-    }
+  if (state.genre) {
+    selectedFiltersCount += 1;
+  }
 
-    if (state.language) {
-      count += 1;
-    }
+  if (state.language) {
+    selectedFiltersCount += 1;
+  }
 
-    if (parseNumericInput(state.minPrice)) {
-      count += 1;
-    }
+  if (parseNumericInput(state.minPrice)) {
+    selectedFiltersCount += 1;
+  }
 
-    if (parseNumericInput(state.maxPrice)) {
-      count += 1;
-    }
+  if (parseNumericInput(state.maxPrice)) {
+    selectedFiltersCount += 1;
+  }
 
-    if (state.inStockOnly) {
-      count += 1;
-    }
-
-    return count;
-  }, [state.genre, state.inStockOnly, state.language, state.maxPrice, state.minPrice]);
+  if (state.inStockOnly) {
+    selectedFiltersCount += 1;
+  }
 
   const applyFilters = () => {
     const params = new URLSearchParams();

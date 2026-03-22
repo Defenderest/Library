@@ -5,7 +5,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
   type Dispatch,
   type PropsWithChildren,
@@ -79,16 +78,13 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     };
   }, [refreshSession]);
 
-  const value = useMemo(
-    () => ({
-      session,
-      loading,
-      refreshSession,
-      setSession,
-      logout,
-    }),
-    [loading, logout, refreshSession, session],
-  );
+  const value = {
+    session,
+    loading,
+    refreshSession,
+    setSession,
+    logout,
+  };
 
   return <AuthSessionContext.Provider value={value}>{children}</AuthSessionContext.Provider>;
 }

@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState, type PropsWithChildren } from "react";
+import { useEffect, useState, type PropsWithChildren } from "react";
 
 import { AppHeader } from "@/components/layout/app-header";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
@@ -26,7 +26,7 @@ export function AppShell({ children }: PropsWithChildren) {
   const { session } = useAuthSession();
   const { cartCount } = useCart();
 
-  const pageTitle = useMemo(() => resolvePageTitle(pathname), [pathname]);
+  const pageTitle = resolvePageTitle(pathname);
 
   const isAdmin = Boolean(session?.isAdmin);
 

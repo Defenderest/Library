@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, Clock3, Package, Truck, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { BookCover } from "@/components/books/book-cover";
 import { GlassPanel } from "@/components/ui/glass-panel";
@@ -86,15 +86,9 @@ function eventToneClass(order: OrderHistoryEntry, status: string): string {
 export function OrdersPageClient({ orders }: OrdersPageClientProps) {
   const [activeOrderId, setActiveOrderId] = useState<number | null>(null);
 
-  const activeOrder = useMemo(
-    () => orders.find((entry) => entry.orderId === activeOrderId) ?? null,
-    [activeOrderId, orders],
-  );
+  const activeOrder = orders.find((entry) => entry.orderId === activeOrderId) ?? null;
 
-  const totalSpent = useMemo(
-    () => Number(orders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2)),
-    [orders],
-  );
+  const totalSpent = Number(orders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2));
 
   useEffect(() => {
     if (!activeOrder) {

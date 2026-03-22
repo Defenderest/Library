@@ -2,7 +2,7 @@
 
 import { AlertTriangle, ChevronDown, MessageSquare, Package, Shield, UserCog } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { BookCover } from "@/components/books/book-cover";
 import { GlassPanel } from "@/components/ui/glass-panel";
@@ -226,7 +226,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
     setPriceDrafts(nextPriceDrafts);
   }, [initialData.books]);
 
-  const filteredBooks = useMemo(() => {
+  const filteredBooks = (() => {
     const query = booksQuery.trim().toLowerCase();
     if (query.length === 0) {
       return initialData.books;
@@ -236,9 +236,9 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
       const payload = `${book.title} ${book.authors} ${book.genre} ${book.language} ${book.isbn}`.toLowerCase();
       return payload.includes(query);
     });
-  }, [booksQuery, initialData.books]);
+  })();
 
-  const filteredComments = useMemo(() => {
+  const filteredComments = (() => {
     const query = commentsQuery.trim().toLowerCase();
     if (query.length === 0) {
       return initialData.comments;
@@ -248,9 +248,9 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
       const payload = `${comment.bookTitle} ${comment.customerName} ${comment.customerEmail} ${comment.commentText}`.toLowerCase();
       return payload.includes(query);
     });
-  }, [commentsQuery, initialData.comments]);
+  })();
 
-  const filteredOrders = useMemo(() => {
+  const filteredOrders = (() => {
     const query = ordersQuery.trim().toLowerCase();
     if (query.length === 0) {
       return initialData.orders;
@@ -260,9 +260,9 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
       const payload = `${order.orderId} ${order.customerName} ${order.customerEmail} ${order.currentStatus}`.toLowerCase();
       return payload.includes(query);
     });
-  }, [initialData.orders, ordersQuery]);
+  })();
 
-  const filteredUsers = useMemo(() => {
+  const filteredUsers = (() => {
     const query = usersQuery.trim().toLowerCase();
 
     return initialData.users.filter((user) => {
@@ -277,12 +277,9 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
       const payload = `${user.fullName} ${user.email} ${user.phone} ${user.address}`.toLowerCase();
       return payload.includes(query);
     });
-  }, [adminOnlyFilter, initialData.users, usersQuery]);
+  })();
 
-  const lowStockCount = useMemo(
-    () => initialData.books.filter((book) => book.lowStock).length,
-    [initialData.books],
-  );
+  const lowStockCount = initialData.books.filter((book) => book.lowStock).length;
 
   async function runAction(actionKey: string, runner: () => Promise<void>) {
     setBusyAction(actionKey);

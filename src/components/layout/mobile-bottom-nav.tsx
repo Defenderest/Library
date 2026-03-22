@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -26,10 +26,7 @@ const EMPTY_METRICS: CapsuleMetrics = {
 
 export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
   const router = useRouter();
-  const navItems = useMemo(
-    () => APP_NAV_ITEMS.filter((item) => item.mobilePrimary && (!item.adminOnly || isAdmin)),
-    [isAdmin],
-  );
+  const navItems = APP_NAV_ITEMS.filter((item) => item.mobilePrimary && (!item.adminOnly || isAdmin));
 
   const [optimisticActiveIndex, setOptimisticActiveIndex] = useState<number | null>(null);
 
@@ -254,7 +251,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
               aria-label="Перетягнути активну вкладку"
               onPointerDown={startDrag}
               className={cn(
-                "app-mobile-nav-highlight absolute inset-y-[4px] left-0 z-10 overflow-hidden rounded-[999px] border backdrop-blur-[18px] touch-none",
+                "app-mobile-nav-highlight absolute inset-y-[3px] left-0 z-10 overflow-hidden rounded-[999px] border backdrop-blur-[18px] touch-none",
                 isDragging && "cursor-grabbing",
               )}
               animate={{
@@ -300,7 +297,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
                   }}
                   transition={{ type: "spring", stiffness: 420, damping: 28, mass: 0.65 }}
                   className={cn(
-                    "relative inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-fast",
+                    "relative inline-flex h-12 w-12 items-center justify-center rounded-full transition-colors duration-fast",
                     active ? "text-app-primary" : "text-app-secondary group-hover:text-app-primary",
                   )}
                 >
@@ -308,7 +305,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
                     className="inline-flex items-center justify-center"
                     style={{ transform: `translate(${item.mobileIconOffset?.x ?? 0}px, ${item.mobileIconOffset?.y ?? 0}px)` }}
                   >
-                    <Icon size={19} strokeWidth={1.8} />
+                    <Icon size={21} strokeWidth={1.8} />
                   </span>
                 </motion.span>
               </Link>

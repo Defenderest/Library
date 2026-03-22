@@ -89,10 +89,10 @@
   --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 
   --mobile-bottom-cluster-bottom: calc(18px + env(safe-area-inset-bottom));
-  --mobile-bottom-cluster-gap: 14px;
-  --mobile-ai-trigger-size: 60px;
-  --mobile-bottom-nav-width: clamp(252px, 38vw, 300px);
-  --mobile-bottom-nav-height: 60px;
+  --mobile-bottom-cluster-gap: 16px;
+  --mobile-ai-trigger-size: 64px;
+  --mobile-bottom-nav-width: clamp(268px, 40vw, 316px);
+  --mobile-bottom-nav-height: 64px;
 
   --layout-sidebar-width: 100px;
   --layout-header-height: 100px;
@@ -455,9 +455,9 @@ a {
 
   @media (min-width: 768px) and (max-width: 1023px) {
     :root {
-      --mobile-bottom-nav-width: 288px;
-      --mobile-bottom-cluster-gap: 12px;
-      --mobile-ai-trigger-size: 58px;
+      --mobile-bottom-nav-width: 304px;
+      --mobile-bottom-cluster-gap: 14px;
+      --mobile-ai-trigger-size: 62px;
     }
   }
 }
