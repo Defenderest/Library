@@ -52,7 +52,7 @@ const config: Config = {
         slow: "var(--animation-slow)",
       },
       boxShadow: {
-        glass: "0 20px 60px rgba(0, 0, 0, 0.45)",
+        glass: "var(--shadow-glass)",
       },
     },
   },

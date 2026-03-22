@@ -9,6 +9,7 @@ import { useEffect, useState, type FormEvent, type KeyboardEvent } from "react";
 import { getSuggestionHref } from "@/lib/catalog/format";
 import type { SearchSuggestionData } from "@/lib/catalog/types";
 import { resolveMediaPath } from "@/lib/media";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type AppHeaderProps = {
   pageTitle: string;
@@ -120,7 +121,7 @@ export function AppHeader({
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:hidden"
+            className="app-shell-control order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border text-app-primary transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:hidden"
             aria-label="Відкрити меню"
           >
             <Menu size={16} />
@@ -131,7 +132,7 @@ export function AppHeader({
           <Link
             href="/profile"
             aria-label="Перейти до профілю"
-            className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:hidden"
+            className="app-shell-control order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border text-app-primary transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:hidden"
           >
             <UserRound size={16} />
           </Link>
@@ -143,7 +144,7 @@ export function AppHeader({
 
         <form
           onSubmit={submitGlobalSearch}
-          className="relative order-4 w-full pt-1 desktop:order-2 desktop:ml-auto desktop:max-w-[300px] desktop:pt-0"
+          className="relative order-5 w-full pt-1 desktop:order-2 desktop:ml-auto desktop:max-w-[300px] desktop:pt-0"
         >
           <label htmlFor="global-search" className="sr-only">
             Пошук книг та авторів
@@ -160,9 +161,9 @@ export function AppHeader({
               }}
               placeholder="Пошук..."
               onKeyDown={handleEscape}
-               className="h-[40px] w-full border-b border-[#333] bg-transparent px-0 font-body text-sm text-app-primary outline-none placeholder:text-app-secondary transition-[color,border-color,box-shadow] duration-fast focus:border-app-white focus-visible:ring-1 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body desktop:h-[42px]"
-             />
-           </div>
+               className="h-[40px] w-full border-b border-[color:var(--color-shell-search-border)] bg-transparent px-0 font-body text-sm text-app-primary outline-none placeholder:text-app-secondary transition-[color,border-color,box-shadow] duration-fast focus:border-app-border-hover focus-visible:ring-1 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body desktop:h-[42px]"
+              />
+            </div>
 
           <AnimatePresence>
             {showSuggestions ? (
@@ -171,7 +172,7 @@ export function AppHeader({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.99 }}
                 transition={{ duration: 0.18 }}
-                className="absolute left-0 top-full z-50 mt-s w-full overflow-hidden rounded-soft border border-app-border-light bg-[rgba(8,8,8,0.96)] shadow-glass"
+                className="app-shell-surface absolute left-0 top-full z-50 mt-s w-full overflow-hidden rounded-soft border border-app-border-light"
               >
                 <ul className="max-h-[320px] overflow-y-auto p-1">
                   {suggestionsLoading ? (
@@ -225,10 +226,12 @@ export function AppHeader({
           </AnimatePresence>
         </form>
 
+        <ThemeToggle className="order-3 desktop:order-3 desktop:ml-s" />
+
         <Link
           href="/cart"
           aria-label="Перейти до кошика"
-          className="order-3 inline-flex h-11 w-11 flex-none items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:ml-s desktop:h-10 desktop:w-10 desktop:border-app-border-light desktop:bg-transparent desktop:shadow-none desktop:backdrop-blur-0 desktop:hover:border-app-border-hover"
+          className="app-shell-control order-4 inline-flex h-11 w-11 flex-none items-center justify-center rounded-full border text-app-primary transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:ml-s desktop:h-10 desktop:w-10 desktop:bg-transparent desktop:shadow-none desktop:backdrop-blur-0"
         >
           <ShoppingBag size={15} />
 

@@ -158,7 +158,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
               className={`inline-flex h-[44px] items-center justify-center rounded-pill border px-5 font-body text-xs uppercase tracking-[0.12em] transition duration-fast ${
                 page <= 1
                   ? "pointer-events-none border-app-border-light text-app-muted"
-                  : "border-app-border-light text-app-primary hover:bg-white/[0.06]"
+                  : "border-app-border-light text-app-primary hover:border-app-border-hover hover:bg-app-hover"
               }`}
             >
               <ArrowLeft size={14} />
@@ -172,8 +172,8 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
                   aria-current={pageNumber === page ? "page" : undefined}
                   className={`inline-flex h-[40px] min-w-[40px] items-center justify-center rounded-full border px-3 font-body text-xs transition duration-fast ${
                     pageNumber === page
-                      ? "border-app-white bg-white/[0.1] text-app-primary"
-                      : "border-app-border-light text-app-secondary hover:bg-white/[0.06] hover:text-app-primary"
+                      ? "border-app-border-hover bg-app-hover text-app-primary"
+                      : "border-app-border-light text-app-secondary hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary"
                   }`}
                 >
                   {pageNumber}
@@ -188,7 +188,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
               className={`inline-flex h-[44px] items-center justify-center rounded-pill border px-5 font-body text-xs uppercase tracking-[0.12em] transition duration-fast ${
                 page >= totalPages
                   ? "pointer-events-none border-app-border-light text-app-muted"
-                  : "border-app-border-light text-app-primary hover:bg-white/[0.06]"
+                  : "border-app-border-light text-app-primary hover:border-app-border-hover hover:bg-app-hover"
               }`}
             >
               <ArrowRight size={14} />

@@ -77,7 +77,7 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
         </Link>
       </div>
 
-      <GlassPanel className="relative overflow-hidden p-5 mobile:p-8">
+      <GlassPanel className="app-detail-hero-surface relative overflow-hidden p-5 mobile:p-8">
         {portrait ? (
           <>
             <img
@@ -95,14 +95,14 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
           </>
         ) : null}
 
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(4,4,6,0.94)_0%,rgba(7,6,9,0.84)_26%,rgba(8,8,10,0.76)_52%,rgba(14,11,10,0.8)_74%,rgba(18,12,10,0.88)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_26%,rgba(160,116,92,0.12),transparent_24%),radial-gradient(circle_at_32%_54%,rgba(118,84,66,0.12),transparent_22%),radial-gradient(circle_at_76%_22%,rgba(255,255,255,0.05),transparent_28%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(4,4,4,0.46)_100%)]" />
+        <div className="app-detail-hero-overlay pointer-events-none absolute inset-0" />
+        <div className="app-detail-hero-specular pointer-events-none absolute inset-0" />
+        <div className="app-detail-hero-bottom-fade pointer-events-none absolute inset-x-0 bottom-0 h-[42%]" />
 
         <div className="relative grid items-start gap-xl compact:grid-cols-[176px_minmax(0,1fr)] compact:items-center compact:gap-[48px]">
           <div className="mx-auto w-full max-w-[176px] compact:mx-0 compact:self-center">
-            <div className="relative overflow-hidden rounded-full border border-app-border-light bg-[#0f0f0f] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.34)]">
-              <div className="relative h-[160px] w-[160px] overflow-hidden rounded-full bg-[#111]">
+            <div className="app-frame-surface relative overflow-hidden rounded-full border border-app-border-light p-2 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
+              <div className="app-frame-inner-surface relative h-[160px] w-[160px] overflow-hidden rounded-full">
                 {portrait ? (
                   <img
                     src={portrait}
@@ -110,21 +110,21 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
                     className="h-full w-full object-cover brightness-[0.96] contrast-[1.04] saturate-[0.94]"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-[#111] font-display text-6xl text-app-secondary">
+                  <div className="app-frame-inner-surface flex h-full w-full items-center justify-center font-display text-6xl text-app-secondary">
                     ?
                   </div>
                 )}
               </div>
-              <div className="pointer-events-none absolute inset-2 rounded-full border border-white/10" />
+              <div className="pointer-events-none absolute inset-2 rounded-full border border-[color:var(--color-frame-inner-border)]" />
             </div>
           </div>
 
           <div className="min-w-0 max-w-[680px] space-y-6 pt-1 compact:pt-0">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="rounded-pill border border-app-border-light bg-white/[0.04] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
+              <span className="app-subtle-surface-strong rounded-pill border border-app-border-light px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
                 {(details.nationality || "Без країни").toUpperCase()}
               </span>
-              <span className="rounded-pill border border-app-border-light bg-white/[0.03] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
+              <span className="app-subtle-surface rounded-pill border border-app-border-light px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
                 Автор каталогу
               </span>
             </div>
@@ -145,7 +145,7 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
         {detailsCards.map((card) => (
           <article
             key={card.label}
-            className="min-h-[88px] rounded-soft border border-app-border-light bg-white/[0.02] p-m"
+            className="app-subtle-surface rounded-soft border border-app-border-light p-m"
           >
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">{card.label}</p>
             <p className="mt-2 break-words font-display text-[18px] leading-tight text-app-primary">
@@ -157,7 +157,7 @@ export default async function AuthorDetailsPage({ params }: AuthorDetailsPagePro
 
       <section className="space-y-s">
         <h3 className="font-display text-2xl text-app-primary">Біографія</h3>
-        <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+        <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
           <p className="font-body text-sm leading-relaxed text-app-secondary [text-align:justify]">
             {details.biography || "Біографія відсутня"}
           </p>

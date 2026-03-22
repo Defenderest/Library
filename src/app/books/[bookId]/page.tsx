@@ -92,7 +92,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
         </Link>
       </div>
 
-      <GlassPanel className="relative overflow-hidden border-app-border-light/80 bg-[rgba(6,6,7,0.76)] p-5 mobile:p-8">
+      <GlassPanel className="app-detail-hero-surface relative overflow-hidden border-app-border-light/80 p-5 mobile:p-8">
         {coverAmbientSource ? (
           <>
             <img
@@ -118,13 +118,13 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
           </>
         ) : null}
 
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(3,3,4,0.92)_0%,rgba(6,6,8,0.78)_24%,rgba(8,8,10,0.58)_48%,rgba(9,9,11,0.7)_74%,rgba(10,10,12,0.86)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_24%,rgba(255,255,255,0.06),transparent_24%),radial-gradient(circle_at_74%_26%,rgba(255,255,255,0.045),transparent_22%),radial-gradient(circle_at_50%_82%,rgba(255,255,255,0.024),transparent_30%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(4,4,4,0.46)_100%)]" />
+        <div className="app-detail-hero-overlay pointer-events-none absolute inset-0" />
+        <div className="app-detail-hero-specular pointer-events-none absolute inset-0" />
+        <div className="app-detail-hero-bottom-fade pointer-events-none absolute inset-x-0 bottom-0 h-[42%]" />
 
         <div className="relative grid items-start gap-xl compact:grid-cols-[228px_minmax(0,1fr)] compact:items-center compact:gap-[56px]">
           <div className="mx-auto w-full max-w-[228px] compact:mx-0 compact:self-center">
-            <div className="relative overflow-hidden rounded-soft border border-app-border-light bg-[#0f0f0f] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.34)]">
+            <div className="app-frame-surface relative overflow-hidden rounded-soft border border-app-border-light p-2 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
               <BookCover
                 title={details.title}
                 imagePath={details.coverImagePath}
@@ -133,16 +133,16 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
                 sizes="(min-width: 1280px) 228px, (min-width: 768px) 220px, 78vw"
                 priority
               />
-              <div className="pointer-events-none absolute inset-2 rounded-sharp border border-white/10" />
+              <div className="pointer-events-none absolute inset-2 rounded-sharp border border-[color:var(--color-frame-inner-border)]" />
             </div>
           </div>
 
           <div className="min-w-0 max-w-[640px] space-y-6 pt-1 compact:pt-0">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="rounded-pill border border-app-border-light bg-white/[0.04] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
+              <span className="app-subtle-surface-strong rounded-pill border border-app-border-light px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
                 {details.genre || "Без жанру"}
               </span>
-              <span className="rounded-pill border border-app-border-light bg-white/[0.03] px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
+              <span className="app-subtle-surface rounded-pill border border-app-border-light px-4 py-2 font-body text-[10px] uppercase tracking-[0.12em] text-app-primary">
                 {details.language || "Мова не вказана"}
               </span>
             </div>
@@ -157,7 +157,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
             </div>
 
             <div className="flex flex-wrap items-center gap-4 pt-1">
-              <div className="inline-flex items-center gap-s rounded-pill border border-app-border-light bg-white/[0.04] px-m py-2">
+              <div className="app-subtle-surface-strong inline-flex items-center gap-s rounded-pill border border-app-border-light px-m py-2">
                 <StarRating rating={details.averageRating} starSize="lg" />
                 <span className="font-body text-sm text-app-primary">{details.averageRating.toFixed(1)}</span>
               </div>
@@ -202,7 +202,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
         {detailsCards.map((card) => (
           <article
             key={card.label}
-            className="min-h-[88px] rounded-soft border border-app-border-light bg-white/[0.02] p-m"
+            className="app-subtle-surface rounded-soft border border-app-border-light p-m"
           >
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">{card.label}</p>
             <p className="mt-2 break-words font-display text-[18px] leading-tight text-app-primary">
@@ -214,7 +214,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
 
       <section className="space-y-s">
         <h3 className="font-display text-2xl text-app-primary">Опис</h3>
-        <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+        <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
           <p className="font-body text-sm leading-relaxed text-app-secondary [text-align:justify]">
             {details.description || "Опис відсутній"}
           </p>
@@ -232,7 +232,7 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
         <BookReviewForm bookId={details.bookId} />
 
         {details.comments.length === 0 ? (
-          <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+          <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
             <p className="font-body text-sm text-app-secondary">Ще немає відгуків</p>
           </div>
         ) : (

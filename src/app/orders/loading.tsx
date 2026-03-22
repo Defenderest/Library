@@ -14,13 +14,13 @@ export default function OrdersLoading() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-soft border border-app-border-light bg-white/[0.01]">
+      <div className="app-subtle-surface-soft overflow-hidden rounded-soft border border-app-border-light">
         {Array.from({ length: 4 }).map((_, index) => (
           <OrderRowSkeleton key={`order-row-skeleton-${index}`} />
         ))}
       </div>
 
-      <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+      <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
         <Skeleton className="h-7 w-44" />
         <div className="mt-s grid gap-s mobile:grid-cols-2">
           <Skeleton className="h-[92px] w-full rounded-soft" />

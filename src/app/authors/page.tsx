@@ -15,7 +15,7 @@ export default async function AuthorsPage() {
       </div>
 
       {authors.length === 0 ? (
-        <div className="rounded-soft border border-app-border-light bg-app-card p-8 text-center">
+        <div className="app-subtle-surface rounded-soft border border-app-border-light p-8 text-center">
           <p className="font-display text-2xl text-app-primary">Авторів не знайдено</p>
           <p className="mt-2 font-body text-sm text-app-secondary">Спробуйте оновити сторінку пізніше.</p>
         </div>

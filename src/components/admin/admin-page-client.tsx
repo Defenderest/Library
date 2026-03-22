@@ -58,9 +58,9 @@ const TAB_META: Array<{ key: AdminTabKey; label: string; icon: typeof Package }>
 const PANEL_LABEL_CLASS = "font-body text-[9px] uppercase tracking-[0.14em] text-app-muted";
 const PANEL_VALUE_CLASS = "mt-1 font-display text-[24px] leading-none text-app-primary";
 const BOOK_INFO_CARD_CLASS =
-  "flex h-full min-h-[90px] flex-col justify-between rounded-soft border border-white/[0.05] bg-[linear-gradient(180deg,rgba(255,255,255,0.014)_0%,rgba(255,255,255,0.006)_100%)] px-m py-m backdrop-blur-[14px]";
+  "app-subtle-surface flex h-full min-h-[90px] flex-col justify-between rounded-soft border border-app-border-light px-m py-m backdrop-blur-[14px]";
 const BOOK_CONTROL_CARD_CLASS =
-  "flex h-full min-h-[132px] flex-col rounded-soft border border-white/[0.05] bg-[linear-gradient(180deg,rgba(255,255,255,0.014)_0%,rgba(255,255,255,0.006)_100%)] p-m backdrop-blur-[14px]";
+  "app-subtle-surface flex h-full min-h-[132px] flex-col rounded-soft border border-app-border-light p-m backdrop-blur-[14px]";
 const BOOK_INFO_VALUE_CLASS = "mt-4 break-words font-body text-[15px] leading-[1.45] text-app-primary/92";
 const BOOK_INFO_METRIC_CLASS = "mt-4 font-display text-[32px] leading-none text-app-primary";
 const BOOK_INLINE_VALUE_CLASS =
@@ -68,10 +68,10 @@ const BOOK_INLINE_VALUE_CLASS =
 const BOOK_ACTION_BUTTON_CLASS =
   "inline-flex h-[46px] min-w-0 items-center justify-center rounded-soft border px-m font-body text-[10px] uppercase tracking-[0.12em] transition-[color,background-color,border-color,transform] duration-fast hover:-translate-y-[1px] active:translate-y-0 disabled:opacity-45";
 const ADMIN_SELECT_CLASS =
-  "h-[42px] w-full appearance-none rounded-sharp border border-app-border-light bg-black/20 px-m pr-10 font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-white";
+  "app-subtle-surface h-[42px] w-full appearance-none rounded-sharp border border-app-border-light px-m pr-10 font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover";
 const ADMIN_OPTION_STYLE = {
-  backgroundColor: "#080808",
-  color: "#f5f0e6",
+  backgroundColor: "var(--color-bg-body)",
+  color: "var(--color-text-primary)",
 };
 
 const DEFAULT_CREATE_BOOK_FORM: CreateBookFormState = {
@@ -524,8 +524,8 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
               className={cn(
                 "inline-flex h-[44px] items-center gap-s rounded-pill border px-m font-body text-xs uppercase tracking-[0.12em] transition duration-fast",
                 active
-                  ? "border-app-white bg-white/[0.1] text-app-primary"
-                  : "border-app-border-light bg-transparent text-app-secondary hover:border-app-border-hover hover:text-app-primary",
+                  ? "border-app-border-hover bg-app-hover text-app-primary"
+                  : "border-app-border-light bg-transparent text-app-secondary hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary",
               )}
             >
               <Icon size={14} />
@@ -558,7 +558,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                   value={booksQuery}
                   onChange={(event) => setBooksQuery(event.target.value)}
                   placeholder="Пошук: назва, автор, жанр, мова"
-                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                 />
               </div>
             </div>
@@ -574,7 +574,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                     setCreateBookForm((current) => ({ ...current, title: event.target.value }))
                   }
                   placeholder="Назва *"
-                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                 />
 
                 <div className="grid grid-cols-2 gap-s">
@@ -606,7 +606,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                       setCreateBookForm((current) => ({ ...current, genre: event.target.value }))
                     }
                     placeholder="Жанр"
-                    className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                    className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                   />
                   <input
                     value={createBookForm.language}
@@ -614,7 +614,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                       setCreateBookForm((current) => ({ ...current, language: event.target.value }))
                     }
                     placeholder="Мова"
-                    className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                    className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                   />
                 </div>
 
@@ -624,7 +624,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                     setCreateBookForm((current) => ({ ...current, coverImagePath: event.target.value }))
                   }
                   placeholder="URL обкладинки (Cloudinary або інший)"
-                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                 />
 
                 <div className="grid grid-cols-2 gap-s">
@@ -634,7 +634,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                       setCreateBookForm((current) => ({ ...current, isbn: event.target.value }))
                     }
                     placeholder="ISBN"
-                    className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                    className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                   />
                   <SteppedNumberField
                     value={createBookForm.pageCount}
@@ -654,7 +654,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                     onChange={(event) =>
                       setCreateBookForm((current) => ({ ...current, publicationDate: event.target.value }))
                     }
-                    className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none focus:border-app-white"
+                    className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                   />
 
                   <div className="relative">
@@ -693,14 +693,14 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                   }
                   placeholder="Короткий опис"
                   rows={4}
-                  className="w-full rounded-sharp border border-app-border-light bg-transparent px-m py-s font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                  className="app-subtle-surface w-full rounded-sharp border border-app-border-light px-m py-s font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                 />
 
                 <button
                   type="button"
                   onClick={() => void submitCreateBook()}
                   disabled={busyAction === "create-book"}
-                  className="mt-s inline-flex h-[46px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.13em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-50"
+                  className="mt-s inline-flex h-[46px] w-full items-center justify-center rounded-sharp border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.13em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-50"
                 >
                   {busyAction === "create-book" ? "Створення..." : "Додати книгу"}
                 </button>
@@ -779,7 +779,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 }
                                 min={0}
                                 step={0.01}
-                                inputClassName="h-[44px] rounded-soft border-white/[0.07] bg-black/20"
+                                inputClassName="app-subtle-surface h-[44px] rounded-soft border-app-border-light"
                               />
                               <button
                                 type="button"
@@ -787,7 +787,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 disabled={busyAction === `price-${book.bookId}`}
                                 className={cn(
                                   BOOK_ACTION_BUTTON_CLASS,
-                                  "min-w-[72px] border-app-border-light bg-white/[0.03] text-app-primary hover:border-white/18 hover:bg-white/[0.08]",
+                                  "app-subtle-surface-strong min-w-[72px] border-app-border-light text-app-primary hover:border-app-border-hover hover:bg-app-hover",
                                 )}
                               >
                                 Ок
@@ -812,7 +812,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 min={1}
                                 step={1}
                                 placeholder="+1"
-                                inputClassName="h-[44px] rounded-soft border-white/[0.07] bg-black/20"
+                                inputClassName="app-subtle-surface h-[44px] rounded-soft border-app-border-light"
                               />
                               <button
                                 type="button"
@@ -820,7 +820,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 disabled={busyAction === `stock-${book.bookId}`}
                                 className={cn(
                                   BOOK_ACTION_BUTTON_CLASS,
-                                  "min-w-[104px] border-app-border-light bg-white/[0.03] text-app-primary hover:border-white/18 hover:bg-white/[0.08]",
+                                  "app-subtle-surface-strong min-w-[104px] border-app-border-light text-app-primary hover:border-app-border-hover hover:bg-app-hover",
                                 )}
                               >
                                 Додати
@@ -841,7 +841,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 onClick={() => openEditBook(book.bookId)}
                                 className={cn(
                                   BOOK_ACTION_BUTTON_CLASS,
-                                  "w-full border-white/[0.08] bg-white/[0.012] text-app-secondary hover:border-app-border-hover hover:bg-white/[0.04] hover:text-app-primary",
+                                  "app-subtle-surface-soft w-full border-app-border-light text-app-secondary hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary",
                                 )}
                               >
                                 Редагувати
@@ -862,7 +862,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                         </div>
 
                         {inEditMode ? (
-                          <div className="rounded-soft border border-app-border-light bg-black/30 p-m">
+                          <div className="app-subtle-surface-strong rounded-soft border border-app-border-light p-m">
                             <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">
                               Редагування книги #{book.bookId}
                             </p>
@@ -877,7 +877,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                   }))
                                 }
                                 placeholder="Назва"
-                                className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none focus:border-app-white"
+                                className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                               />
 
                               <div className="grid grid-cols-2 gap-s">
@@ -890,7 +890,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                     }))
                                   }
                                   placeholder="Жанр"
-                                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none focus:border-app-white"
+                                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                                 />
                                 <input
                                   value={updateBookForm.language}
@@ -901,7 +901,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                     }))
                                   }
                                   placeholder="Мова"
-                                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none focus:border-app-white"
+                                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                                 />
                               </div>
 
@@ -915,7 +915,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                     }))
                                   }
                                   placeholder="ISBN"
-                                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none focus:border-app-white"
+                                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                                 />
                                 <SteppedNumberField
                                   value={updateBookForm.pageCount}
@@ -941,7 +941,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                       publicationDate: event.target.value,
                                     }))
                                   }
-                                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none focus:border-app-white"
+                                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                                 />
                                 <div className="relative">
                                   <select
@@ -984,7 +984,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                   }))
                                 }
                                 placeholder="URL обкладинки"
-                                className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none focus:border-app-white"
+                                className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                               />
 
                               <textarea
@@ -997,7 +997,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                 }
                                 placeholder="Опис"
                                 rows={4}
-                                className="w-full rounded-sharp border border-app-border-light bg-transparent px-m py-s font-body text-sm text-app-primary outline-none focus:border-app-white"
+                                className="app-subtle-surface w-full rounded-sharp border border-app-border-light px-m py-s font-body text-sm text-app-primary outline-none focus:border-app-border-hover"
                               />
 
                               <div className="flex flex-wrap gap-s">
@@ -1005,7 +1005,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                                   type="button"
                                   onClick={() => void submitUpdateBook(book.bookId)}
                                   disabled={busyAction === `update-book-${book.bookId}`}
-                                  className="inline-flex h-[44px] items-center justify-center rounded-sharp border border-app-white px-l font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45"
+                                  className="inline-flex h-[44px] items-center justify-center rounded-sharp border border-app-border-hover px-l font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-45"
                                 >
                                   {busyAction === `update-book-${book.bookId}`
                                     ? "Збереження..."
@@ -1030,7 +1030,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
               })}
 
               {filteredBooks.length === 0 ? (
-                <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+                <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
                   <p className="font-body text-sm text-app-secondary">Книг за поточним пошуком не знайдено.</p>
                 </div>
               ) : null}
@@ -1049,7 +1049,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                   value={commentsQuery}
                   onChange={(event) => setCommentsQuery(event.target.value)}
                   placeholder="Пошук: книга, користувач, текст"
-                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                 />
               </div>
             </div>
@@ -1085,7 +1085,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
             ))}
 
             {filteredComments.length === 0 ? (
-              <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+                <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
                 <p className="font-body text-sm text-app-secondary">Коментарів не знайдено.</p>
               </div>
             ) : null}
@@ -1103,7 +1103,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                   value={ordersQuery}
                   onChange={(event) => setOrdersQuery(event.target.value)}
                   placeholder="Пошук: ID, статус, клієнт"
-                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                 />
               </div>
             </div>
@@ -1122,7 +1122,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                     <div className="space-y-s">
                       <div className="flex flex-wrap items-center gap-s">
                         <p className="font-display text-[28px] text-app-primary">Замовлення #{order.orderId}</p>
-                        <span className="rounded-pill border border-app-border-light bg-white/[0.04] px-3 py-1 font-body text-[10px] uppercase tracking-[0.1em] text-app-primary">
+                        <span className="app-subtle-surface-strong rounded-pill border border-app-border-light px-3 py-1 font-body text-[10px] uppercase tracking-[0.1em] text-app-primary">
                           {order.currentStatus}
                         </span>
                       </div>
@@ -1144,7 +1144,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                       </p>
                     </div>
 
-                    <div className="w-full max-w-[360px] space-y-s rounded-soft border border-app-border-light bg-black/25 p-s">
+                    <div className="app-subtle-surface-strong w-full max-w-[360px] space-y-s rounded-soft border border-app-border-light p-s">
                       <p className={PANEL_LABEL_CLASS}>
                         Додати новий статус
                       </p>
@@ -1161,7 +1161,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                           }))
                         }
                         placeholder="Напр.: Підтверджено"
-                        className="h-[40px] w-full rounded-sharp border border-app-border-light bg-transparent px-s font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                        className="app-subtle-surface h-[40px] w-full rounded-sharp border border-app-border-light px-s font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                       />
 
                       <input
@@ -1176,14 +1176,14 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                           }))
                         }
                         placeholder="Трек-номер (необов'язково)"
-                        className="h-[40px] w-full rounded-sharp border border-app-border-light bg-transparent px-s font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white"
+                        className="app-subtle-surface h-[40px] w-full rounded-sharp border border-app-border-light px-s font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover"
                       />
 
                       <button
                         type="button"
                         onClick={() => void submitAddOrderStatus(order.orderId)}
                         disabled={busyAction === `order-status-${order.orderId}`}
-                        className="inline-flex h-[42px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-[10px] uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45"
+                        className="inline-flex h-[42px] w-full items-center justify-center rounded-sharp border border-app-border-hover bg-transparent font-body text-[10px] uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-45"
                       >
                         {busyAction === `order-status-${order.orderId}` ? "Додавання..." : "Додати статус"}
                       </button>
@@ -1194,7 +1194,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
             })}
 
             {filteredOrders.length === 0 ? (
-              <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+              <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
                 <p className="font-body text-sm text-app-secondary">Замовлень за поточним пошуком не знайдено.</p>
               </div>
             ) : null}
@@ -1222,7 +1222,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                   value={usersQuery}
                   onChange={(event) => setUsersQuery(event.target.value)}
                   placeholder="Пошук: ім'я, email"
-                  className="h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-white mobile:w-[280px]"
+                  className="app-subtle-surface h-[42px] w-full rounded-sharp border border-app-border-light px-m font-body text-sm text-app-primary outline-none placeholder:text-app-muted focus:border-app-border-hover mobile:w-[280px]"
                 />
               </div>
             </div>
@@ -1246,14 +1246,14 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                               "rounded-pill border px-3 py-1 font-body text-[10px] uppercase tracking-[0.1em]",
                               user.isAdmin
                                 ? "border-app-info/45 bg-app-info/10 text-app-info"
-                                : "border-app-border-light bg-white/[0.03] text-app-secondary",
+                                : "border-app-border-light app-subtle-surface-strong text-app-secondary",
                             )}
                           >
                             {user.isAdmin ? "Адміністратор" : "Користувач"}
                           </span>
 
                           {user.customerId === currentAdminId ? (
-                            <span className="rounded-pill border border-app-border-light bg-white/[0.03] px-3 py-1 font-body text-[10px] uppercase tracking-[0.1em] text-app-primary">
+                            <span className="app-subtle-surface-strong rounded-pill border border-app-border-light px-3 py-1 font-body text-[10px] uppercase tracking-[0.1em] text-app-primary">
                               Ваш акаунт
                             </span>
                           ) : null}
@@ -1267,26 +1267,26 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
                     </div>
 
                     <div className="grid gap-s mobile:grid-cols-2 compact:grid-cols-4">
-                      <div className="min-h-[78px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
+                      <div className="app-subtle-surface flex min-h-[78px] flex-col justify-between rounded-soft border border-app-border-light px-m py-s">
                         <p className={PANEL_LABEL_CLASS}>Бонусні бали</p>
                         <p className={PANEL_VALUE_CLASS}>
                           {user.loyaltyPoints}
                         </p>
                       </div>
-                      <div className="min-h-[78px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
+                      <div className="app-subtle-surface flex min-h-[78px] flex-col justify-between rounded-soft border border-app-border-light px-m py-s">
                         <p className={PANEL_LABEL_CLASS}>Замовлення</p>
                         <p className={PANEL_VALUE_CLASS}>
                           {user.ordersCount}
                         </p>
                       </div>
-                      <div className="min-h-[78px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] px-m py-s">
+                      <div className="app-subtle-surface flex min-h-[78px] flex-col justify-between rounded-soft border border-app-border-light px-m py-s">
                         <p className={PANEL_LABEL_CLASS}>Коментарі</p>
                         <p className={PANEL_VALUE_CLASS}>
                           {user.commentsCount}
                         </p>
                       </div>
 
-                      <div className="min-h-[78px] rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.18)_100%)] px-m py-s">
+                      <div className="app-subtle-surface flex min-h-[78px] flex-col justify-between rounded-soft border border-app-border-light px-m py-s">
                         <p className={PANEL_LABEL_CLASS}>Дії</p>
                         <div className="mt-3 flex h-[44px] items-center">
                           <button
@@ -1315,7 +1315,7 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
             })}
 
             {filteredUsers.length === 0 ? (
-              <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+              <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
                 <p className="font-body text-sm text-app-secondary">Користувачів за поточним фільтром не знайдено.</p>
               </div>
             ) : null}

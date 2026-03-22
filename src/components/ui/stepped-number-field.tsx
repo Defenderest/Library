@@ -67,7 +67,7 @@ export function SteppedNumberField({
         placeholder={placeholder}
         inputMode={precision > 0 ? "decimal" : "numeric"}
         className={cn(
-          "app-number-input h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m pr-12 font-body text-sm text-app-primary outline-none transition duration-fast placeholder:text-app-muted focus:border-app-white disabled:opacity-50",
+          "app-number-input h-[42px] w-full rounded-sharp border border-app-border-light bg-transparent px-m pr-12 font-body text-sm text-app-primary outline-none transition duration-fast placeholder:text-app-muted focus:border-app-border-hover disabled:opacity-50",
           inputClassName,
         )}
       />
@@ -78,7 +78,7 @@ export function SteppedNumberField({
           onClick={() => applyStep(1)}
           disabled={disabled}
           aria-label="Збільшити значення"
-          className="inline-flex flex-1 items-center justify-center rounded-[10px] border border-app-border-light bg-black/30 text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-white/[0.04] hover:text-app-primary disabled:opacity-40"
+          className="app-subtle-surface-soft inline-flex flex-1 items-center justify-center rounded-[10px] border border-app-border-light text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary disabled:opacity-40"
         >
           <ChevronUp size={12} />
         </button>
@@ -88,7 +88,7 @@ export function SteppedNumberField({
           onClick={() => applyStep(-1)}
           disabled={disabled}
           aria-label="Зменшити значення"
-          className="inline-flex flex-1 items-center justify-center rounded-[10px] border border-app-border-light bg-black/30 text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-white/[0.04] hover:text-app-primary disabled:opacity-40"
+          className="app-subtle-surface-soft inline-flex flex-1 items-center justify-center rounded-[10px] border border-app-border-light text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary disabled:opacity-40"
         >
           <ChevronDown size={12} />
         </button>

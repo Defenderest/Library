@@ -207,10 +207,10 @@ export function AiChatWidget() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 14, scale: 0.98 }}
                 transition={{ duration: 0.22 }}
-                className="pointer-events-auto flex w-[min(calc(100vw-24px),368px)] max-h-[min(620px,calc(100dvh-24px))] flex-col overflow-hidden rounded-[14px] border border-white/[0.08] bg-[linear-gradient(180deg,rgba(10,10,11,0.975)_0%,rgba(5,5,6,0.988)_100%)] shadow-[0_26px_60px_rgba(0,0,0,0.52)] backdrop-blur-[30px] desktop:mb-3 desktop:w-[368px] desktop:max-h-[min(620px,76dvh)]"
+                className="app-chat-panel pointer-events-auto flex w-[min(calc(100vw-24px),368px)] max-h-[min(620px,calc(100dvh-24px))] flex-col overflow-hidden rounded-[14px] border shadow-[0_26px_60px_rgba(0,0,0,0.22)] backdrop-blur-[30px] desktop:mb-3 desktop:w-[368px] desktop:max-h-[min(620px,76dvh)]"
               >
-                <header className="flex shrink-0 items-center gap-3 border-b border-white/[0.08] bg-white/[0.01] px-4 py-4">
-                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+                <header className="app-subtle-surface-soft flex shrink-0 items-center gap-3 border-b border-app-border-light px-4 py-4">
+                  <div className="app-subtle-surface-strong inline-flex h-10 w-10 items-center justify-center rounded-full border border-app-border-light text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
                     <Bot size={16} />
                   </div>
 
@@ -230,12 +230,12 @@ export function AiChatWidget() {
                     {stateLabel}
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={() => setOpen(false)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.08] text-app-secondary transition duration-fast hover:bg-white/[0.06] hover:text-app-primary"
-                    aria-label="Закрити AI чат"
-                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      className="app-subtle-surface-strong inline-flex h-9 w-9 items-center justify-center rounded-full border border-app-border-light text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary"
+                      aria-label="Закрити AI чат"
+                    >
                     <X size={14} />
                   </button>
                 </header>
@@ -246,10 +246,10 @@ export function AiChatWidget() {
                       <motion.section
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="rounded-[12px] border border-white/[0.08] bg-white/[0.025] p-4"
+                        className="app-subtle-surface rounded-[12px] border border-app-border-light p-4"
                       >
                         <div className="flex items-center gap-2 text-app-primary">
-                          <Sparkles size={14} className="text-white/80" />
+                          <Sparkles size={14} className="text-app-primary/80" />
                           <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">
                             Швидкі добірки
                           </p>
@@ -265,7 +265,7 @@ export function AiChatWidget() {
                               type="button"
                               onClick={() => void sendMessage(action.prompt)}
                               disabled={pending || serviceState === "not_configured"}
-                              className="rounded-pill border border-white/[0.08] bg-white/[0.02] px-3 py-[9px] font-body text-[11px] uppercase tracking-[0.08em] text-app-secondary transition duration-fast hover:border-white/[0.14] hover:bg-white/[0.05] hover:text-app-primary disabled:opacity-45"
+                              className="app-subtle-surface-soft rounded-pill border border-app-border-light px-3 py-[9px] font-body text-[11px] uppercase tracking-[0.08em] text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary disabled:opacity-45"
                             >
                               {action.label}
                             </button>
@@ -284,8 +284,8 @@ export function AiChatWidget() {
                           className={cn(
                             "max-w-[92%] rounded-[12px] border px-4 py-3 font-body text-[15px] leading-[1.6]",
                             message.role === "user"
-                              ? "ml-auto border-white/[0.1] bg-white/[0.07] text-app-primary"
-                              : "mr-auto border-white/[0.08] bg-white/[0.035] text-app-primary",
+                              ? "app-chat-bubble-user ml-auto border-app-border-hover text-app-primary"
+                              : "app-chat-bubble-assistant mr-auto border-app-border-light text-app-primary",
                           )}
                         >
                           <div className="space-y-2 whitespace-pre-line break-words">
@@ -299,7 +299,7 @@ export function AiChatWidget() {
                       <motion.article
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mr-auto rounded-[12px] border border-white/[0.08] bg-white/[0.03] px-4 py-3"
+                        className="app-chat-bubble-assistant mr-auto rounded-[12px] border border-app-border-light px-4 py-3"
                       >
                         <div className="flex items-center gap-2 font-body text-xs uppercase tracking-[0.12em] text-app-muted">
                           <Loader2 size={12} className="animate-spin" />
@@ -319,15 +319,15 @@ export function AiChatWidget() {
                   </div>
                 </div>
 
-                <footer className="shrink-0 border-t border-white/[0.08] bg-black/[0.16] px-4 py-4">
+                <footer className="app-chat-footer shrink-0 border-t border-app-border-light px-4 py-4">
                   <div className="grid grid-cols-[1fr_52px] items-stretch gap-3">
                     <textarea
                       value={draft}
                       onChange={(event) => setDraft(event.target.value.slice(0, MAX_INPUT_LENGTH))}
-                      rows={2}
-                      placeholder="Напишіть настрій, жанр, бюджет або схожість з улюбленою книгою..."
+                      rows={1}
+                      placeholder="Жанр, настрій, бюджет..."
                       disabled={pending || serviceState === "not_configured"}
-                      className="h-[52px] min-h-[52px] w-full resize-none rounded-[10px] border border-white/[0.08] bg-white/[0.02] px-4 py-[13px] font-body text-[15px] leading-[1.45] text-app-primary outline-none transition duration-fast placeholder:text-app-muted focus:border-app-white disabled:opacity-55"
+                      className="app-subtle-surface h-[52px] min-h-[52px] w-full resize-none overflow-hidden rounded-[10px] border border-app-border-light px-4 py-[13px] font-body text-[14px] leading-[1.45] text-app-primary outline-none transition duration-fast placeholder:text-[13px] placeholder:text-app-muted focus:border-app-border-hover disabled:opacity-55"
                       onKeyDown={(event) => {
                         if (event.key === "Enter" && !event.shiftKey) {
                           event.preventDefault();
@@ -340,7 +340,7 @@ export function AiChatWidget() {
                       type="button"
                       onClick={() => void sendMessage()}
                       disabled={pending || draft.trim().length === 0 || serviceState === "not_configured"}
-                      className="inline-flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[10px] border border-white/[0.14] bg-white/[0.03] text-app-primary transition duration-fast hover:bg-white/[0.08] hover:text-app-primary disabled:opacity-45"
+                      className="app-subtle-surface-strong inline-flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[10px] border border-app-border-light text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary disabled:opacity-45"
                       aria-label="Надіслати повідомлення"
                     >
                       <SendHorizontal size={14} />
@@ -362,15 +362,15 @@ export function AiChatWidget() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 8 }}
               whileTap={{ scale: 0.96 }}
-              className="group relative inline-flex h-[var(--mobile-ai-trigger-size)] w-[var(--mobile-ai-trigger-size)] items-center justify-center overflow-hidden rounded-[999px] border border-white/[0.06] bg-[linear-gradient(180deg,rgba(11,11,13,0.82)_0%,rgba(6,6,8,0.96)_100%)] text-app-primary shadow-[0_18px_36px_rgba(0,0,0,0.34)] backdrop-blur-[28px] transition duration-fast hover:border-white/[0.12] hover:bg-[linear-gradient(180deg,rgba(14,14,16,0.88)_0%,rgba(7,7,9,0.98)_100%)] desktop:h-[54px] desktop:w-[54px] desktop:border-white/[0.12] desktop:shadow-[0_16px_34px_rgba(0,0,0,0.38)]"
+              className="app-mobile-nav-panel group relative inline-flex h-[var(--mobile-ai-trigger-size)] w-[var(--mobile-ai-trigger-size)] items-center justify-center overflow-hidden rounded-[999px] border border-app-border-light text-app-primary shadow-[var(--shadow-mobile-nav)] backdrop-blur-[28px] transition duration-fast hover:border-app-border-hover hover:bg-app-hover desktop:h-[54px] desktop:w-[54px]"
               aria-label="Відкрити AI чат"
             >
-              <span className="pointer-events-none absolute inset-x-[18%] top-0 h-[1px] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0)_100%)]" />
-              <span className="pointer-events-none absolute inset-0 rounded-[999px] bg-[linear-gradient(180deg,rgba(255,255,255,0.012)_0%,rgba(255,255,255,0)_48%,rgba(0,0,0,0.14)_100%)]" />
+              <span className="pointer-events-none absolute inset-x-[18%] top-0 h-[1px] bg-[linear-gradient(90deg,transparent_0%,var(--color-card-top-glow)_50%,transparent_100%)]" />
+              <span className="pointer-events-none absolute inset-0 rounded-[999px] bg-[linear-gradient(180deg,var(--color-shell-control-highlight)_0%,transparent_48%,rgba(0,0,0,0.08)_100%)]" />
               <motion.span
                 animate={{ scale: [1, 1.04, 1] }}
                 transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-10 inline-flex items-center justify-center text-white/92"
+                className="relative z-10 inline-flex items-center justify-center text-app-primary"
               >
                 <Bot size={18} className="desktop:h-[18px] desktop:w-[18px]" />
               </motion.span>

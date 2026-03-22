@@ -55,7 +55,7 @@ export function AppShell({ children }: PropsWithChildren) {
             <motion.button
               type="button"
               aria-label="Закрити меню"
-              className="fixed inset-0 z-40 bg-black/55 desktop:hidden"
+              className="app-overlay-backdrop fixed inset-0 z-40 desktop:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

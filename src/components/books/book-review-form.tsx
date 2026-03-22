@@ -91,7 +91,7 @@ export function BookReviewForm({ bookId }: BookReviewFormProps) {
 
   if (loading) {
     return (
-      <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+      <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
         <p className="font-body text-sm text-app-secondary">Перевіряємо можливість залишити відгук...</p>
       </div>
     );
@@ -101,7 +101,7 @@ export function BookReviewForm({ bookId }: BookReviewFormProps) {
     const authMessage = encodeURIComponent("Щоб залишити відгук, увійдіть у профіль");
 
     return (
-      <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+      <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
         <p className="font-display text-[22px] text-app-primary">Залишити відгук</p>
         <p className="mt-2 font-body text-sm leading-relaxed text-app-secondary">
           Відгуки доступні для авторизованих читачів. Увійдіть у профіль, щоб оцінити книгу та
@@ -109,7 +109,7 @@ export function BookReviewForm({ bookId }: BookReviewFormProps) {
         </p>
         <Link
           href={`/profile?message=${authMessage}`}
-          className="mt-4 inline-flex h-[44px] items-center justify-center rounded-sharp border border-app-white px-6 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+          className="mt-4 inline-flex h-[44px] items-center justify-center rounded-sharp border border-app-border-hover px-6 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover"
         >
           Увійти для відгуку
         </Link>
@@ -118,7 +118,7 @@ export function BookReviewForm({ bookId }: BookReviewFormProps) {
   }
 
   return (
-    <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+    <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
       <p className="font-display text-[22px] text-app-primary">Ваш відгук</p>
 
       <p className="mt-2 font-body text-sm leading-relaxed text-app-secondary">
@@ -162,7 +162,7 @@ export function BookReviewForm({ bookId }: BookReviewFormProps) {
             rows={5}
             maxLength={1000}
             placeholder="Напишіть, що вас зачепило в цій книзі..."
-            className="mt-2 w-full rounded-sharp border border-app-border-light bg-transparent px-m py-s font-body text-sm leading-relaxed text-app-primary outline-none transition duration-fast placeholder:text-app-muted focus:border-app-white"
+            className="app-subtle-surface-soft mt-2 w-full rounded-sharp border border-app-border-light px-m py-s font-body text-sm leading-relaxed text-app-primary outline-none transition duration-fast placeholder:text-app-muted focus:border-app-border-hover"
           />
           <p className="mt-2 text-right font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
             {reviewLength} / 1000
@@ -174,7 +174,7 @@ export function BookReviewForm({ bookId }: BookReviewFormProps) {
             type="button"
             onClick={() => void submitReview()}
             disabled={!canSubmit}
-            className="inline-flex h-[46px] items-center justify-center rounded-sharp border border-app-white px-8 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-50"
+            className="inline-flex h-[46px] items-center justify-center rounded-sharp border border-app-border-hover px-8 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-50"
           >
             {submitting ? "Зберігаємо..." : "Надіслати відгук"}
           </button>

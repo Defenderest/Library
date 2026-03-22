@@ -196,7 +196,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
         initial={{ opacity: 0, y: 12, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-        className="relative h-[var(--mobile-bottom-nav-height)] w-full rounded-[999px] border border-white/[0.06] bg-[linear-gradient(180deg,rgba(11,11,13,0.78)_0%,rgba(6,6,8,0.92)_100%)] px-[5px] py-[5px] shadow-[0_18px_36px_rgba(0,0,0,0.34)] backdrop-blur-[28px]"
+        className="app-mobile-nav-panel relative h-[var(--mobile-bottom-nav-height)] w-full rounded-[999px] border px-[5px] py-[5px] backdrop-blur-[28px]"
       >
         <span className="pointer-events-none absolute inset-x-[16%] top-0 h-[1px] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0)_100%)]" />
         <span className="pointer-events-none absolute inset-0 rounded-[999px] bg-[linear-gradient(180deg,rgba(255,255,255,0.012)_0%,rgba(255,255,255,0)_48%,rgba(0,0,0,0.14)_100%)]" />
@@ -212,7 +212,7 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
               aria-label="Перетягнути активну вкладку"
               onPointerDown={startDrag}
               className={cn(
-                "absolute inset-y-[1px] left-0 z-10 rounded-[999px] border border-white/[0.07] bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.014)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_6px_16px_rgba(0,0,0,0.16)] backdrop-blur-[18px] touch-none",
+                "app-mobile-nav-highlight absolute inset-y-[1px] left-0 z-10 rounded-[999px] border backdrop-blur-[18px] touch-none",
                 isDragging && "cursor-grabbing",
               )}
               animate={{ x: capsuleLeft, width: capsuleMetrics.width, scale: isDragging ? 1.02 : 1 }}
@@ -238,14 +238,17 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
                 aria-label={item.label}
                 onClick={() => setOptimisticActiveIndex(index)}
                 className={cn(
-                  "group relative z-20 flex h-full min-w-0 items-center justify-center rounded-[999px] px-[2px] py-0 transition-[color,background-color,transform] duration-[240ms] ease-out focus-visible:bg-white/[0.08]",
+                  "group relative z-20 flex h-full min-w-0 items-center justify-center rounded-[999px] px-[2px] py-0 transition-[color,background-color,transform] duration-[240ms] ease-out focus-visible:bg-app-hover",
                   active && "pointer-events-none",
                 )}
               >
                 <motion.span
                   animate={{ scale: active ? 1.14 : 1, y: 0, opacity: active ? 0.98 : 0.76 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28, mass: 0.65 }}
-                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-white/72 group-hover:text-white/88"
+                  className={cn(
+                    "relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-fast",
+                    active ? "text-app-primary" : "text-app-secondary group-hover:text-app-primary",
+                  )}
                 >
                   <Icon size={18} strokeWidth={1.8} />
                 </motion.span>

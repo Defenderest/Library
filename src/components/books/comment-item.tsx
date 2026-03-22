@@ -14,12 +14,12 @@ export function CommentItem({ comment, className }: CommentItemProps) {
   return (
     <article
       className={cn(
-        "rounded-soft border border-app-border-light bg-white/[0.02] p-m",
+        "app-subtle-surface rounded-soft border border-app-border-light p-m",
         className,
       )}
     >
       <div className="flex items-start gap-m">
-        <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full border border-app-border-light bg-white/[0.05] font-body text-xs font-semibold uppercase text-app-primary">
+        <div className="app-subtle-surface-strong flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full border border-app-border-light font-body text-xs font-semibold uppercase text-app-primary">
           {initial}
         </div>
 

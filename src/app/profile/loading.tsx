@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ProfileLoading() {
   return (
     <section className="space-y-8">
-      <div className="relative rounded-soft border border-app-border-light bg-white/[0.02] px-6 py-8 mobile:px-10">
+      <div className="app-subtle-surface relative rounded-soft border border-app-border-light px-6 py-8 mobile:px-10">
         <div className="mx-auto w-full max-w-[460px] space-y-m">
           <Skeleton className="mx-auto h-10 w-[220px]" />
           <Skeleton className="mx-auto h-4 w-[88%]" />
@@ -18,7 +18,7 @@ export default function ProfileLoading() {
         </div>
       </div>
 
-      <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+      <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
         <div className="flex items-center gap-l pb-2">
           <Skeleton className="h-20 w-20 rounded-full" />
           <div className="space-y-2">

@@ -64,7 +64,7 @@ function statusBadgeClass(order: OrderHistoryEntry): string {
     return "border-app-info/40 bg-app-info/10 text-app-info";
   }
 
-  return "border-app-border-light bg-white/[0.03] text-app-primary";
+  return "border-app-border-light app-subtle-surface-strong text-app-primary";
 }
 
 function eventToneClass(order: OrderHistoryEntry, status: string): string {
@@ -129,19 +129,19 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
         </p>
 
         <div className="mt-m grid gap-s mobile:grid-cols-3">
-          <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
+          <div className="app-subtle-surface-strong rounded-soft border border-app-border-light p-m">
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Усього замовлень</p>
             <p className={cn("mt-2 text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
               {orders.length}
             </p>
           </div>
-          <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
+          <div className="app-subtle-surface-strong rounded-soft border border-app-border-light p-m">
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Сума покупок</p>
             <p className={cn("mt-2 text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
               {formatMoney(totalSpent)}
             </p>
           </div>
-          <div className="rounded-soft border border-app-border-light bg-white/[0.03] p-m">
+          <div className="app-subtle-surface-strong rounded-soft border border-app-border-light p-m">
             <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Активні замовлення</p>
             <p className={cn("mt-2 text-[24px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
               {orders.filter((entry) => !entry.trackingSummary.isCanceled).length}
@@ -151,7 +151,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
       </GlassPanel>
 
       {orders.length === 0 ? (
-        <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-8">
+        <div className="app-subtle-surface rounded-soft border border-app-border-light p-8">
           <h3 className="font-display text-[30px] text-app-primary">Ще немає замовлень</h3>
           <p className="mt-2 max-w-[520px] font-body text-sm text-app-secondary">
             Оберіть книги в каталозі та оформіть перше замовлення. Історія, трекінг і деталі з&apos;являться
@@ -159,19 +159,19 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
           </p>
           <Link
             href="/books"
-            className="mt-6 inline-flex h-[46px] items-center justify-center rounded-sharp border border-app-white px-8 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+            className="mt-6 inline-flex h-[46px] items-center justify-center rounded-sharp border border-app-border-hover px-8 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover"
           >
             Відкрити каталог
           </Link>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-soft border border-app-border-light bg-white/[0.01]">
+        <div className="app-subtle-surface-soft overflow-hidden rounded-soft border border-app-border-light">
           {orders.map((order) => (
             <button
               key={order.orderId}
               type="button"
               onClick={() => setActiveOrderId(order.orderId)}
-              className="group grid w-full grid-cols-[1fr_auto] gap-m border-b border-app-border-light px-m py-m text-left transition duration-fast last:border-b-0 hover:bg-white/[0.04] mobile:grid-cols-[96px_120px_1fr_auto_auto_22px] mobile:items-center desktop:grid-cols-[104px_128px_minmax(0,1fr)_168px_18px] desktop:gap-l"
+              className="group grid w-full grid-cols-[1fr_auto] gap-m border-b border-app-border-light px-m py-m text-left transition duration-fast last:border-b-0 hover:bg-app-hover mobile:grid-cols-[96px_120px_1fr_auto_auto_22px] mobile:items-center desktop:grid-cols-[104px_128px_minmax(0,1fr)_168px_18px] desktop:gap-l"
             >
               <div className="space-y-1 mobile:space-y-0">
                 <p className="font-body text-[10px] uppercase tracking-[0.14em] text-app-muted">Замовлення</p>
@@ -241,7 +241,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
           <>
             <motion.button
               aria-label="Закрити деталі замовлення"
-              className="fixed inset-0 z-40 bg-black/65"
+              className="app-overlay-backdrop fixed inset-0 z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -254,7 +254,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
               animate={{ x: 0 }}
               exit={{ x: 560 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed inset-y-0 right-0 z-50 w-full border-l border-app-border-light bg-app-body mobile:max-w-[560px]"
+              className="app-panel-overlay fixed inset-y-0 right-0 z-50 w-full border-l border-app-border-light mobile:max-w-[560px]"
             >
               <div className="flex h-full flex-col">
                 <div className="flex items-center gap-m border-b border-app-border-light px-m py-m">
@@ -269,7 +269,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                     type="button"
                     onClick={() => setActiveOrderId(null)}
                     aria-label="Закрити"
-                    className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-full border border-app-border-light text-app-primary transition duration-fast hover:bg-white/[0.08]"
+                    className="app-subtle-surface-strong ml-auto inline-flex h-10 w-10 items-center justify-center rounded-full border border-app-border-light text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover"
                   >
                     <X size={16} />
                   </button>
@@ -297,21 +297,21 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                   </GlassPanel>
 
                   <div className="grid gap-s mobile:grid-cols-2">
-                    <article className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                    <article className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Сума</p>
                       <p className={cn("mt-s text-[30px] leading-none text-app-primary", NUMERIC_TEXT_CLASS)}>
                         {formatMoney(activeOrder.totalAmount)}
                       </p>
                     </article>
 
-                    <article className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                    <article className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Оплата</p>
                       <p className="mt-s truncate font-display text-[24px] leading-tight text-app-primary">
                         {activeOrder.paymentMethod}
                       </p>
                     </article>
 
-                    <article className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                    <article className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
                         Позиції / Статуси
                       </p>
@@ -320,7 +320,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                       </p>
                     </article>
 
-                    <article className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                    <article className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                       <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
                         Поточний етап
                       </p>
@@ -330,7 +330,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                     </article>
                   </div>
 
-                  <article className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                  <article className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                     <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">Адреса доставки</p>
                     <p className="mt-s break-words font-body text-sm leading-relaxed text-app-secondary">
                       {activeOrder.shippingAddress}
@@ -348,7 +348,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                         "rounded-soft border p-m",
                         activeOrder.trackingSummary.isCanceled
                           ? "border-app-error/40 bg-app-error/10"
-                          : "border-app-border-light bg-white/[0.02]",
+                          : "border-app-border-light app-subtle-surface",
                       )}
                     >
                       <div className="flex items-center gap-s">
@@ -382,7 +382,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                         {activeOrder.trackingSummary.etaMessage}
                       </p>
 
-                      <div className="mt-m rounded-soft border border-app-border-light bg-black/20 p-s">
+                      <div className="app-subtle-surface-strong mt-m rounded-soft border border-app-border-light p-s">
                         <p className="font-body text-[10px] uppercase tracking-[0.12em] text-app-muted">
                           Трек-номер
                         </p>
@@ -395,7 +395,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
 
                   <section className="space-y-s">
                     <h4 className="font-display text-[24px] text-app-primary">Етапи</h4>
-                    <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                    <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                       {activeOrder.trackingStages.map((stage, index) => (
                         <div
                           key={stage.key}
@@ -450,7 +450,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                     <h4 className="font-display text-[24px] text-app-primary">Історія статусів</h4>
 
                     {activeOrder.statuses.length === 0 ? (
-                      <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                        <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                         <p className="font-body text-sm text-app-secondary">Історія статусів ще порожня.</p>
                       </div>
                     ) : (
@@ -458,7 +458,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                         {[...activeOrder.statuses].reverse().map((event) => (
                           <article
                             key={`${event.orderStatusId}-${event.statusDate}`}
-                            className="rounded-soft border border-app-border-light bg-white/[0.02] p-m"
+                            className="app-subtle-surface rounded-soft border border-app-border-light p-m"
                           >
                             <div className="flex flex-wrap items-center gap-s">
                               <p className={cn("font-body text-sm", eventToneClass(activeOrder, event.status))}>
@@ -487,7 +487,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                     </div>
 
                     {activeOrder.items.length === 0 ? (
-                      <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                        <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                         <p className="font-body text-sm text-app-secondary">Позиції замовлення не знайдено.</p>
                       </div>
                     ) : (
@@ -495,7 +495,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                         {activeOrder.items.map((item) => (
                           <article
                             key={item.orderItemId}
-                            className="grid grid-cols-[58px_1fr] gap-m rounded-soft border border-app-border-light bg-white/[0.02] p-m"
+                            className="app-subtle-surface grid grid-cols-[58px_1fr] gap-m rounded-soft border border-app-border-light p-m"
                           >
                             <BookCover
                               title={item.title}
@@ -535,7 +535,7 @@ export function OrdersPageClient({ orders }: OrdersPageClientProps) {
                   <button
                     type="button"
                     onClick={() => setActiveOrderId(null)}
-                    className="inline-flex h-[44px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+                    className="inline-flex h-[44px] w-full items-center justify-center rounded-sharp border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover"
                   >
                     Закрити панель
                   </button>

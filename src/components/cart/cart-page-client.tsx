@@ -354,14 +354,14 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
       {!checkoutStep ? (
         <>
           {cart.items.length === 0 ? (
-            <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-8">
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-8">
               <h2 className="font-display text-3xl text-app-primary">Кошик порожній</h2>
               <p className="mt-2 max-w-[420px] font-body text-sm text-app-secondary">
                 Додайте книги з каталогу або сторінки книги, щоб оформити замовлення.
               </p>
               <Link
                 href="/books"
-                className="mt-6 inline-flex h-[46px] items-center justify-center rounded-sharp border border-app-white px-8 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+                className="mt-6 inline-flex h-[46px] items-center justify-center rounded-sharp border border-app-border-hover px-8 font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover"
               >
                 Відкрити каталог
               </Link>
@@ -442,7 +442,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                   type="button"
                   onClick={openCheckoutStep}
                   disabled={cart.totalItems <= 0}
-                  className="mt-s flex h-[50px] w-full items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45 mobile:w-[260px]"
+                  className="mt-s flex h-[50px] w-full items-center justify-center rounded-sharp border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-45 mobile:w-[260px]"
                 >
                   Оформити замовлення
                 </button>
@@ -457,18 +457,18 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
           ) : null}
         </>
       ) : (
-        <div className="rounded-soft border border-app-border-light bg-app-card p-xl">
+        <div className="app-subtle-surface rounded-soft border border-app-border-light p-xl">
           <form onSubmit={submitCheckout} className="space-y-l">
             <div className="flex flex-wrap items-center gap-m">
               <button
                 type="button"
                 onClick={returnToCart}
-                className="flex h-[38px] items-center justify-center rounded-pill border border-app-border-light px-l font-body text-xs text-app-primary transition duration-fast hover:bg-white/[0.1]"
+                className="app-subtle-surface-strong flex h-[38px] items-center justify-center rounded-pill border border-app-border-light px-l font-body text-xs text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover"
               >
                 ← Назад до кошика
               </button>
 
-              <div className="ml-auto rounded-pill border border-app-border-light bg-white/[0.06] px-4 py-2">
+              <div className="app-subtle-surface-strong ml-auto rounded-pill border border-app-border-light px-4 py-2">
                 <p className="font-body text-[10px] uppercase tracking-[0.1em] text-app-primary">
                   Сума: {formatMoney(cart.totalPrice)}
                 </p>
@@ -488,7 +488,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                   <label className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">Місто</label>
                   <input
                     {...checkoutForm.register("city")}
-                    className="mt-1 h-12 w-full rounded-soft border border-app-border-light bg-white/[0.02] px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
+                    className="app-subtle-surface mt-1 h-12 w-full rounded-soft border border-app-border-light px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
                     placeholder="Наприклад: Київ"
                   />
                   <FieldError message={checkoutForm.formState.errors.city?.message} />
@@ -498,7 +498,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                   <label className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">Вулиця</label>
                   <input
                     {...checkoutForm.register("street")}
-                    className="mt-1 h-12 w-full rounded-soft border border-app-border-light bg-white/[0.02] px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
+                    className="app-subtle-surface mt-1 h-12 w-full rounded-soft border border-app-border-light px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
                     placeholder="Наприклад: Хрещатик"
                   />
                   <FieldError message={checkoutForm.formState.errors.street?.message} />
@@ -508,7 +508,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                   <label className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">Будинок</label>
                   <input
                     {...checkoutForm.register("house")}
-                    className="mt-1 h-12 w-full rounded-soft border border-app-border-light bg-white/[0.02] px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
+                    className="app-subtle-surface mt-1 h-12 w-full rounded-soft border border-app-border-light px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
                     placeholder="Наприклад: 12Б"
                   />
                   <FieldError message={checkoutForm.formState.errors.house?.message} />
@@ -520,17 +520,17 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
                   <label className="font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">Спосіб оплати</label>
                   <select
                     {...checkoutForm.register("paymentMethod")}
-                    className="mt-1 h-12 w-full rounded-soft border border-app-border-light bg-white/[0.02] px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
+                    className="app-subtle-surface mt-1 h-12 w-full rounded-soft border border-app-border-light px-m font-body text-sm text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
                   >
                     {PAYMENT_METHOD_OPTIONS.map((option) => (
-                      <option key={option} value={option} className="bg-[#0b0b0b] text-app-primary">
+                      <option key={option} value={option} className="bg-app-body text-app-primary">
                         {option}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+                <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
                   <div className="flex items-center gap-s">
                     <ShieldCheck size={16} className="text-app-secondary" />
                     <p className="font-body text-xs text-app-secondary">
@@ -545,7 +545,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
               <button
                 type="submit"
                 disabled={checkoutSubmitting || cart.totalItems <= 0}
-                className="flex h-[54px] w-full max-w-full items-center justify-center rounded-pill border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-45 mobile:w-[320px]"
+                className="flex h-[54px] w-full max-w-full items-center justify-center rounded-pill border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.14em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-45 mobile:w-[320px]"
               >
                 {checkoutSubmitting ? "Обробка..." : confirmButtonText}
               </button>

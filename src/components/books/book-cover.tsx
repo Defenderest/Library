@@ -31,7 +31,7 @@ export function BookCover({
     resolvedSource?.startsWith("https://") || resolvedSource?.startsWith("http://") || false;
 
   return (
-    <div className={cn("relative overflow-hidden bg-[#111]", className)}>
+    <div className={cn("app-frame-inner-surface relative overflow-hidden", className)}>
       {resolvedSource && !failed ? (
         <Image
           src={resolvedSource}
@@ -48,7 +48,7 @@ export function BookCover({
       {(!resolvedSource || failed) && (
         <div
           className={cn(
-            "absolute inset-0 flex items-center justify-center border border-app-border-light bg-[#111] font-display text-4xl text-app-secondary",
+            "app-frame-inner-surface absolute inset-0 flex items-center justify-center border border-app-border-light font-display text-4xl text-app-secondary",
             placeholderClassName,
           )}
         >

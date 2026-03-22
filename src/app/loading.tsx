@@ -5,10 +5,10 @@ export default function HomeLoading() {
   return (
     <div className="space-y-10">
       <section
-        className="relative min-h-[250px] overflow-hidden border-b border-app-border-light bg-[#111]"
+        className="app-home-hero-surface relative min-h-[250px] overflow-hidden border-b border-app-border-light"
         style={{ height: "min(400px, max(250px, 35vw))" }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.08),transparent_52%),linear-gradient(180deg,rgba(0,0,0,0.35)_0%,rgba(3,3,3,0.95)_100%)]" />
+        <div className="app-home-hero-overlay absolute inset-0" />
 
         <div className="pointer-events-none absolute inset-y-0 right-[4%] hidden w-[38%] max-w-[500px] items-end py-6 compact:flex">
           <Skeleton className="h-full w-full rounded-soft" />

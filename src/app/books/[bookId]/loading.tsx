@@ -8,7 +8,7 @@ export default function BookDetailsLoading() {
         <Skeleton className="h-5 w-20 rounded-pill" />
       </div>
 
-      <div className="rounded-soft border border-app-border-light bg-app-glass p-5 mobile:p-8">
+      <div className="app-detail-hero-surface rounded-soft border border-app-border-light bg-app-glass p-5 mobile:p-8">
         <div className="grid items-start gap-xl compact:grid-cols-[220px_minmax(0,540px)_1fr] compact:gap-xxl">
           <Skeleton className="mx-auto h-[300px] w-full max-w-[220px] rounded-soft mobile:h-[340px] compact:h-[360px]" />
 
@@ -40,7 +40,7 @@ export default function BookDetailsLoading() {
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={`book-meta-skeleton-${index}`}
-            className="min-h-[88px] rounded-soft border border-app-border-light bg-white/[0.02] p-m"
+            className="app-subtle-surface min-h-[88px] rounded-soft border border-app-border-light p-m"
           >
             <Skeleton className="h-3 w-20 rounded-pill" />
             <Skeleton className="mt-3 h-6 w-[78%]" />
@@ -50,7 +50,7 @@ export default function BookDetailsLoading() {
 
       <section className="space-y-s">
         <Skeleton className="h-9 w-24" />
-        <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-l">
+        <div className="app-subtle-surface rounded-soft border border-app-border-light p-l">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="mt-3 h-4 w-[94%]" />
           <Skeleton className="mt-3 h-4 w-[82%]" />
@@ -63,7 +63,7 @@ export default function BookDetailsLoading() {
           <Skeleton className="h-3 w-24 mobile:ml-auto" />
         </div>
 
-        <div className="rounded-soft border border-app-border-light bg-white/[0.02] p-m">
+        <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
           <Skeleton className="h-7 w-28" />
           <Skeleton className="mt-3 h-4 w-[64%]" />
           <Skeleton className="mt-4 h-10 w-[190px] rounded-pill" />
@@ -74,7 +74,7 @@ export default function BookDetailsLoading() {
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={`comment-skeleton-${index}`}
-              className="rounded-soft border border-app-border-light bg-white/[0.02] p-m"
+              className="app-subtle-surface rounded-soft border border-app-border-light p-m"
             >
               <div className="flex items-center gap-m">
                 <Skeleton className="h-[38px] w-[38px] rounded-full" />

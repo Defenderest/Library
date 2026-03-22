@@ -15,12 +15,12 @@ type SidebarProps = {
 
 export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className }: SidebarProps) {
   return (
-    <aside
-      className={cn(
-        "relative flex w-[var(--layout-sidebar-width)] flex-col bg-[rgba(5,5,5,0.5)] text-app-primary backdrop-blur-[20px]",
-        className,
-      )}
-    >
+      <aside
+        className={cn(
+          "app-sidebar-surface relative flex w-[var(--layout-sidebar-width)] flex-col text-app-primary backdrop-blur-[20px]",
+          className,
+        )}
+      >
       <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-app-border-light" />
 
       <div className="pointer-events-none absolute left-1/2 top-8 -translate-x-1/2 select-none font-display text-lg italic font-semibold tracking-[0.08em] text-app-primary/80 [writing-mode:vertical-rl] [transform:translateX(-50%)_rotate(180deg)] compact:top-10 compact:text-[22px]">
@@ -41,7 +41,7 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
                 className={cn(
                   "relative flex h-[46px] w-[46px] items-center justify-center rounded-full border border-transparent transition-[color,background-color,border-color,transform] duration-normal focus-visible:border-app-border-hover focus-visible:text-app-primary compact:h-[50px] compact:w-[50px]",
                   active
-                    ? "bg-white/[0.05] text-app-primary"
+                    ? "bg-app-hover text-app-primary"
                     : "text-app-primary/65 hover:border-app-border-light hover:text-app-primary",
                 )}
               >

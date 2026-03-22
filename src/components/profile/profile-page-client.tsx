@@ -335,18 +335,18 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
   }
 
   const authInputClass =
-    "h-[50px] w-full rounded-soft border border-app-border-light bg-white/[0.02] px-m font-body text-[13px] text-app-primary outline-none transition duration-fast placeholder:text-app-muted focus:border-app-white focus:bg-white/[0.05]";
+    "app-subtle-surface h-[50px] w-full rounded-soft border border-app-border-light px-m font-body text-[13px] text-app-primary outline-none transition duration-fast placeholder:text-app-muted focus:border-app-border-hover focus:bg-app-hover";
 
   return (
     <section className="space-y-8">
       {!session ? (
-        <div className="relative rounded-soft border border-app-border-light bg-white/[0.02] px-6 py-8 mobile:px-10">
+        <div className="app-subtle-surface relative rounded-soft border border-app-border-light px-6 py-8 mobile:px-10">
           {authFormVisible ? (
             <button
               type="button"
               onClick={closeAuthForm}
               aria-label="Назад"
-              className="absolute left-m top-m flex h-[34px] w-[34px] items-center justify-center rounded-full border border-app-border-light text-app-primary transition duration-fast hover:bg-white/[0.1]"
+              className="app-subtle-surface-strong absolute left-m top-m flex h-[34px] w-[34px] items-center justify-center rounded-full border border-app-border-light text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover"
             >
               &lt;
             </button>
@@ -365,7 +365,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                 <button
                   type="button"
                   onClick={revealAuthForm}
-                  className="mx-auto flex h-[46px] w-[250px] items-center justify-center rounded-pill border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+                  className="mx-auto flex h-[46px] w-[250px] items-center justify-center rounded-pill border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover"
                 >
                   Увійти в акаунт
                 </button>
@@ -380,7 +380,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                       "h-[38px] w-[140px] rounded-pill border font-body text-[11px] uppercase tracking-[0.1em] text-app-primary transition duration-fast",
                       registerMode
                         ? "border-app-border-light bg-transparent"
-                        : "border-app-white bg-white/[0.08]",
+                        : "border-app-border-hover bg-app-hover",
                     )}
                   >
                     Вхід
@@ -392,7 +392,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                     className={cn(
                       "h-[38px] w-[140px] rounded-pill border font-body text-[11px] uppercase tracking-[0.1em] text-app-primary transition duration-fast",
                       registerMode
-                        ? "border-app-white bg-white/[0.08]"
+                        ? "border-app-border-hover bg-app-hover"
                         : "border-app-border-light bg-transparent",
                     )}
                   >
@@ -468,7 +468,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                     <button
                       type="submit"
                       disabled={authSubmitting}
-                      className="mx-auto flex h-[46px] w-[250px] items-center justify-center rounded-pill border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-60"
+                      className="mx-auto flex h-[46px] w-[250px] items-center justify-center rounded-pill border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-60"
                     >
                       {authSubmitting ? "Зачекайте..." : "Створити акаунт"}
                     </button>
@@ -500,7 +500,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                     <button
                       type="submit"
                       disabled={authSubmitting}
-                      className="mx-auto flex h-[46px] w-[250px] items-center justify-center rounded-pill border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body disabled:opacity-60"
+                      className="mx-auto flex h-[46px] w-[250px] items-center justify-center rounded-pill border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.12em] text-app-primary transition duration-fast hover:bg-app-hover disabled:opacity-60"
                     >
                       {authSubmitting ? "Зачекайте..." : "Увійти"}
                     </button>
@@ -519,7 +519,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
       ) : (
         <>
           <div className="flex items-center gap-l pb-2">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#222]" />
+            <div className="app-subtle-surface-strong flex h-20 w-20 items-center justify-center rounded-full border border-app-border-light" />
 
             <div className="space-y-1">
               <h2 className="font-display text-[32px] text-app-primary">
@@ -535,7 +535,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
           </div>
 
           {profileLoading ? (
-            <div className="rounded-soft border border-app-border-light bg-app-card p-6">
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-6">
               <p className="font-body text-sm text-app-secondary">Завантаження даних профілю...</p>
             </div>
           ) : (
@@ -545,7 +545,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                   <p className="font-body text-xs text-app-secondary">Ім&apos;я</p>
                   <input
                     {...profileForm.register("firstName")}
-                    className="h-11 w-full border-b border-app-border-light bg-transparent font-display text-base text-app-primary outline-none transition duration-fast focus:border-app-white"
+                    className="h-11 w-full border-b border-app-border-light bg-transparent font-display text-base text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
                     autoComplete="given-name"
                   />
                   <FieldError message={profileForm.formState.errors.firstName?.message} />
@@ -555,7 +555,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                   <p className="font-body text-xs text-app-secondary">Прізвище</p>
                   <input
                     {...profileForm.register("lastName")}
-                    className="h-11 w-full border-b border-app-border-light bg-transparent font-display text-base text-app-primary outline-none transition duration-fast focus:border-app-white"
+                    className="h-11 w-full border-b border-app-border-light bg-transparent font-display text-base text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
                     autoComplete="family-name"
                   />
                   <FieldError message={profileForm.formState.errors.lastName?.message} />
@@ -574,7 +574,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                   <p className="font-body text-xs text-app-secondary">Телефон</p>
                   <input
                     {...profileForm.register("phone")}
-                    className="h-11 w-full border-b border-app-border-light bg-transparent font-display text-base text-app-primary outline-none transition duration-fast focus:border-app-white"
+                    className="h-11 w-full border-b border-app-border-light bg-transparent font-display text-base text-app-primary outline-none transition duration-fast focus:border-app-border-hover"
                     autoComplete="tel"
                   />
                   <FieldError message={profileForm.formState.errors.phone?.message} />
@@ -584,7 +584,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
               <div className="space-y-3">
                 <button
                   type="submit"
-                  className="flex h-[46px] w-[220px] items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+                  className="flex h-[46px] w-[220px] items-center justify-center rounded-sharp border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:bg-app-hover"
                 >
                   Зберегти зміни
                 </button>
@@ -593,7 +593,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                   <button
                     type="button"
                     onClick={() => router.push("/admin")}
-                    className="flex h-[46px] w-[220px] items-center justify-center rounded-sharp border border-app-border-light bg-transparent font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-white/[0.04]"
+                    className="flex h-[46px] w-[220px] items-center justify-center rounded-sharp border border-app-border-light bg-transparent font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover"
                   >
                     Адмін панель
                   </button>
@@ -602,7 +602,7 @@ export function ProfilePageClient({ initialMessage = "" }: ProfilePageClientProp
                 <button
                   type="button"
                   onClick={logoutFromProfile}
-                  className="flex h-[46px] w-[220px] items-center justify-center rounded-sharp border border-app-white bg-transparent font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:bg-app-white hover:text-app-body"
+                  className="flex h-[46px] w-[220px] items-center justify-center rounded-sharp border border-app-border-hover bg-transparent font-body text-xs uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:bg-app-hover"
                 >
                   Вийти з акаунта
                 </button>

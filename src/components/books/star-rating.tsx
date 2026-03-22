@@ -27,7 +27,7 @@ export function StarRating({
           className={cn(
             "leading-none",
             STAR_SIZE_CLASS[starSize],
-            index < Math.round(rating) ? "text-app-white" : "text-app-secondary",
+            index < Math.round(rating) ? "text-app-primary" : "text-app-secondary",
           )}
         >
           {index < Math.round(rating) ? "★" : "☆"}
