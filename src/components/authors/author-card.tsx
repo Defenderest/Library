@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { cn } from "@/lib/cn";
 import type { AuthorCardData } from "@/lib/catalog/types";
@@ -26,9 +27,11 @@ export function AuthorCard({ author, href = `/authors/${author.authorId}`, class
       <div className="relative mx-auto h-[120px] w-[120px] overflow-hidden rounded-full border border-white/[0.08] bg-[#111] shadow-[0_12px_24px_rgba(0,0,0,0.24)] transition-[transform,border-color,box-shadow] duration-slow group-hover:-translate-y-[3px] group-hover:border-white/[0.14] group-hover:shadow-[0_18px_34px_rgba(0,0,0,0.32)]">
         <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_24%,rgba(255,255,255,0.14),transparent_34%)] opacity-70" />
         {imageSource ? (
-          <img
+          <Image
             src={imageSource}
             alt={`${author.firstName} ${author.lastName}`}
+            fill
+            sizes="120px"
             className="h-full w-full object-cover transition-[transform,filter] duration-slow group-hover:scale-[1.05] group-hover:brightness-[1.04] group-hover:contrast-[1.06]"
           />
         ) : (

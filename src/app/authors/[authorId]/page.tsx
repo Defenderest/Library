@@ -7,7 +7,7 @@ import { formatUADate } from "@/lib/catalog/format";
 import { getAuthorDetails } from "@/lib/catalog/queries";
 import { resolveMediaPath } from "@/lib/media";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 900;
 
 type AuthorDetailsPageProps = {
   params?: {

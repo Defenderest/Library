@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { getServerSessionUser } from "@/lib/auth/server-session";
@@ -36,6 +37,8 @@ export async function POST(request: Request, { params }: RouteContext) {
       reviewText: body?.reviewText ?? "",
       rating: Number(body?.rating ?? 0),
     });
+
+    revalidatePath(`/books/${bookId}`);
 
     return NextResponse.json({ message: "Відгук успішно додано" });
   } catch (error) {

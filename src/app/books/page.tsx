@@ -6,7 +6,7 @@ import { BooksFiltersPanel } from "@/components/books/books-filters-panel";
 import { formatResultsLabel } from "@/lib/catalog/format";
 import { getBooksCatalog } from "@/lib/catalog/queries";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 180;
 
 type BooksPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -11,6 +12,8 @@ type BookCoverProps = {
   className?: string;
   imageClassName?: string;
   placeholderClassName?: string;
+  sizes?: string;
+  priority?: boolean;
 };
 
 export function BookCover({
@@ -19,16 +22,24 @@ export function BookCover({
   className,
   imageClassName,
   placeholderClassName,
+  sizes = "(max-width: 768px) 44vw, 280px",
+  priority = false,
 }: BookCoverProps) {
   const [failed, setFailed] = useState(false);
   const resolvedSource = useMemo(() => resolveMediaPath(imagePath), [imagePath]);
+  const isRemoteSource =
+    resolvedSource?.startsWith("https://") || resolvedSource?.startsWith("http://") || false;
 
   return (
     <div className={cn("relative overflow-hidden bg-[#111]", className)}>
       {resolvedSource && !failed ? (
-        <img
+        <Image
           src={resolvedSource}
           alt={title}
+          fill
+          sizes={sizes}
+          priority={priority}
+          unoptimized={isRemoteSource}
           className={cn("h-full w-full object-cover", imageClassName)}
           onError={() => setFailed(true)}
         />

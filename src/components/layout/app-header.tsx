@@ -130,7 +130,6 @@ export function AppHeader({
         {!showMenuButton && showProfileButton ? (
           <Link
             href="/profile"
-            prefetch={false}
             aria-label="Перейти до профілю"
             className="order-1 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:hidden"
           >
@@ -228,7 +227,6 @@ export function AppHeader({
 
         <Link
           href="/cart"
-          prefetch={false}
           aria-label="Перейти до кошика"
           className="order-3 inline-flex h-11 w-11 flex-none items-center justify-center rounded-full border border-white/[0.08] bg-[rgba(255,255,255,0.02)] text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[18px] transition-[color,background-color,border-color,transform,box-shadow] duration-fast hover:-translate-y-[1px] hover:border-white/[0.14] hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app-body active:translate-y-0 desktop:ml-s desktop:h-10 desktop:w-10 desktop:border-app-border-light desktop:bg-transparent desktop:shadow-none desktop:backdrop-blur-0 desktop:hover:border-app-border-hover"
         >

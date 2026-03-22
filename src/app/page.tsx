@@ -6,7 +6,7 @@ import { BookCardHome } from "@/components/books/book-card-home";
 import { buttonStyles } from "@/components/ui/button";
 import { getHomeNewArrivals } from "@/lib/catalog/queries";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 type HomePageProps = {
   searchParams?: Record<string, string | string[] | undefined>;

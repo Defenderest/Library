@@ -12,7 +12,7 @@ import { formatUADate } from "@/lib/catalog/format";
 import { getBookDetails, getSimilarBooks } from "@/lib/catalog/queries";
 import { resolveMediaPath } from "@/lib/media";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 type BookDetailsPageProps = {
   params?: {
@@ -92,26 +92,34 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
         </Link>
       </div>
 
-      <GlassPanel className="relative overflow-hidden p-5 mobile:p-8">
+      <GlassPanel className="relative overflow-hidden border-app-border-light/80 bg-[rgba(6,6,7,0.76)] p-5 mobile:p-8">
         {coverAmbientSource ? (
           <>
             <img
               src={coverAmbientSource}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full scale-[1.22] object-cover opacity-[0.16] blur-[70px] saturate-[1.35] brightness-[0.42]"
+              className="pointer-events-none absolute inset-[-12%] h-[124%] w-[124%] object-cover opacity-[0.2] blur-[96px] saturate-[2.2] brightness-[0.58]"
             />
             <img
               src={coverAmbientSource}
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute -right-[10%] top-[-8%] hidden h-[130%] w-[58%] object-cover opacity-[0.18] blur-[88px] saturate-[1.45] brightness-[0.46] compact:block"
+              className="pointer-events-none absolute -left-[8%] top-[-10%] hidden h-[124%] w-[46%] object-cover opacity-[0.24] blur-[108px] saturate-[2.35] brightness-[0.64] compact:block"
+              style={{ objectPosition: "left center", mixBlendMode: "screen" }}
+            />
+            <img
+              src={coverAmbientSource}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-[10%] top-[-8%] hidden h-[130%] w-[56%] object-cover opacity-[0.28] blur-[120px] saturate-[2.35] brightness-[0.68] compact:block"
+              style={{ objectPosition: "right center", mixBlendMode: "screen" }}
             />
           </>
         ) : null}
 
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(4,4,6,0.92)_0%,rgba(8,6,9,0.8)_22%,rgba(7,5,10,0.76)_46%,rgba(15,9,8,0.78)_68%,rgba(22,12,8,0.86)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_26%,rgba(92,38,22,0.18),transparent_26%),radial-gradient(circle_at_32%_54%,rgba(148,38,24,0.14),transparent_24%),radial-gradient(circle_at_74%_28%,rgba(210,166,134,0.08),transparent_22%),radial-gradient(circle_at_82%_18%,rgba(255,255,255,0.06),transparent_34%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(3,3,4,0.92)_0%,rgba(6,6,8,0.78)_24%,rgba(8,8,10,0.58)_48%,rgba(9,9,11,0.7)_74%,rgba(10,10,12,0.86)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_24%,rgba(255,255,255,0.06),transparent_24%),radial-gradient(circle_at_74%_26%,rgba(255,255,255,0.045),transparent_22%),radial-gradient(circle_at_50%_82%,rgba(255,255,255,0.024),transparent_30%)]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-[linear-gradient(180deg,rgba(0,0,0,0)_0%,rgba(4,4,4,0.46)_100%)]" />
 
         <div className="relative grid items-start gap-xl compact:grid-cols-[228px_minmax(0,1fr)] compact:items-center compact:gap-[56px]">
@@ -122,6 +130,8 @@ export default async function BookDetailsPage({ params }: BookDetailsPageProps) 
                 imagePath={details.coverImagePath}
                 className="h-[300px] rounded-sharp mobile:h-[340px] compact:h-[368px]"
                 imageClassName="brightness-[0.94] contrast-[1.06] saturate-[0.9] sepia-[0.12]"
+                sizes="(min-width: 1280px) 228px, (min-width: 768px) 220px, 78vw"
+                priority
               />
               <div className="pointer-events-none absolute inset-2 rounded-sharp border border-white/10" />
             </div>

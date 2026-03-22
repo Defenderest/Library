@@ -36,7 +36,6 @@ export function AppSidebar({ pathname, isAdmin, cartCount, onNavigate, className
             <div key={item.href} className="group relative">
               <Link
                 href={item.href}
-                prefetch={false}
                 aria-label={item.label}
                 onClick={onNavigate}
                 className={cn(

@@ -235,7 +235,6 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
                   itemRefs.current[index] = element;
                 }}
                 href={item.href}
-                prefetch={false}
                 aria-label={item.label}
                 onClick={() => setOptimisticActiveIndex(index)}
                 className={cn(

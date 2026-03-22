@@ -1,20 +1,28 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState, type PropsWithChildren } from "react";
 
 import { AppHeader } from "@/components/layout/app-header";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AiChatWidget } from "@/components/ai/ai-chat-widget";
 import { useAuthSession } from "@/components/providers/auth-session-provider";
 import { useCart } from "@/components/providers/cart-provider";
 import { resolvePageTitle } from "@/lib/routing";
 
+const AiChatWidget = dynamic(
+  () => import("@/components/ai/ai-chat-widget").then((module) => module.AiChatWidget),
+  {
+    ssr: false,
+  },
+);
+
 export function AppShell({ children }: PropsWithChildren) {
   const pathname = usePathname() ?? "/";
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [enablePageTransitions, setEnablePageTransitions] = useState(false);
   const { session } = useAuthSession();
   const { cartCount } = useCart();
 
@@ -25,6 +33,10 @@ export function AppShell({ children }: PropsWithChildren) {
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    setEnablePageTransitions(true);
+  }, []);
 
   const pageTransition = {
     duration: 0.24,
@@ -79,18 +91,22 @@ export function AppShell({ children }: PropsWithChildren) {
         />
 
         <main className="flex-1 px-4 pb-8 pt-l mobile:px-10 mobile:pb-10 mobile:pt-xl desktop:px-10 desktop:pb-12 compact:px-[60px]">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={pageTransition}
-              className="will-change-opacity"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          {enablePageTransitions ? (
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={pageTransition}
+                className="will-change-opacity"
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          ) : (
+            <div>{children}</div>
+          )}
         </main>
 
         <footer className="border-t border-app-border-light px-4 pb-[76px] pt-4 text-center font-body text-[10px] uppercase tracking-[0.18em] text-app-muted mobile:px-10 mobile:pb-[82px] desktop:px-10 desktop:pb-8 desktop:pt-6 compact:px-[60px]">
