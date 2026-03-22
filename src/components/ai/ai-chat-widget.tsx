@@ -197,18 +197,17 @@ export function AiChatWidget() {
   };
 
   return (
-    <div className="pointer-events-none mobile-ai-trigger-shell z-[45] desktop:fixed desktop:bottom-6 desktop:right-8 desktop:z-50">
-      <div className="pointer-events-auto flex flex-col items-end">
-        <AnimatePresence>
-          {open ? (
-            <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--mobile-bottom-cluster-bottom)+2px)] z-[46] flex justify-center px-3 desktop:static desktop:z-auto desktop:flex desktop:justify-end desktop:px-0">
-              <motion.section
-                initial={{ opacity: 0, y: 14, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 14, scale: 0.98 }}
-                transition={{ duration: 0.22 }}
-                className="app-chat-panel pointer-events-auto flex w-[min(calc(100vw-24px),368px)] max-h-[min(620px,calc(100dvh-24px))] flex-col overflow-hidden rounded-[14px] border shadow-[0_26px_60px_rgba(0,0,0,0.22)] backdrop-blur-[30px] desktop:mb-3 desktop:w-[368px] desktop:max-h-[min(620px,76dvh)]"
-              >
+    <div className="pointer-events-none z-[45] desktop:fixed desktop:bottom-6 desktop:right-8 desktop:z-50">
+      <AnimatePresence>
+        {open ? (
+          <div className="pointer-events-none fixed inset-0 z-[46] flex items-center justify-center px-3 pt-10 pb-3 desktop:static desktop:z-auto desktop:flex desktop:items-end desktop:justify-end desktop:px-0 desktop:py-0">
+            <motion.section
+              initial={{ opacity: 0, y: 14, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 14, scale: 0.98 }}
+              transition={{ duration: 0.22 }}
+              className="app-chat-panel pointer-events-auto flex w-[min(calc(100vw-24px),368px)] max-h-[min(620px,calc(100dvh-24px))] flex-col overflow-hidden rounded-[14px] border shadow-[0_26px_60px_rgba(0,0,0,0.22)] backdrop-blur-[30px] desktop:mb-3 desktop:w-[368px] desktop:max-h-[min(620px,76dvh)]"
+            >
                 <header className="app-subtle-surface-soft flex shrink-0 items-center gap-3 border-b border-app-border-light px-4 py-4">
                   <div className="app-subtle-surface-strong inline-flex h-10 w-10 items-center justify-center rounded-full border border-app-border-light text-app-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
                     <Bot size={16} />
@@ -347,11 +346,12 @@ export function AiChatWidget() {
                     </button>
                   </div>
                 </footer>
-              </motion.section>
-            </div>
-          ) : null}
-        </AnimatePresence>
+            </motion.section>
+          </div>
+        ) : null}
+      </AnimatePresence>
 
+      <div className="mobile-ai-trigger-shell pointer-events-auto desktop:static">
         <AnimatePresence>
           {!open ? (
             <motion.button
@@ -372,7 +372,7 @@ export function AiChatWidget() {
                 transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
                 className="relative z-10 inline-flex items-center justify-center text-app-primary"
               >
-                <Bot size={18} className="desktop:h-[18px] desktop:w-[18px]" />
+                <Bot size={20} className="desktop:h-[18px] desktop:w-[18px]" />
               </motion.span>
             </motion.button>
           ) : null}

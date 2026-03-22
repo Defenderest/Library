@@ -62,12 +62,12 @@
   --color-detail-hero-specular: radial-gradient(circle_at_20% 24%, rgba(255, 255, 255, 0.06), transparent 24%), radial-gradient(circle_at_74% 26%, rgba(255, 255, 255, 0.045), transparent 22%), radial-gradient(circle_at_50% 82%, rgba(255, 255, 255, 0.024), transparent 30%);
   --color-detail-hero-bottom-fade: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(4, 4, 4, 0.46) 100%);
   --color-mobile-nav-bg: linear-gradient(180deg, rgba(11, 11, 13, 0.78) 0%, rgba(6, 6, 8, 0.92) 100%);
-  --color-mobile-nav-highlight-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.014) 100%);
-  --color-mobile-nav-highlight-border: rgba(255, 255, 255, 0.07);
+  --color-mobile-nav-highlight-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 52%, rgba(255, 255, 255, 0.045) 100%);
+  --color-mobile-nav-highlight-border: rgba(255, 255, 255, 0.12);
   --shadow-glass: 0 20px 60px rgba(0, 0, 0, 0.45);
   --shadow-control: 0 8px 20px rgba(0, 0, 0, 0.1);
   --shadow-mobile-nav: 0 18px 36px rgba(0, 0, 0, 0.34);
-  --shadow-mobile-nav-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 16px rgba(0, 0, 0, 0.16);
+  --shadow-mobile-nav-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 8px 18px rgba(0, 0, 0, 0.16);
   --shadow-card-hover: 0 24px 60px rgba(0, 0, 0, 0.18);
 
   --spacing-xs: 4px;
@@ -88,11 +88,11 @@
   --animation-slow: 600ms;
   --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --mobile-bottom-cluster-bottom: calc(12px + env(safe-area-inset-bottom));
-  --mobile-bottom-cluster-gap: 12px;
-  --mobile-ai-trigger-size: 56px;
-  --mobile-bottom-nav-width: clamp(248px, 48vw, 320px);
-  --mobile-bottom-nav-height: 56px;
+  --mobile-bottom-cluster-bottom: calc(18px + env(safe-area-inset-bottom));
+  --mobile-bottom-cluster-gap: 14px;
+  --mobile-ai-trigger-size: 60px;
+  --mobile-bottom-nav-width: clamp(252px, 38vw, 300px);
+  --mobile-bottom-nav-height: 60px;
 
   --layout-sidebar-width: 100px;
   --layout-header-height: 100px;
@@ -160,12 +160,12 @@ html[data-theme="light"] {
   --color-detail-hero-specular: radial-gradient(circle_at_20% 24%, rgba(255, 255, 255, 0.34), transparent 24%), radial-gradient(circle_at_74% 26%, rgba(255, 255, 255, 0.2), transparent 22%), radial-gradient(circle_at_50% 82%, rgba(255, 255, 255, 0.1), transparent 30%);
   --color-detail-hero-bottom-fade: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(229, 216, 203, 0.22) 100%);
   --color-mobile-nav-bg: linear-gradient(180deg, rgba(248, 243, 236, 0.94) 0%, rgba(239, 232, 223, 0.98) 100%);
-  --color-mobile-nav-highlight-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(246, 240, 233, 0.88) 100%);
-  --color-mobile-nav-highlight-border: rgba(38, 28, 19, 0.1);
+  --color-mobile-nav-highlight-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 241, 233, 0.9) 52%, rgba(241, 231, 219, 0.88) 100%);
+  --color-mobile-nav-highlight-border: rgba(38, 28, 19, 0.14);
   --shadow-glass: 0 20px 54px rgba(70, 48, 26, 0.12);
   --shadow-control: 0 10px 24px rgba(70, 48, 26, 0.08);
   --shadow-mobile-nav: 0 18px 32px rgba(70, 48, 26, 0.12);
-  --shadow-mobile-nav-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 6px 14px rgba(70, 48, 26, 0.08);
+  --shadow-mobile-nav-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 8px 18px rgba(70, 48, 26, 0.1);
   --shadow-card-hover: 0 24px 48px rgba(70, 48, 26, 0.12);
 }
 
@@ -450,6 +450,14 @@ a {
       opacity: 0;
       pointer-events: none;
       transform: translateY(12px);
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    :root {
+      --mobile-bottom-nav-width: 288px;
+      --mobile-bottom-cluster-gap: 12px;
+      --mobile-ai-trigger-size: 58px;
     }
   }
 }

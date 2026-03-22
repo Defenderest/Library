@@ -40,14 +40,41 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const dragStartRef = useRef<{ pointerX: number; capsuleLeft: number } | null>(null);
+  const previousActiveIndexRef = useRef<number>(activeIndex);
 
   const [capsuleMetrics, setCapsuleMetrics] = useState<CapsuleMetrics>(EMPTY_METRICS);
   const [dragLeft, setDragLeft] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [switchDirection, setSwitchDirection] = useState<1 | -1>(1);
 
   useEffect(() => {
     setOptimisticActiveIndex(null);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!hasActiveItem) {
+      return;
+    }
+
+    const previousIndex = previousActiveIndexRef.current;
+    if (previousIndex < 0 || previousIndex === activeIndex) {
+      previousActiveIndexRef.current = activeIndex;
+      return;
+    }
+
+    setSwitchDirection(activeIndex > previousIndex ? 1 : -1);
+    previousActiveIndexRef.current = activeIndex;
+
+    setIsSwitching(true);
+    const timeoutId = window.setTimeout(() => {
+      setIsSwitching(false);
+    }, 260);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [activeIndex, hasActiveItem]);
 
   const getItemMetrics = (index: number): CapsuleMetrics | null => {
     const railRect = railRef.current?.getBoundingClientRect();
@@ -57,9 +84,13 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
       return null;
     }
 
+    const itemLeft = itemRect.left - railRect.left;
+    const itemCenter = itemLeft + itemRect.width / 2;
+    const targetWidth = Math.min(itemRect.width - 10, 52);
+
     return {
-      left: itemRect.left - railRect.left,
-      width: itemRect.width,
+      left: itemCenter - targetWidth / 2,
+      width: targetWidth,
     };
   };
 
@@ -189,13 +220,24 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
   };
 
   const capsuleLeft = dragLeft ?? capsuleMetrics.left;
+  const dragDelta = dragStartRef.current ? capsuleLeft - dragStartRef.current.capsuleLeft : 0;
+  const dragIntensity = Math.min(Math.abs(dragDelta) / 40, 1);
 
   return (
     <div className="mobile-bottom-nav-shell z-40 transition-[opacity,transform] duration-fast desktop:hidden">
       <motion.nav
         initial={{ opacity: 0, y: 12, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+        animate={{
+          opacity: 1,
+          y: isDragging ? -1 : 0,
+          scaleX: isDragging ? 1.05 : 1,
+          scaleY: isDragging ? 1.04 : 1,
+        }}
+        transition={
+          isDragging
+            ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 0.34, ease: [0.22, 1, 0.36, 1] }
+        }
         className="app-mobile-nav-panel relative h-[var(--mobile-bottom-nav-height)] w-full rounded-[999px] border px-[5px] py-[5px] backdrop-blur-[28px]"
       >
         <span className="pointer-events-none absolute inset-x-[16%] top-0 h-[1px] bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.08)_50%,rgba(255,255,255,0)_100%)]" />
@@ -212,16 +254,23 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
               aria-label="Перетягнути активну вкладку"
               onPointerDown={startDrag}
               className={cn(
-                "app-mobile-nav-highlight absolute inset-y-[1px] left-0 z-10 rounded-[999px] border backdrop-blur-[18px] touch-none",
+                "app-mobile-nav-highlight absolute inset-y-[4px] left-0 z-10 overflow-hidden rounded-[999px] border backdrop-blur-[18px] touch-none",
                 isDragging && "cursor-grabbing",
               )}
-              animate={{ x: capsuleLeft, width: capsuleMetrics.width, scale: isDragging ? 1.02 : 1 }}
+              animate={{
+                x: capsuleLeft,
+                width: capsuleMetrics.width,
+                scale: isDragging ? 1.06 + dragIntensity * 0.03 : isSwitching ? 1.04 : 1,
+              }}
               transition={
                 isDragging
                   ? { duration: 0.12, ease: [0.22, 1, 0.36, 1] }
                   : { type: "spring", stiffness: 460, damping: 34, mass: 0.72 }
               }
-            />
+            >
+              <span className="absolute inset-0 bg-[var(--color-mobile-nav-highlight-bg)]" />
+              <span className="pointer-events-none absolute inset-x-[18%] top-0 h-[1px] bg-[linear-gradient(90deg,transparent_0%,var(--color-card-top-glow)_50%,transparent_100%)] opacity-75" />
+            </motion.button>
           ) : null}
 
           {navItems.map((item, index) => {
@@ -243,14 +292,24 @@ export function MobileBottomNav({ pathname, isAdmin }: MobileBottomNavProps) {
                 )}
               >
                 <motion.span
-                  animate={{ scale: active ? 1.14 : 1, y: 0, opacity: active ? 0.98 : 0.76 }}
+                  animate={{
+                    scale: active ? 1.14 : 1,
+                    y: 0,
+                    opacity: active ? 0.98 : 0.76,
+                    rotate: active && isSwitching ? [0, switchDirection * -6, switchDirection * 2, 0] : 0,
+                  }}
                   transition={{ type: "spring", stiffness: 420, damping: 28, mass: 0.65 }}
                   className={cn(
-                    "relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-fast",
+                    "relative inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-fast",
                     active ? "text-app-primary" : "text-app-secondary group-hover:text-app-primary",
                   )}
                 >
-                  <Icon size={18} strokeWidth={1.8} />
+                  <span
+                    className="inline-flex items-center justify-center"
+                    style={{ transform: `translate(${item.mobileIconOffset?.x ?? 0}px, ${item.mobileIconOffset?.y ?? 0}px)` }}
+                  >
+                    <Icon size={19} strokeWidth={1.8} />
+                  </span>
                 </motion.span>
               </Link>
             );

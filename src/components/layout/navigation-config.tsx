@@ -13,6 +13,10 @@ export type AppNavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
+  mobileIconOffset?: {
+    x?: number;
+    y?: number;
+  };
   adminOnly?: boolean;
   showCartBadge?: boolean;
   mobilePrimary?: boolean;
@@ -22,7 +26,7 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
   { href: "/", label: "Головна", icon: House, mobilePrimary: true },
   { href: "/books", label: "Колекція", icon: BookOpen, mobilePrimary: true },
   { href: "/authors", label: "Автори", icon: Users, mobilePrimary: true },
-  { href: "/orders", label: "Історія", icon: ScrollText, mobilePrimary: true },
+  { href: "/orders", label: "Історія", icon: ScrollText, mobilePrimary: true, mobileIconOffset: { x: 2.25 } },
   { href: "/admin", label: "Адмін", icon: Shield, adminOnly: true },
   { href: "/profile", label: "Профіль", icon: UserRound },
   { href: "/cart", label: "Кошик", icon: ShoppingCart, showCartBadge: true },
