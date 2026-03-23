@@ -10,7 +10,7 @@ CREATE INDEX IF NOT EXISTS idx_author_last_name_trgm
   ON author USING GIN (last_name gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS idx_author_full_name_trgm
-  ON author USING GIN ((trim(concat(first_name, ' ', last_name))) gin_trgm_ops);
+  ON author USING GIN ((btrim(coalesce(first_name, '') || ' ' || coalesce(last_name, ''))) gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS idx_book_author_author_book
   ON book_author (author_id, book_id);
