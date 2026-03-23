@@ -38,7 +38,12 @@ function extractCount(data: unknown): number {
 }
 
 export function CartProvider({ children }: PropsWithChildren) {
-  const { session } = useAuthSession();
+  const {
+    session,
+    loading: sessionLoading,
+    bootstrapCartCount,
+    bootstrapCartCustomerId,
+  } = useAuthSession();
   const [cartCount, setCartCountState] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -130,8 +135,26 @@ export function CartProvider({ children }: PropsWithChildren) {
   );
 
   useEffect(() => {
-    let active = true;
+    if (sessionLoading) {
+      return;
+    }
 
+    if (!session) {
+      setCartCountState(0);
+      setLoading(false);
+      return;
+    }
+
+    if (bootstrapCartCustomerId === session.customerId) {
+      setCartCountState(
+        Number.isFinite(bootstrapCartCount) ? Math.max(0, Math.floor(bootstrapCartCount)) : 0,
+      );
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    let active = true;
     void (async () => {
       await refreshCartCount();
       if (active) {
@@ -142,13 +165,13 @@ export function CartProvider({ children }: PropsWithChildren) {
     return () => {
       active = false;
     };
-  }, [refreshCartCount]);
-
-  useEffect(() => {
-    if (!session) {
-      setCartCountState(0);
-    }
-  }, [session]);
+  }, [
+    bootstrapCartCount,
+    bootstrapCartCustomerId,
+    refreshCartCount,
+    session,
+    sessionLoading,
+  ]);
 
   const value = {
     cartCount,

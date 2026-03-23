@@ -38,6 +38,10 @@ type CartQuantityRow = {
   quantity: number;
 };
 
+type CartTotalItemsRow = {
+  totalItems: number | null;
+};
+
 type CheckoutCartRow = {
   bookId: number;
   quantity: number;
@@ -86,6 +90,11 @@ export async function getCartSummary(customerId: number): Promise<CartSummaryDat
     totalItems,
     totalPrice,
   };
+}
+
+export async function getCartTotalItems(customerId: number): Promise<number> {
+  const row = await queryFirst<CartTotalItemsRow>(prisma, "cart/get_cart_total_items", [customerId]);
+  return asNonNegativeInteger(row?.totalItems);
 }
 
 export async function addCartItem(

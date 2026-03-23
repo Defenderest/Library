@@ -156,6 +156,7 @@ model BookAuthor {
   author   Author  @relation(fields: [authorId], references: [authorId], onDelete: Cascade)
 
   @@id([bookId, authorId])
+  @@index([authorId, bookId], map: "idx_book_author_author_book")
   @@map("book_author")
 }
 
@@ -219,5 +220,6 @@ model CartItem {
   book       Book     @relation(fields: [bookId], references: [bookId], onDelete: Cascade)
 
   @@id([customerId, bookId])
+  @@index([customerId, addedDate], map: "idx_cart_item_customer_added")
   @@map("cart_item")
 }
