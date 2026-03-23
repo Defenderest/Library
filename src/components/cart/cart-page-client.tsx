@@ -89,7 +89,7 @@ export function CartPageClient({
 
   const redirectToProfile = useCallback(() => {
     const message = encodeURIComponent("Щоб працювати з кошиком, увійдіть у профіль");
-    router.push(`/profile?message=${message}`);
+    router.replace(`/profile?message=${message}`);
   }, [router]);
 
   const applyCartState = useCallback(
@@ -132,7 +132,6 @@ export function CartPageClient({
   useEffect(() => {
     if (requiresAuthRedirect) {
       redirectToProfile();
-      setLoading(false);
       return;
     }
 
@@ -350,16 +349,16 @@ export function CartPageClient({
     }
   });
 
+  if (requiresAuthRedirect) {
+    return null;
+  }
+
   if (loading) {
     return (
       <div className="rounded-soft border border-app-border-light bg-app-card p-8">
         <p className="font-body text-sm text-app-secondary">Завантаження кошика...</p>
       </div>
     );
-  }
-
-  if (requiresAuthRedirect) {
-    return null;
   }
 
   return (
