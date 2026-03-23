@@ -348,7 +348,7 @@ export function AiChatWidget() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 8 }}
               whileTap={{ scale: 0.96 }}
-              className="app-mobile-nav-panel group relative inline-flex h-[var(--mobile-ai-trigger-size)] w-[var(--mobile-ai-trigger-size)] items-center justify-center overflow-hidden rounded-[999px] border border-app-border-light text-app-primary shadow-[var(--shadow-mobile-nav)] backdrop-blur-[28px] transition duration-fast hover:border-app-border-hover hover:bg-app-hover desktop:h-[54px] desktop:w-[54px]"
+              className="app-mobile-nav-panel group relative inline-flex h-[var(--mobile-ai-trigger-size)] w-[var(--mobile-ai-trigger-size)] items-center justify-center overflow-hidden rounded-[999px] border border-app-border-light text-app-primary shadow-[var(--shadow-mobile-nav)] backdrop-blur-[28px] transition duration-fast hover:border-app-border-hover hover:bg-app-hover desktop:h-[58px] desktop:w-[58px]"
               aria-label="Відкрити AI чат"
             >
               <span className="pointer-events-none absolute inset-x-[18%] top-0 h-[1px] bg-[linear-gradient(90deg,transparent_0%,var(--color-card-top-glow)_50%,transparent_100%)]" />
@@ -358,7 +358,7 @@ export function AiChatWidget() {
                 transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
                 className="relative z-10 inline-flex items-center justify-center text-app-primary"
               >
-                <Bot size={22} className="desktop:h-[18px] desktop:w-[18px]" />
+                <Bot size={24} className="desktop:h-[20px] desktop:w-[20px]" />
               </motion.span>
             </motion.button>
           ) : null}
