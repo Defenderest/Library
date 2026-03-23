@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Minus, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -19,6 +19,9 @@ import {
 
 type CartPageClientProps = {
   initialInfoMessage?: string;
+  requiresAuthRedirect?: boolean;
+  liqPayFlow?: string;
+  liqPayProviderOrderId?: string;
 };
 
 type CartAction = "increase" | "decrease";
@@ -49,9 +52,13 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1 font-body text-xs text-app-error">{message}</p>;
 }
 
-export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps) {
+export function CartPageClient({
+  initialInfoMessage = "",
+  requiresAuthRedirect = false,
+  liqPayFlow = "",
+  liqPayProviderOrderId = "",
+}: CartPageClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { setCartCount } = useCart();
   const liqPayReturnHandled = useRef(false);
 
@@ -123,20 +130,25 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
   }, [applyCartState, redirectToProfile]);
 
   useEffect(() => {
+    if (requiresAuthRedirect) {
+      redirectToProfile();
+      setLoading(false);
+      return;
+    }
+
     void loadCart();
-  }, [loadCart]);
+  }, [loadCart, redirectToProfile, requiresAuthRedirect]);
 
   useEffect(() => {
     if (liqPayReturnHandled.current) {
       return;
     }
 
-    const flow = searchParams.get("liqpay");
-    const providerOrderId = searchParams.get("providerOrderId");
-
-    if (flow !== "return" || !providerOrderId) {
+    if (liqPayFlow !== "return" || liqPayProviderOrderId.length === 0) {
       return;
     }
+
+    const providerOrderId = liqPayProviderOrderId;
 
     liqPayReturnHandled.current = true;
     setCheckoutError(false);
@@ -179,7 +191,7 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
         router.replace("/cart");
       }
     })();
-  }, [loadCart, redirectToProfile, router, searchParams]);
+  }, [liqPayFlow, liqPayProviderOrderId, loadCart, redirectToProfile, router]);
 
   const runRowAction = useCallback(
     async (bookId: number, action: CartAction) => {
@@ -344,6 +356,10 @@ export function CartPageClient({ initialInfoMessage = "" }: CartPageClientProps)
         <p className="font-body text-sm text-app-secondary">Завантаження кошика...</p>
       </div>
     );
+  }
+
+  if (requiresAuthRedirect) {
+    return null;
   }
 
   return (
