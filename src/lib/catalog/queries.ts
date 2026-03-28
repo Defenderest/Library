@@ -67,9 +67,9 @@ type SearchAuthorRow = {
 };
 
 const HOME_REVALIDATE_SECONDS = 300;
-const CATALOG_REVALIDATE_SECONDS = 180;
+const CATALOG_REVALIDATE_SECONDS = 600;
 const DETAILS_REVALIDATE_SECONDS = 300;
-const AUTHORS_REVALIDATE_SECONDS = 900;
+const AUTHORS_REVALIDATE_SECONDS = 1800;
 const SEARCH_REVALIDATE_SECONDS = 60;
 
 function asNumber(value: number | string | null | undefined): number {

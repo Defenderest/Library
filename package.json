@@ -16,6 +16,11 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:prod": "cross-env PLAYWRIGHT_BASE_URL=https://library-weld-ten.vercel.app playwright test --project=chromium",
+    "test:load:smoke": "npm run test:load:smoke:read && npm run test:load:smoke:guards",
+    "test:load:smoke:read": "node scripts/run-k6.mjs tests/load/smoke-read.js",
+    "test:load:smoke:guards": "node scripts/run-k6.mjs tests/load/smoke-guards.js",
+    "test:load:prod:smoke": "cross-env LOAD_BASE_URL=https://library-weld-ten.vercel.app npm run test:load:smoke",
+    "metrics:catalog:explain": "node scripts/explain-catalog.mjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"

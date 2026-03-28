@@ -153,6 +153,10 @@ npm run test:integration
 npm run test:e2e
 npm run test:e2e:ui
 npm run test:e2e:prod
+npm run test:load:smoke
+npm run test:load:smoke:read
+npm run test:load:smoke:guards
+npm run test:load:prod:smoke
 npm run prisma:generate
 npm run prisma:migrate
 npm run prisma:studio
@@ -191,6 +195,26 @@ npm run test:e2e:prod
 ```
 
 Note: mutating auth/checkout e2e scenarios are skipped for external URLs to avoid polluting production data.
+
+Load smoke tests (k6 via Docker):
+
+```bash
+npm run test:load:smoke
+```
+
+Make sure Docker Desktop is running before executing load scripts.
+
+Load smoke tests against deployed site:
+
+```bash
+npm run test:load:prod:smoke
+```
+
+Tune load parameters when needed:
+
+```bash
+cross-env LOAD_VUS=10 LOAD_DURATION=30s LOAD_SLEEP_MS=150 npm run test:load:smoke
+```
 
 On first Playwright run, install browsers if prompted:
 

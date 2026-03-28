@@ -1,7 +1,8 @@
 import { AuthorCard } from "@/components/authors/author-card";
 import { getAuthorsList } from "@/lib/catalog/queries";
 
-export const revalidate = 900;
+export const dynamic = "force-static";
+export const revalidate = 1800;
 
 export default async function AuthorsPage() {
   const authors = await getAuthorsList();
