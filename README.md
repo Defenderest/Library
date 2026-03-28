@@ -190,6 +190,8 @@ E2E tests against deployed site (`library-weld-ten.vercel.app`):
 npm run test:e2e:prod
 ```
 
+Note: mutating auth/checkout e2e scenarios are skipped for external URLs to avoid polluting production data.
+
 On first Playwright run, install browsers if prompted:
 
 ```bash
