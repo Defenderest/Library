@@ -145,9 +145,55 @@ npm run dev
 npm run build
 npm run start
 npm run lint
+npm run test
+npm run test:unit
+npm run test:unit:watch
+npm run test:coverage
+npm run test:integration
+npm run test:e2e
+npm run test:e2e:ui
+npm run test:e2e:prod
 npm run prisma:generate
 npm run prisma:migrate
 npm run prisma:studio
+```
+
+## Testing
+
+Unit tests (Vitest):
+
+```bash
+npm run test:unit
+```
+
+Coverage report:
+
+```bash
+npm run test:coverage
+```
+
+Integration test scaffold (Vitest, Node env):
+
+```bash
+npm run test:integration
+```
+
+E2E tests (Playwright) against local app:
+
+```bash
+npm run test:e2e
+```
+
+E2E tests against deployed site (`library-weld-ten.vercel.app`):
+
+```bash
+npm run test:e2e:prod
+```
+
+On first Playwright run, install browsers if prompted:
+
+```bash
+npx playwright install
 ```
 
 ## Build and Production
