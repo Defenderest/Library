@@ -28,6 +28,8 @@ type ToolBook = {
   pageCount?: number;
   descriptionPreview?: string;
   href: string;
+  source: "catalog";
+  score?: number;
   matchReasons?: string[];
 };
 
@@ -275,6 +277,7 @@ function mapToolBook(book: BookCardData | BookDetailsData, matchReasons?: string
     pageCount: details?.pageCount,
     descriptionPreview: details?.description ? truncateText(details.description) : undefined,
     href: `/books/${book.bookId}`,
+    source: "catalog",
     matchReasons: matchReasons && matchReasons.length > 0 ? Array.from(new Set(matchReasons)).slice(0, 3) : undefined,
   };
 }
@@ -699,6 +702,9 @@ async function runRecommendBooks(args: ToolArguments) {
     .slice(0, limit);
 
   const recommendationBooks = ranked.map((entry) => mapToolBook(entry.details, entry.reasons));
+  recommendationBooks.forEach((book, index) => {
+    book.score = Number(ranked[index]?.score?.toFixed(2) ?? 0);
+  });
 
   return {
     found: recommendationBooks.length > 0,

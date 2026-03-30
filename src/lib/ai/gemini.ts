@@ -1,4 +1,5 @@
 import { AI_TOOL_DECLARATIONS, runAiTool } from "@/lib/ai/tools";
+import type { AiBookSource } from "@/lib/ai/persistence";
 
 export type AiChatMessage = {
   role: "user" | "assistant";
@@ -50,6 +51,7 @@ export class GeminiRequestError extends Error {
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const ENFORCED_GEMINI_MODEL = "gemini-3-flash-preview";
 const MAX_TOOL_ROUNDS = 6;
+const MAX_SOURCES = 5;
 
 function resolveGeminiApiKey(): string {
   return process.env.GEMINI_API_KEY?.trim() ?? "";
@@ -66,7 +68,12 @@ function resolveGeminiModel(): string {
   return model;
 }
 
-function createSystemInstruction(): string {
+function createSystemInstruction(userMemorySummary?: string): string {
+  const memoryLine =
+    userMemorySummary && userMemorySummary.length > 0
+      ? `Персональний контекст користувача: ${userMemorySummary}.`
+      : "";
+
   return [
     "Ти преміальний книжковий консультант сервісу Library.",
     "Відповідай лише українською мовою.",
@@ -74,11 +81,14 @@ function createSystemInstruction(): string {
     "Перш ніж називати конкретні книги, авторів, ціни чи наявність, обов'язково використовуй інструменти каталогу.",
     "Не вигадуй книг, авторів, цін, сторінок, наявності або характеристик, яких немає в даних інструментів.",
     "Для рекомендацій спочатку використовуй recommend_books, а потім за потреби уточнюй get_book_details або інші інструменти.",
+    "У фінальній відповіді згадуй лише ті книги, які реально повернули інструменти.",
+    "Не використовуй зовнішні джерела або вигадані назви.",
     "Перевагу віддавай книгам у наявності. Якщо точного збігу немає, чесно скажи про це і запропонуй найближчі реальні альтернативи.",
     "Відповідай стисло, конкретно і корисно.",
     "Для добірок давай 2-4 варіанти.",
     "Кожен варіант подавай з назвою, автором, ціною, коротким поясненням і позначкою про наявність.",
     "Якщо бюджет або жанр не задано, можеш коротко уточнити, але спершу спробуй дати корисну стартову добірку з наявного каталогу.",
+    memoryLine,
   ].join(" ");
 }
 
@@ -131,6 +141,7 @@ async function requestGemini(
   apiKey: string,
   model: string,
   contents: GeminiContent[],
+  userMemorySummary?: string,
 ): Promise<GeminiGenerateResponse> {
   const url = `${GEMINI_API_BASE}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
@@ -144,7 +155,7 @@ async function requestGemini(
       contents,
       systemInstruction: {
         role: "system",
-        parts: [{ text: createSystemInstruction() }],
+        parts: [{ text: createSystemInstruction(userMemorySummary) }],
       },
       tools: [
         {
@@ -182,7 +193,66 @@ export function isGeminiConfigured(): boolean {
   return resolveGeminiApiKey().length > 0;
 }
 
-export async function generateAiReply(messages: AiChatMessage[]): Promise<{ text: string; usedTools: string[] }> {
+function extractToolBooks(result: Record<string, unknown>): AiBookSource[] {
+  const candidates: Array<Record<string, unknown>> = [];
+
+  const books = result.books;
+  if (Array.isArray(books)) {
+    for (const entry of books) {
+      if (entry && typeof entry === "object") {
+        candidates.push(entry as Record<string, unknown>);
+      }
+    }
+  }
+
+  const singleBook = result.book;
+  if (singleBook && typeof singleBook === "object") {
+    candidates.push(singleBook as Record<string, unknown>);
+  }
+
+  const referenceBook = result.referenceBook;
+  if (referenceBook && typeof referenceBook === "object") {
+    candidates.push(referenceBook as Record<string, unknown>);
+  }
+
+  return candidates
+    .map((entry): AiBookSource | null => {
+      const bookId = Number(entry.bookId);
+      const title = typeof entry.title === "string" ? entry.title.trim() : "";
+
+      if (!Number.isInteger(bookId) || bookId <= 0 || title.length === 0) {
+        return null;
+      }
+
+      const parsedBook: AiBookSource = {
+        bookId,
+        title,
+        authors: typeof entry.authors === "string" ? entry.authors : "Невідомий автор",
+        genre: typeof entry.genre === "string" ? entry.genre : "",
+        price: Number(entry.price ?? 0) || 0,
+        stockQuantity: Number(entry.stockQuantity ?? 0) || 0,
+        href: typeof entry.href === "string" ? entry.href : `/books/${bookId}`,
+      };
+
+      if (typeof entry.score === "number") {
+        parsedBook.score = entry.score;
+      }
+
+      if (Array.isArray(entry.matchReasons)) {
+        parsedBook.matchReasons = entry.matchReasons
+          .filter((reason): reason is string => typeof reason === "string")
+          .slice(0, 3);
+      }
+
+      return parsedBook;
+    })
+    .filter((entry): entry is AiBookSource => entry !== null);
+}
+
+export async function generateAiReply(
+  messages: AiChatMessage[],
+  options?: { userMemorySummary?: string },
+): Promise<{ text: string; usedTools: string[]; sources: AiBookSource[] }> {
   const apiKey = resolveGeminiApiKey();
   if (apiKey.length === 0) {
     throw new GeminiConfigurationError("Gemini API key is not configured");
@@ -191,9 +261,10 @@ export async function generateAiReply(messages: AiChatMessage[]): Promise<{ text
   const model = resolveGeminiModel();
   let contents = toGeminiContents(messages);
   const usedTools = new Set<string>();
+  const sourceBooks = new Map<number, AiBookSource>();
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
-    const payload = await requestGemini(apiKey, model, contents);
+    const payload = await requestGemini(apiKey, model, contents, options?.userMemorySummary);
     const candidate = payload.candidates?.[0];
     const parts = candidate?.content?.parts ?? [];
 
@@ -212,6 +283,7 @@ export async function generateAiReply(messages: AiChatMessage[]): Promise<{ text
       return {
         text,
         usedTools: Array.from(usedTools),
+        sources: Array.from(sourceBooks.values()).slice(0, MAX_SOURCES),
       };
     }
 
@@ -232,6 +304,13 @@ export async function generateAiReply(messages: AiChatMessage[]): Promise<{ text
 
       try {
         result = await runAiTool(call.name, call.args);
+
+        const extractedBooks = extractToolBooks(result);
+        for (const book of extractedBooks) {
+          if (!sourceBooks.has(book.bookId) && sourceBooks.size < MAX_SOURCES) {
+            sourceBooks.set(book.bookId, book);
+          }
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Tool execution failed";
         result = {

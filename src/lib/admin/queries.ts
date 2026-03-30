@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import { queryFirst, queryRows } from "@/lib/db/raw";
 import { prisma } from "@/lib/prisma";
+import { getAdminAiAnalytics } from "@/lib/ai/persistence";
 import type {
   AdminBookEntry,
   AdminCommentEntry,
@@ -320,12 +321,13 @@ export async function getAdminUsersList(): Promise<AdminUserEntry[]> {
 }
 
 export async function getAdminDashboardData(): Promise<AdminDashboardData> {
-  const [publishers, books, comments, orders, users] = await Promise.all([
+  const [publishers, books, comments, orders, users, aiAnalytics] = await Promise.all([
     getAdminPublishersList(),
     getAdminBooksList(),
     getAdminCommentsList(),
     getAdminOrdersList(),
     getAdminUsersList(),
+    getAdminAiAnalytics(),
   ]);
 
   return {
@@ -334,6 +336,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     comments,
     orders,
     users,
+    aiAnalytics,
   };
 }
 

@@ -72,6 +72,14 @@ export type AdminDashboardData = {
   comments: AdminCommentEntry[];
   orders: AdminOrderEntry[];
   users: AdminUserEntry[];
+  aiAnalytics: {
+    totalDialogs: number;
+    usefulPercent: number;
+    conversionPercent: number;
+    avgAssistantChars: number;
+    avgSessionTurns: number;
+    topQueries: Array<{ query: string; count: number }>;
+  };
 };
 
 export type AdminCreateBookInput = {

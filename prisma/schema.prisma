@@ -24,6 +24,8 @@ model Customer {
   orders              Order[]
   paymentTransactions PaymentTransaction[]
   reservations        BookReservation[]
+  aiUserMemory        AiUserMemory?
+  aiChatEvents        AiChatEvent[]
 
   @@map("customer")
 }
@@ -222,4 +224,41 @@ model CartItem {
   @@id([customerId, bookId])
   @@index([customerId, addedDate], map: "idx_cart_item_customer_added")
   @@map("cart_item")
+}
+
+model AiUserMemory {
+  customerId Int      @id @map("customer_id")
+  memoryJson Json     @map("memory_json")
+  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  customer   Customer @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+
+  @@map("ai_user_memory")
+}
+
+model AiResponseCache {
+  cacheKey    String   @id @map("cache_key") @db.VarChar(64)
+  responseJson Json    @map("response_json")
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@index([expiresAt], map: "idx_ai_response_cache_expires_at")
+  @@map("ai_response_cache")
+}
+
+model AiChatEvent {
+  aiChatEventId     BigInt    @id @default(autoincrement()) @map("ai_chat_event_id")
+  customerId        Int?      @map("customer_id")
+  sessionId         String    @map("session_id") @db.VarChar(80)
+  userMessage       String    @map("user_message")
+  assistantMessage  String    @map("assistant_message")
+  assistantCharCount Int      @default(0) @map("assistant_char_count")
+  useful            Boolean?
+  addedToCart       Boolean   @default(false) @map("added_to_cart")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer          Customer? @relation(fields: [customerId], references: [customerId], onDelete: SetNull)
+
+  @@index([customerId, createdAt], map: "idx_ai_chat_event_customer_date")
+  @@index([sessionId, createdAt], map: "idx_ai_chat_event_session_date")
+  @@index([createdAt], map: "idx_ai_chat_event_created_at")
+  @@map("ai_chat_event")
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, Loader2, SendHorizontal, Sparkles, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Bot, Check, Loader2, SendHorizontal, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -12,6 +12,21 @@ type ChatMessage = {
   id: string;
   role: ChatRole;
   content: string;
+  eventId?: number | null;
+  sources?: AiSourceBook[];
+  feedback?: "up" | "down" | null;
+};
+
+type AiSourceBook = {
+  bookId: number;
+  title: string;
+  authors: string;
+  genre: string;
+  price: number;
+  stockQuantity: number;
+  href: string;
+  score?: number;
+  matchReasons?: string[];
 };
 
 type ServiceState = "ready" | "not_configured" | "error";
@@ -23,6 +38,8 @@ type QuickAction = {
 
 const MAX_HISTORY = 10;
 const MAX_INPUT_LENGTH = 700;
+const SEND_DEBOUNCE_MS = 700;
+const SESSION_STORAGE_KEY = "library-ai-chat-session-id";
 const INITIAL_MESSAGE =
   "Вітаю. Я підберу книги за настроєм, жанром, бюджетом і наявністю в каталозі Library.";
 
@@ -30,6 +47,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { label: "Щось українське", prompt: "Порадь щось українське з реальних книг у наявності" },
   { label: "Темне фентезі", prompt: "Порадь темне фентезі з наявних книг" },
   { label: "До 500 грн", prompt: "Підбери книгу до 500 грн" },
+  { label: "Щось як Гаррі Поттер", prompt: "Порадь щось як Гаррі Поттер, але доросліше" },
   { label: "Для подарунка", prompt: "Підбери книгу для подарунка" },
   { label: "Коротка книга", prompt: "Порадь коротку й атмосферну книгу" },
   { label: "Нон-фікшн", prompt: "Порадь щось серйозне, не художнє" },
@@ -41,6 +59,24 @@ function createMessage(role: ChatRole, content: string): ChatMessage {
     role,
     content,
   };
+}
+
+function createSessionId(): string {
+  return `ai-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function safeSessionStorageGet(key: string): string {
+  try {
+    return window.localStorage.getItem(key) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function safeSessionStorageSet(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {}
 }
 
 function trimMessages(messages: ChatMessage[]): ChatMessage[] {
@@ -66,7 +102,9 @@ export function AiChatWidget() {
   const [pending, setPending] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([createMessage("assistant", INITIAL_MESSAGE)]);
+  const [sessionId, setSessionId] = useState("");
   const bodyRef = useRef<HTMLDivElement | null>(null);
+  const lastSendAtRef = useRef(0);
 
   useEffect(() => {
     document.body.classList.toggle("mobile-ai-chat-open", open);
@@ -75,6 +113,18 @@ export function AiChatWidget() {
       document.body.classList.remove("mobile-ai-chat-open");
     };
   }, [open]);
+
+  useEffect(() => {
+    const stored = safeSessionStorageGet(SESSION_STORAGE_KEY);
+    if (stored.length > 0) {
+      setSessionId(stored);
+      return;
+    }
+
+    const created = createSessionId();
+    safeSessionStorageSet(SESSION_STORAGE_KEY, created);
+    setSessionId(created);
+  }, []);
 
   const stateLabel =
     serviceState === "not_configured" ? "Не налаштовано" : serviceState === "error" ? "Помилка" : "Онлайн";
@@ -87,6 +137,10 @@ export function AiChatWidget() {
         : "border-app-success/45 bg-app-success/10 text-app-success";
 
   const shouldShowQuickActions = messages.length <= 2;
+  const canSend = useMemo(
+    () => !pending && draft.trim().length > 0 && serviceState !== "not_configured" && sessionId.length > 0,
+    [draft, pending, serviceState, sessionId],
+  );
 
   const scrollToBottom = () => {
     const container = bodyRef.current;
@@ -99,17 +153,94 @@ export function AiChatWidget() {
     });
   };
 
-  const sendMessage = async (rawText?: string) => {
-    const text = (rawText ?? draft).trim();
-
-    if (text.length === 0 || pending || serviceState === "not_configured") {
+  const sendFeedback = async (eventId: number | null | undefined, payload: { useful?: boolean; action?: "add_to_cart" }) => {
+    if (!eventId) {
       return;
     }
 
+    try {
+      await fetch("/api/ai/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ eventId, ...payload }),
+      });
+    } catch {}
+  };
+
+  const markMessageFeedback = (messageId: string, direction: "up" | "down") => {
+    setMessages((current) =>
+      current.map((message) =>
+        message.id === messageId
+          ? {
+              ...message,
+              feedback: direction,
+            }
+          : message,
+      ),
+    );
+  };
+
+  const addBookToCart = async (book: AiSourceBook, eventId: number | null | undefined) => {
+    try {
+      const response = await fetch("/api/cart/items", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bookId: book.bookId, quantity: 1 }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) {
+        setMessages((current) =>
+          trimMessages([
+            ...current,
+            createMessage("assistant", payload?.error || "Не вдалося додати книгу в кошик."),
+          ]),
+        );
+        scrollToBottom();
+        return;
+      }
+
+      await sendFeedback(eventId, { action: "add_to_cart" });
+      setMessages((current) =>
+        trimMessages([
+          ...current,
+          createMessage("assistant", `Додав "${book.title}" у кошик.`),
+        ]),
+      );
+      scrollToBottom();
+    } catch {
+      setMessages((current) =>
+        trimMessages([
+          ...current,
+          createMessage("assistant", "Помилка під час додавання книги в кошик. Спробуйте пізніше."),
+        ]),
+      );
+      scrollToBottom();
+    }
+  };
+
+  const sendMessage = async (rawText?: string) => {
+    const text = (rawText ?? draft).trim();
+
+    if (text.length === 0 || pending || serviceState === "not_configured" || sessionId.length === 0) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastSendAtRef.current < SEND_DEBOUNCE_MS) {
+      return;
+    }
+    lastSendAtRef.current = now;
+
     const userMessage = createMessage("user", text.slice(0, MAX_INPUT_LENGTH));
     const nextMessages = trimMessages([...messages, userMessage]);
+    const assistantDraftId = `${Date.now()}-assistant-draft`;
 
-    setMessages(nextMessages);
+    setMessages([...nextMessages, { id: assistantDraftId, role: "assistant", content: "" }]);
     setDraft("");
     setPending(true);
     scrollToBottom();
@@ -121,6 +252,8 @@ export function AiChatWidget() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          stream: true,
+          sessionId,
           messages: nextMessages.map((message) => ({
             role: message.role,
             content: message.content,
@@ -128,31 +261,24 @@ export function AiChatWidget() {
         }),
       });
 
-      const data = (await response.json().catch(() => null)) as
-        | {
-            message?: string;
-            error?: string;
-            code?: string;
-          }
-        | null;
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as
+          | {
+              message?: string;
+              error?: string;
+              code?: string;
+            }
+          | null;
 
-      if (response.status === 503 && data?.code === "AI_NOT_CONFIGURED") {
-        setServiceState("not_configured");
+        if (response.status === 503 && data?.code === "AI_NOT_CONFIGURED") {
+          setServiceState("not_configured");
+        } else {
+          setServiceState("error");
+        }
+
         setMessages((current) =>
           trimMessages([
-            ...current,
-            createMessage("assistant", data.error || "AI сервіс тимчасово не налаштований."),
-          ]),
-        );
-        scrollToBottom();
-        return;
-      }
-
-      if (!response.ok || !data?.message) {
-        setServiceState("error");
-        setMessages((current) =>
-          trimMessages([
-            ...current,
+            ...current.filter((message) => message.id !== assistantDraftId),
             createMessage("assistant", data?.error || "Не вдалося отримати відповідь асистента."),
           ]),
         );
@@ -160,19 +286,110 @@ export function AiChatWidget() {
         return;
       }
 
+      const contentType = response.headers.get("content-type") ?? "";
+      if (!contentType.includes("application/x-ndjson") || !response.body) {
+        const data = (await response.json().catch(() => null)) as
+          | {
+              message?: string;
+              sources?: AiSourceBook[];
+              eventId?: number | null;
+            }
+          | null;
+
+        setServiceState("ready");
+        setMessages((current) =>
+          trimMessages([
+            ...current.filter((message) => message.id !== assistantDraftId),
+            {
+              ...createMessage("assistant", normalizeAssistantMessage(data?.message || "")),
+              sources: Array.isArray(data?.sources) ? data?.sources.slice(0, 5) : [],
+              eventId: typeof data?.eventId === "number" ? data.eventId : null,
+            },
+          ]),
+        );
+        scrollToBottom();
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let assistantText = "";
+      let sources: AiSourceBook[] = [];
+      let eventId: number | null = null;
+
+      const applyDraft = () => {
+        setMessages((current) =>
+          trimMessages(
+            current.map((message) =>
+              message.id === assistantDraftId
+                ? {
+                    ...message,
+                    content: normalizeAssistantMessage(assistantText),
+                    sources,
+                    eventId,
+                  }
+                : message,
+            ),
+          ),
+        );
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) {
+            continue;
+          }
+
+          const packet = JSON.parse(trimmed) as
+            | { type: "meta"; eventId?: number | null; sources?: AiSourceBook[] }
+            | { type: "chunk"; text?: string }
+            | { type: "done"; message?: string }
+            | { type: "error"; error?: string };
+
+          if (packet.type === "meta") {
+            eventId = typeof packet.eventId === "number" ? packet.eventId : null;
+            sources = Array.isArray(packet.sources) ? packet.sources.slice(0, 5) : [];
+            applyDraft();
+            continue;
+          }
+
+          if (packet.type === "chunk") {
+            assistantText += packet.text ?? "";
+            applyDraft();
+            scrollToBottom();
+            continue;
+          }
+
+          if (packet.type === "done") {
+            assistantText = packet.message ?? assistantText;
+            applyDraft();
+            continue;
+          }
+
+          if (packet.type === "error") {
+            throw new Error(packet.error || "Помилка потоку відповіді");
+          }
+        }
+      }
+
       setServiceState("ready");
-      setMessages((current) =>
-        trimMessages([
-          ...current,
-          createMessage("assistant", normalizeAssistantMessage(data.message || "")),
-        ]),
-      );
       scrollToBottom();
     } catch {
       setServiceState("error");
       setMessages((current) =>
         trimMessages([
-          ...current,
+          ...current.filter((message) => message.id !== assistantDraftId),
           createMessage("assistant", "Не вдалося зв'язатися з AI консультантом. Спробуйте трохи пізніше."),
         ]),
       );
@@ -274,8 +491,80 @@ export function AiChatWidget() {
                           )}
                         >
                           <div className="space-y-2 whitespace-pre-line break-words">
-                            {message.content}
+                            {message.content || (message.role === "assistant" && pending ? "…" : "")}
                           </div>
+
+                          {message.role === "assistant" && Array.isArray(message.sources) && message.sources.length > 0 ? (
+                            <div className="mt-3 grid gap-2">
+                              {message.sources.slice(0, 5).map((book) => (
+                                <div
+                                  key={`${message.id}-${book.bookId}`}
+                                  className="rounded-[10px] border border-app-border-light/70 bg-app-card/50 px-3 py-2"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <p className="truncate text-sm font-medium text-app-primary">{book.title}</p>
+                                      <p className="truncate text-[11px] uppercase tracking-[0.08em] text-app-muted">
+                                        {book.authors}
+                                      </p>
+                                    </div>
+                                    <p className="whitespace-nowrap text-xs text-app-secondary">{book.price.toFixed(2)} UAH</p>
+                                  </div>
+
+                                  <div className="mt-2 flex items-center justify-between gap-2">
+                                    <p className="text-[11px] text-app-secondary">
+                                      {book.stockQuantity > 0 ? "В наявності" : "Немає в наявності"}
+                                    </p>
+                                    <button
+                                      type="button"
+                                      onClick={() => void addBookToCart(book, message.eventId)}
+                                      className="inline-flex h-8 items-center justify-center rounded-pill border border-app-border-light px-3 text-[10px] uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover"
+                                    >
+                                      Додати в кошик
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+
+                          {message.role === "assistant" && message.eventId ? (
+                            <div className="mt-3 flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  markMessageFeedback(message.id, "up");
+                                  void sendFeedback(message.eventId, { useful: true });
+                                }}
+                                className={cn(
+                                  "inline-flex h-8 w-8 items-center justify-center rounded-full border transition duration-fast",
+                                  message.feedback === "up"
+                                    ? "border-app-success/60 bg-app-success/20 text-app-success"
+                                    : "border-app-border-light text-app-secondary hover:border-app-border-hover hover:text-app-primary",
+                                )}
+                                aria-label="Корисна відповідь"
+                              >
+                                {message.feedback === "up" ? <Check size={13} /> : <ThumbsUp size={13} />}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  markMessageFeedback(message.id, "down");
+                                  void sendFeedback(message.eventId, { useful: false });
+                                }}
+                                className={cn(
+                                  "inline-flex h-8 w-8 items-center justify-center rounded-full border transition duration-fast",
+                                  message.feedback === "down"
+                                    ? "border-app-error/60 bg-app-error/15 text-app-error"
+                                    : "border-app-border-light text-app-secondary hover:border-app-border-hover hover:text-app-primary",
+                                )}
+                                aria-label="Некорисна відповідь"
+                              >
+                                <ThumbsDown size={13} />
+                              </button>
+                            </div>
+                          ) : null}
                         </motion.article>
                       ))}
                     </AnimatePresence>
@@ -324,7 +613,7 @@ export function AiChatWidget() {
                     <button
                       type="button"
                       onClick={() => void sendMessage()}
-                      disabled={pending || draft.trim().length === 0 || serviceState === "not_configured"}
+                      disabled={!canSend}
                       className="app-subtle-surface-strong inline-flex h-[52px] w-[52px] flex-none items-center justify-center rounded-[10px] border border-app-border-light text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary disabled:opacity-45"
                       aria-label="Надіслати повідомлення"
                     >

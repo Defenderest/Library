@@ -2,7 +2,7 @@
 
 import { AlertTriangle, ChevronDown, MessageSquare, Package, Shield, UserCog } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { BookCover } from "@/components/books/book-cover";
 import { GlassPanel } from "@/components/ui/glass-panel";
@@ -48,6 +48,12 @@ type UpdateBookFormState = {
   publisherId: string;
 };
 
+type AnalyticsBreakdownEntry = {
+  label: string;
+  count: number;
+  share: number;
+};
+
 const TAB_META: Array<{ key: AdminTabKey; label: string; icon: typeof Package }> = [
   { key: "books", label: "Книги", icon: Package },
   { key: "comments", label: "Коментарі", icon: MessageSquare },
@@ -73,6 +79,8 @@ const ADMIN_OPTION_STYLE = {
   backgroundColor: "var(--color-bg-body)",
   color: "var(--color-text-primary)",
 };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const DEFAULT_CREATE_BOOK_FORM: CreateBookFormState = {
   title: "",
@@ -102,6 +110,10 @@ const DEFAULT_UPDATE_BOOK_FORM: UpdateBookFormState = {
 
 function formatMoney(value: number): string {
   return `${value.toFixed(2)} UAH`;
+}
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat("uk-UA").format(Math.max(0, Math.round(value)));
 }
 
 function formatDate(value: string): string {
@@ -166,6 +178,35 @@ function toPayloadOptionalInt(value: string): number | null {
   }
 
   return Math.floor(parsed);
+}
+
+function parseDateToMs(value: string): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function buildBreakdown(entries: Map<string, number>, limit = 4): AnalyticsBreakdownEntry[] {
+  const total = Array.from(entries.values()).reduce((sum, value) => sum + value, 0);
+  if (total <= 0) {
+    return [];
+  }
+
+  return Array.from(entries.entries())
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, limit)
+    .map(([label, count]) => ({
+      label,
+      count,
+      share: (count / total) * 100,
+    }));
 }
 
 async function requestJson<T>(url: string, options: RequestInit): Promise<T> {
@@ -280,6 +321,83 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
   })();
 
   const lowStockCount = initialData.books.filter((book) => book.lowStock).length;
+  const analytics = useMemo(() => {
+    const nowMs = Date.now();
+    const days7AgoMs = nowMs - DAY_MS * 7;
+    const days30AgoMs = nowMs - DAY_MS * 30;
+
+    let totalRevenue = 0;
+    let revenueLast30Days = 0;
+    let ordersLast30Days = 0;
+    let totalItems = 0;
+
+    const paymentMethodCounts = new Map<string, number>();
+    const statusCounts = new Map<string, number>();
+
+    for (const order of initialData.orders) {
+      const totalAmount = Math.max(0, order.totalAmount);
+      totalRevenue += totalAmount;
+      totalItems += Math.max(0, order.itemCount);
+
+      const orderDateMs = parseDateToMs(order.orderDate);
+      if (orderDateMs !== null && orderDateMs >= days30AgoMs) {
+        revenueLast30Days += totalAmount;
+        ordersLast30Days += 1;
+      }
+
+      const paymentMethod = order.paymentMethod.trim() || "Не вказано";
+      paymentMethodCounts.set(paymentMethod, (paymentMethodCounts.get(paymentMethod) ?? 0) + 1);
+
+      const status = order.currentStatus.trim() || "Нове";
+      statusCounts.set(status, (statusCounts.get(status) ?? 0) + 1);
+    }
+
+    let newUsersLast30Days = 0;
+    for (const user of initialData.users) {
+      const joinDateMs = parseDateToMs(user.joinDate);
+      if (joinDateMs !== null && joinDateMs >= days30AgoMs) {
+        newUsersLast30Days += 1;
+      }
+    }
+
+    let commentsLast7Days = 0;
+    for (const comment of initialData.comments) {
+      const commentDateMs = parseDateToMs(comment.commentDate);
+      if (commentDateMs !== null && commentDateMs >= days7AgoMs) {
+        commentsLast7Days += 1;
+      }
+    }
+
+    const topCustomers = [...initialData.users]
+      .filter((user) => user.ordersCount > 0)
+      .sort((left, right) => {
+        if (right.ordersCount !== left.ordersCount) {
+          return right.ordersCount - left.ordersCount;
+        }
+
+        return right.loyaltyPoints - left.loyaltyPoints;
+      })
+      .slice(0, 4)
+      .map((user) => ({
+        customerId: user.customerId,
+        fullName: user.fullName,
+        ordersCount: user.ordersCount,
+      }));
+
+    return {
+      totalRevenue,
+      revenueLast30Days,
+      ordersLast30Days,
+      averageOrderValue: initialData.orders.length > 0 ? totalRevenue / initialData.orders.length : 0,
+      averageItemsPerOrder: initialData.orders.length > 0 ? totalItems / initialData.orders.length : 0,
+      newUsersLast30Days,
+      commentsLast7Days,
+      paymentMethods: buildBreakdown(paymentMethodCounts),
+      statuses: buildBreakdown(statusCounts),
+      topCustomers,
+    };
+  }, [initialData.comments, initialData.orders, initialData.users]);
+  const aiAnalytics = initialData.aiAnalytics;
 
   async function runAction(actionKey: string, runner: () => Promise<void>) {
     setBusyAction(actionKey);
@@ -504,6 +622,159 @@ export function AdminPageClient({ initialData, currentAdminId }: AdminPageClient
           <div className="rounded-soft border border-app-border-light bg-[linear-gradient(180deg,rgba(255,255,255,0.025)_0%,rgba(255,255,255,0.012)_100%)] p-m">
             <p className={PANEL_LABEL_CLASS}>Користувачі</p>
             <p className={PANEL_VALUE_CLASS}>{initialData.users.length}</p>
+          </div>
+        </div>
+
+        <div className="mt-l border-t border-app-border-light pt-m">
+          <p className="font-body text-[10px] uppercase tracking-[0.18em] text-app-muted">Операційна аналітика</p>
+
+          <div className="mt-s grid gap-s mobile:grid-cols-2 compact:grid-cols-3">
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Виторг (всього)</p>
+              <p className={PANEL_VALUE_CLASS}>{formatMoney(analytics.totalRevenue)}</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Виторг (30 днів)</p>
+              <p className={PANEL_VALUE_CLASS}>{formatMoney(analytics.revenueLast30Days)}</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Замовлення (30 днів)</p>
+              <p className={PANEL_VALUE_CLASS}>{formatCount(analytics.ordersLast30Days)}</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Середній чек</p>
+              <p className={PANEL_VALUE_CLASS}>{formatMoney(analytics.averageOrderValue)}</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Позицій / замовлення</p>
+              <p className={PANEL_VALUE_CLASS}>{analytics.averageItemsPerOrder.toFixed(1)}</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Нові користувачі (30 днів)</p>
+              <p className={PANEL_VALUE_CLASS}>{formatCount(analytics.newUsersLast30Days)}</p>
+            </div>
+          </div>
+
+          <div className="mt-s grid gap-s compact:grid-cols-3">
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Методи оплати</p>
+
+              <div className="mt-s space-y-s">
+                {analytics.paymentMethods.length > 0 ? (
+                  analytics.paymentMethods.map((entry) => (
+                    <div key={entry.label}>
+                      <div className="flex items-center justify-between gap-s font-body text-xs text-app-secondary">
+                        <span className="truncate">{entry.label}</span>
+                        <span className="text-app-primary">{formatCount(entry.count)}</span>
+                      </div>
+                      <div className="mt-1 h-[5px] overflow-hidden rounded-full bg-app-border-light/70">
+                        <span
+                          className="block h-full rounded-full bg-app-info/70"
+                          style={{ width: `${Math.max(entry.share, 8)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="font-body text-xs text-app-muted">Дані відсутні</p>
+                )}
+              </div>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Поточні статуси</p>
+
+              <div className="mt-s space-y-s">
+                {analytics.statuses.length > 0 ? (
+                  analytics.statuses.map((entry) => (
+                    <div key={entry.label}>
+                      <div className="flex items-center justify-between gap-s font-body text-xs text-app-secondary">
+                        <span className="truncate">{entry.label}</span>
+                        <span className="text-app-primary">{formatCount(entry.count)}</span>
+                      </div>
+                      <div className="mt-1 h-[5px] overflow-hidden rounded-full bg-app-border-light/70">
+                        <span
+                          className="block h-full rounded-full bg-app-success/70"
+                          style={{ width: `${Math.max(entry.share, 8)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="font-body text-xs text-app-muted">Дані відсутні</p>
+                )}
+              </div>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Найактивніші клієнти</p>
+
+              <div className="mt-s space-y-s">
+                {analytics.topCustomers.length > 0 ? (
+                  analytics.topCustomers.map((user) => (
+                    <div
+                      key={user.customerId}
+                      className="flex items-center justify-between gap-s rounded-soft border border-app-border-light px-s py-s"
+                    >
+                      <p className="truncate font-body text-xs text-app-secondary">{user.fullName}</p>
+                      <p className="font-body text-xs text-app-primary">{formatCount(user.ordersCount)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="font-body text-xs text-app-muted">Поки немає замовлень</p>
+                )}
+              </div>
+
+              <p className="mt-s font-body text-[10px] uppercase tracking-[0.1em] text-app-muted">
+                Коментарі за 7 днів: {formatCount(analytics.commentsLast7Days)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-s grid gap-s mobile:grid-cols-2 compact:grid-cols-4">
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>AI діалоги (30 днів)</p>
+              <p className={PANEL_VALUE_CLASS}>{formatCount(aiAnalytics.totalDialogs)}</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>AI корисність</p>
+              <p className={PANEL_VALUE_CLASS}>{aiAnalytics.usefulPercent.toFixed(1)}%</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>AI → кошик</p>
+              <p className={PANEL_VALUE_CLASS}>{aiAnalytics.conversionPercent.toFixed(1)}%</p>
+            </div>
+
+            <div className="app-subtle-surface rounded-soft border border-app-border-light p-m">
+              <p className={PANEL_LABEL_CLASS}>Середня довжина сесії</p>
+              <p className={PANEL_VALUE_CLASS}>{aiAnalytics.avgSessionTurns.toFixed(1)}</p>
+            </div>
+          </div>
+
+          <div className="mt-s app-subtle-surface rounded-soft border border-app-border-light p-m">
+            <p className={PANEL_LABEL_CLASS}>Топ AI-запитів (30 днів)</p>
+            <div className="mt-s grid gap-s mobile:grid-cols-2">
+              {aiAnalytics.topQueries.length > 0 ? (
+                aiAnalytics.topQueries.slice(0, 8).map((queryEntry) => (
+                  <div
+                    key={`${queryEntry.query}-${queryEntry.count}`}
+                    className="flex items-center justify-between gap-s rounded-soft border border-app-border-light px-s py-s"
+                  >
+                    <p className="truncate font-body text-xs text-app-secondary">{queryEntry.query}</p>
+                    <p className="font-body text-xs text-app-primary">{formatCount(queryEntry.count)}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="font-body text-xs text-app-muted">Ще немає даних по AI-діалогах.</p>
+              )}
+            </div>
           </div>
         </div>
       </GlassPanel>
