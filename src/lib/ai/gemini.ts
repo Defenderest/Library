@@ -52,6 +52,7 @@ const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models
 const ENFORCED_GEMINI_MODEL = "gemini-3-flash-preview";
 const MAX_TOOL_ROUNDS = 6;
 const MAX_SOURCES = 5;
+const MAX_REPEAT_CALL_SIGNATURE = 3;
 
 function resolveGeminiApiKey(): string {
   return process.env.GEMINI_API_KEY?.trim() ?? "";
@@ -135,6 +136,36 @@ function cloneGeminiPart(part: GeminiPart): Record<string, unknown> {
   }
 
   return cloned;
+}
+
+function getToolCallSignature(calls: Array<{ name: string; args: Record<string, unknown> }>): string {
+  return JSON.stringify(
+    calls.map((call) => ({
+      name: call.name,
+      args: call.args,
+    })),
+  );
+}
+
+function buildToolFallbackReply(sources: AiBookSource[]): string {
+  if (sources.length === 0) {
+    return "Зараз не вдалося завершити підбір автоматично. Уточніть, будь ласка, жанр або бюджет - і я підберу книги ще раз.";
+  }
+
+  const lines = [
+    "Підібрав реальні книги з каталогу:",
+    ...sources.slice(0, 4).map((book, index) => {
+      const stockLabel = book.stockQuantity > 0 ? "В наявності" : "Немає в наявності";
+      const reasons = Array.isArray(book.matchReasons) && book.matchReasons.length > 0
+        ? ` Чому: ${book.matchReasons.join(", ")}.`
+        : "";
+
+      return `${index + 1}. ${book.title} - ${book.authors}. ${book.price.toFixed(2)} UAH. ${stockLabel}.${reasons}`;
+    }),
+    "Можу звузити добірку під чіткий бюджет, мову або формат читання.",
+  ];
+
+  return lines.join("\n");
 }
 
 async function requestGemini(
@@ -262,6 +293,7 @@ export async function generateAiReply(
   let contents = toGeminiContents(messages);
   const usedTools = new Set<string>();
   const sourceBooks = new Map<number, AiBookSource>();
+  const callSignatureCounts = new Map<string, number>();
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
     const payload = await requestGemini(apiKey, model, contents, options?.userMemorySummary);
@@ -284,6 +316,19 @@ export async function generateAiReply(
         text,
         usedTools: Array.from(usedTools),
         sources: Array.from(sourceBooks.values()).slice(0, MAX_SOURCES),
+      };
+    }
+
+    const signature = getToolCallSignature(calls);
+    const signatureCount = (callSignatureCounts.get(signature) ?? 0) + 1;
+    callSignatureCounts.set(signature, signatureCount);
+
+    if (signatureCount >= MAX_REPEAT_CALL_SIGNATURE) {
+      const sources = Array.from(sourceBooks.values()).slice(0, MAX_SOURCES);
+      return {
+        text: buildToolFallbackReply(sources),
+        usedTools: Array.from(usedTools),
+        sources,
       };
     }
 
@@ -336,5 +381,17 @@ export async function generateAiReply(
     ];
   }
 
-  throw new GeminiRequestError("Gemini tool loop exceeded maximum rounds", 502);
+  const sources = Array.from(sourceBooks.values()).slice(0, MAX_SOURCES);
+  if (sources.length > 0) {
+    return {
+      text: buildToolFallbackReply(sources),
+      usedTools: Array.from(usedTools),
+      sources,
+    };
+  }
+
+  throw new GeminiRequestError(
+    "Не вдалося завершити підбір автоматично. Уточніть жанр, бюджет або мову і спробуйте ще раз.",
+    502,
+  );
 }

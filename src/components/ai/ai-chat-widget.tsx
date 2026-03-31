@@ -2,8 +2,11 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Bot, Check, Loader2, SendHorizontal, Sparkles, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useAuthSession } from "@/components/providers/auth-session-provider";
 import { cn } from "@/lib/cn";
 
 type ChatRole = "user" | "assistant";
@@ -97,6 +100,8 @@ function normalizeAssistantMessage(content: string): string {
 }
 
 export function AiChatWidget() {
+  const router = useRouter();
+  const { session, loading: sessionLoading } = useAuthSession();
   const [open, setOpen] = useState(false);
   const [serviceState, setServiceState] = useState<ServiceState>("ready");
   const [pending, setPending] = useState(false);
@@ -137,6 +142,7 @@ export function AiChatWidget() {
         : "border-app-success/45 bg-app-success/10 text-app-success";
 
   const shouldShowQuickActions = messages.length <= 2;
+  const canUseCartActions = Boolean(session) && !sessionLoading;
   const canSend = useMemo(
     () => !pending && draft.trim().length > 0 && serviceState !== "not_configured" && sessionId.length > 0,
     [draft, pending, serviceState, sessionId],
@@ -183,6 +189,12 @@ export function AiChatWidget() {
   };
 
   const addBookToCart = async (book: AiSourceBook, eventId: number | null | undefined) => {
+    if (!canUseCartActions) {
+      const message = encodeURIComponent("Щоб додавати книги в кошик, увійдіть у профіль");
+      router.push(`/profile?message=${message}`);
+      return;
+    }
+
     try {
       const response = await fetch("/api/cart/items", {
         method: "POST",
@@ -484,10 +496,10 @@ export function AiChatWidget() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           className={cn(
-                            "max-w-[92%] rounded-[12px] border px-4 py-3 font-body text-[15px] leading-[1.6]",
+                            "rounded-[12px] border px-4 py-3 font-body text-[15px] leading-[1.6]",
                             message.role === "user"
-                              ? "app-chat-bubble-user ml-auto border-app-border-hover text-app-primary"
-                              : "app-chat-bubble-assistant mr-auto border-app-border-light text-app-primary",
+                              ? "app-chat-bubble-user ml-auto max-w-[92%] border-app-border-hover text-app-primary"
+                              : "app-chat-bubble-assistant mr-auto w-full max-w-full border-app-border-light text-app-primary",
                           )}
                         >
                           <div className="space-y-2 whitespace-pre-line break-words">
@@ -495,33 +507,54 @@ export function AiChatWidget() {
                           </div>
 
                           {message.role === "assistant" && Array.isArray(message.sources) && message.sources.length > 0 ? (
-                            <div className="mt-3 grid gap-2">
+                            <div className="mt-3 grid min-w-0 gap-2">
                               {message.sources.slice(0, 5).map((book) => (
                                 <div
                                   key={`${message.id}-${book.bookId}`}
-                                  className="rounded-[10px] border border-app-border-light/70 bg-app-card/50 px-3 py-2"
+                                  className="min-w-0 rounded-[10px] border border-app-border-light/70 bg-app-card/50 px-3 py-2"
                                 >
-                                  <div className="flex items-start justify-between gap-2">
+                                  <div className="grid min-w-0 grid-cols-[1fr_auto] items-start gap-2">
                                     <div className="min-w-0">
-                                      <p className="truncate text-sm font-medium text-app-primary">{book.title}</p>
-                                      <p className="truncate text-[11px] uppercase tracking-[0.08em] text-app-muted">
+                                      <Link
+                                        href={book.href || `/books/${book.bookId}`}
+                                        className="break-words text-sm font-medium leading-tight text-app-primary underline-offset-2 transition-colors duration-fast hover:text-app-info hover:underline"
+                                      >
+                                        {book.title}
+                                      </Link>
+                                      <p className="truncate text-[11px] tracking-[0.04em] text-app-muted">
                                         {book.authors}
                                       </p>
                                     </div>
-                                    <p className="whitespace-nowrap text-xs text-app-secondary">{book.price.toFixed(2)} UAH</p>
+                                    <p className="shrink-0 text-[11px] text-app-secondary">{book.price.toFixed(2)} UAH</p>
                                   </div>
 
-                                  <div className="mt-2 flex items-center justify-between gap-2">
-                                    <p className="text-[11px] text-app-secondary">
+                                  <div className="mt-2 grid gap-2">
+                                    <p className="text-[11px] text-app-secondary/90">
                                       {book.stockQuantity > 0 ? "В наявності" : "Немає в наявності"}
                                     </p>
-                                    <button
-                                      type="button"
-                                      onClick={() => void addBookToCart(book, message.eventId)}
-                                      className="inline-flex h-8 items-center justify-center rounded-pill border border-app-border-light px-3 text-[10px] uppercase tracking-[0.08em] text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover"
-                                    >
-                                      Додати в кошик
-                                    </button>
+
+                                    {canUseCartActions ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => void addBookToCart(book, message.eventId)}
+                                        className="inline-flex h-8 w-full min-w-0 items-center justify-center rounded-pill border border-app-border-light px-3 text-[10px] tracking-[0.06em] text-app-primary transition duration-fast hover:border-app-border-hover hover:bg-app-hover"
+                                      >
+                                        Додати в кошик
+                                      </button>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const loginMessage = encodeURIComponent(
+                                            "Щоб додавати книги в кошик, увійдіть у профіль",
+                                          );
+                                          router.push(`/profile?message=${loginMessage}`);
+                                        }}
+                                        className="inline-flex h-8 w-full min-w-0 items-center justify-center rounded-pill border border-app-border-light px-3 text-[10px] tracking-[0.06em] text-app-secondary transition duration-fast hover:border-app-border-hover hover:bg-app-hover hover:text-app-primary"
+                                      >
+                                        Увійти для кошика
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               ))}
@@ -573,7 +606,7 @@ export function AiChatWidget() {
                       <motion.article
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="app-chat-bubble-assistant mr-auto rounded-[12px] border border-app-border-light px-4 py-3"
+                        className="app-chat-bubble-assistant mr-auto w-full max-w-full rounded-[12px] border border-app-border-light px-4 py-3"
                       >
                         <div className="flex items-center gap-2 font-body text-xs uppercase tracking-[0.12em] text-app-muted">
                           <Loader2 size={12} className="animate-spin" />
