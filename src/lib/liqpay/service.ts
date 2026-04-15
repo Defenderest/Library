@@ -73,6 +73,10 @@ type LiqPayConfig = {
   sandboxMode: boolean;
 };
 
+type LiqPayConfigOptions = {
+  baseUrl?: string;
+};
+
 type LiqPayStatusResponse = {
   status?: string;
   payment_id?: string | number;
@@ -171,25 +175,41 @@ function decodePayload<T>(dataBase64: string): T {
   return JSON.parse(json) as T;
 }
 
-function getBaseUrl(): string {
+function normalizeBaseUrl(value: string): string {
+  return value.trim().replace(/\/$/, "");
+}
+
+function isLocalhostUrl(value: string): boolean {
+  return /https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(value);
+}
+
+function getBaseUrl(baseUrlOverride?: string): string {
+  if (baseUrlOverride && baseUrlOverride.trim().length > 0) {
+    return normalizeBaseUrl(baseUrlOverride);
+  }
+
   const direct = process.env.APP_BASE_URL ?? process.env.NEXT_PUBLIC_APP_URL;
   if (direct && direct.trim().length > 0) {
-    return direct.trim().replace(/\/$/, "");
+    const normalizedDirect = normalizeBaseUrl(direct);
+    const isProduction = process.env.NODE_ENV === "production";
+    if (!isProduction || !isLocalhostUrl(normalizedDirect)) {
+      return normalizedDirect;
+    }
   }
 
   const productionVercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   if (productionVercelUrl && productionVercelUrl.trim().length > 0) {
-    return `https://${productionVercelUrl.trim().replace(/\/$/, "")}`;
+    return `https://${normalizeBaseUrl(productionVercelUrl)}`;
   }
 
   const branchVercelUrl = process.env.VERCEL_BRANCH_URL;
   if (branchVercelUrl && branchVercelUrl.trim().length > 0) {
-    return `https://${branchVercelUrl.trim().replace(/\/$/, "")}`;
+    return `https://${normalizeBaseUrl(branchVercelUrl)}`;
   }
 
   const vercelUrl = process.env.VERCEL_URL;
   if (vercelUrl && vercelUrl.trim().length > 0) {
-    return `https://${vercelUrl.trim().replace(/\/$/, "")}`;
+    return `https://${normalizeBaseUrl(vercelUrl)}`;
   }
 
   return "http://localhost:3000";
@@ -205,7 +225,7 @@ function isSandboxMode(): boolean {
   return rawValue === "1" || rawValue === "true" || rawValue === "yes";
 }
 
-function getLiqPayConfig(): LiqPayConfig {
+function getLiqPayConfig(options?: LiqPayConfigOptions): LiqPayConfig {
   const publicKey = process.env.LIQPAY_PUBLIC_KEY?.trim() ?? "";
   const privateKey = process.env.LIQPAY_PRIVATE_KEY?.trim() ?? "";
 
@@ -216,7 +236,7 @@ function getLiqPayConfig(): LiqPayConfig {
   return {
     publicKey,
     privateKey,
-    baseUrl: getBaseUrl(),
+    baseUrl: getBaseUrl(options?.baseUrl),
     sandboxMode: isSandboxMode(),
   };
 }
@@ -678,8 +698,9 @@ function parseProviderOrderId(value: unknown): string {
 export async function startLiqPayCheckoutFromCart(
   customerId: number,
   shippingAddress: string,
+  options?: LiqPayConfigOptions,
 ): Promise<LiqPayCheckoutStartResult> {
-  const config = getLiqPayConfig();
+  const config = getLiqPayConfig(options);
 
   return prisma.$transaction(async (tx) => {
     await cleanupExpiredReservationsTx(tx);

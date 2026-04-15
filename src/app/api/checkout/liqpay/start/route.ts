@@ -6,6 +6,19 @@ import { mapLiqPayServiceError, startLiqPayCheckoutFromCart } from "@/lib/liqpay
 
 export const dynamic = "force-dynamic";
 
+function resolveRequestBaseUrl(request: Request): string | undefined {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.trim();
+  const host = forwardedHost || request.headers.get("host")?.trim();
+  if (!host) {
+    return undefined;
+  }
+
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.trim().toLowerCase();
+  const protocol = forwardedProto === "http" || forwardedProto === "https" ? forwardedProto : "https";
+
+  return `${protocol}://${host}`;
+}
+
 export async function POST(request: Request) {
   const session = await getServerSessionUser();
 
@@ -31,6 +44,9 @@ export async function POST(request: Request) {
     const result = await startLiqPayCheckoutFromCart(
       session.customerId,
       validated.data.shippingAddress,
+      {
+        baseUrl: resolveRequestBaseUrl(request),
+      },
     );
 
     return NextResponse.json({
